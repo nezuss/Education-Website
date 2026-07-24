@@ -1,0 +1,7 @@
+.card {
+    width: 100%;
+    max-width: 420px;
+    padding: 32px;
+    border: 1px solid #ccc;
+    background: white;
+}

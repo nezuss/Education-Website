@@ -1,5 +1,7 @@
+import AppRouter from "./app/router/AppRouter";
+
 function App() {
-  return <h1>NEXYLVA Academy</h1>;
+    return <AppRouter />;
 }
 
 export default App;
