@@ -23,7 +23,8 @@ namespace Backend.Services.Auth
                 string.IsNullOrEmpty(dTO.Username) ||
                 string.IsNullOrEmpty(dTO.Password))
             {
-                return ServiceResult<UserModel>.Fail("All fields are required", 400);
+                return ServiceResult<UserModel>
+                       .Fail("All fields are required", 400);
             }
 
             var existedUserEmail = await db.Users
@@ -41,6 +42,7 @@ namespace Backend.Services.Auth
                 Email = dTO.Email,
                 Username = dTO.Username,
                 Password = dTO.Password,
+                AuthorizedKeyId = "",
                 Salt = "",
                 RoleId = "",
                 UpdatedAt = DateTime.UtcNow,
@@ -54,11 +56,38 @@ namespace Backend.Services.Auth
         }
 
         public async Task<ServiceResult<string>> SignIn(SignInDTO dTO) {
-            return ServiceResult<string>.Ok("fydhfdsf.gdfgadsagfsag.dgsdtsas", "You successfully signed in");
+            if (string.IsNullOrEmpty(dTO.Email) ||
+                string.IsNullOrEmpty(dTO.Password))
+            {
+                return ServiceResult<string>
+                       .Fail("All fields are required", 400);
+            }
+
+            var user = await db.Users
+                             .FirstOrDefaultAsync(u => u.Email == dTO.Email);
+
+            if (user == null)
+            {
+                return ServiceResult<string>
+                       .Fail("User does not exist with this email", 404);
+            }
+
+            if (user.Password != dTO.Password)
+            { return ServiceResult<string>.Fail("Credentials are wrong", 401); }
+
+            string AuthorizedKeyId = Guid.NewGuid().ToString();
+            string token = jWTService.GenerateToken(user, AuthorizedKeyId);
+            user.AuthorizedKeyId = AuthorizedKeyId;
+
+            db.Users.Update(user);
+            await db.SaveChangesAsync();
+
+            return ServiceResult<string>.Ok(token, "You successfully signed in");
         }
 
         public async Task<ServiceResult<string>> SignOut() {
-            return ServiceResult<string>.Ok("Token unauthorized successfully", "You successfully signed out");
+            return ServiceResult<string>.Ok("Token unauthorized successfully",
+                                            "You successfully signed out");
         }
     }
 }
