@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Backend.Attributes.Auth;
 using Backend.Services.Profile;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
