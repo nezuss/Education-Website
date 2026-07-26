@@ -1,4 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Backend.Models;
 
 namespace Backend
@@ -14,6 +17,7 @@ namespace Backend
             builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
 
+            ConfigureAuthentication(builder);
             AuthorizeServices(builder.Services);
             ConnectDatabase(builder);
 
@@ -35,8 +39,36 @@ namespace Backend
             });
         }
 
+        private static void ConfigureAuthentication(WebApplicationBuilder builder)
+        {
+            var jwtSettings = builder.Configuration.GetSection("JWT");
+            var key = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]);
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Issuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
+            });
+        }
+
         private static void AuthorizeServices(IServiceCollection services)
         {
+            services.AddScoped<Backend.Services.Profile.PublicProfileService>();
             services.AddScoped<Backend.Services.Auth.UserService>();
             services.AddScoped<Backend.Services.Auth.DBService>();
             services.AddScoped<Backend.Services.JWT.JWTService>();
