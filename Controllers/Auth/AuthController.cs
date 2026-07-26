@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Backend.Services.Auth;
+using Backend.DTO.Auth;
 
 namespace Backend.Controllers.Auth
 {
@@ -7,32 +8,79 @@ namespace Backend.Controllers.Auth
     [Route("auth/")]
     public class AuthController : ControllerBase
     {
-        private AccountService accountService;
+        private readonly UserService userService;
 
         public AuthController(
-            AccountService _accountService
+            UserService _userService
         )
         {
-            accountService = _accountService;
-            Console.WriteLine("Auth Controller started");
+            userService = _userService;
         }
 
         [HttpPost("sign-up")]
-        public IActionResult SignUp()
+        public async Task<IActionResult> SignUp(SignUpDTO dTO)
         {
-            return Ok("Signed Up");
+            var result = await userService.SignUp(dTO);
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data
+            });
         }
 
         [HttpPost("sign-in")]
-        public IActionResult SignIn()
+        public async Task<IActionResult> SignIn(SignInDTO dTO)
         {
-            return Ok("Signed In");
+            var result = await userService.SignIn(dTO);
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data
+            });
         }
 
         [HttpPost("sign-out")]
-        public IActionResult SignOut()
+        public async Task<IActionResult> SignOut()
         {
-            return Ok("Signed Out");
+            var result = await userService.SignOut();
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data
+            });
         }
     }
 }
