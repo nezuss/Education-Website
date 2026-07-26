@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using Backend.Models;
+
 namespace Backend
 {
     public class Program
@@ -12,6 +15,7 @@ namespace Backend
             builder.Services.AddAuthorization();
 
             AuthorizeServices(builder.Services);
+            ConnectDatabase(builder);
 
             var app = builder.Build();
 
@@ -23,8 +27,17 @@ namespace Backend
             Run(app);
         }
 
-        private static void AuthorizeServices(IServiceCollection services) {
-            services.AddScoped<Backend.Services.Auth.AccountService>();
+        private static void ConnectDatabase(WebApplicationBuilder builder)
+        {
+            builder.Services.AddDbContext<DBContextModel>(options =>
+            {
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
+        }
+
+        private static void AuthorizeServices(IServiceCollection services)
+        {
+            services.AddScoped<Backend.Services.Auth.UserService>();
             services.AddScoped<Backend.Services.Auth.DBService>();
             services.AddScoped<Backend.Services.JWT.JWTService>();
         }

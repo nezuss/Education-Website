@@ -1,3 +1,4 @@
-namespace Backend.Services.Auth {
+namespace Backend.Services.Auth
+{
     public class DBService {}
 }
