@@ -1,4 +1,4 @@
-namespace Backend.Models.Cources
+namespace Backend.Models.Cource
 {
     public class CourceModel
     {
@@ -7,6 +7,9 @@ namespace Backend.Models.Cources
         public string Title { get; set; }
         public string Description { get; set; }
         public Double Price { get; set; }
-        public string[] ModulesId { get; set; }
+        public string[]? ModulesId { get; set; }
+
+        public DateTime UpdatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }
