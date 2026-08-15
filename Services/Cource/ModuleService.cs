@@ -17,7 +17,7 @@ namespace Backend.Services.Cource
             db = _db;
         }
 
-        public async Task<ServiceResult<List<ModuleModel>>> GetAllOnCourceModule(string Id)
+        public async Task<ServiceResult<List<ModuleModel>>> GetAllOnCource(string Id)
         {
             var cource = await db.Cources.FirstOrDefaultAsync(u => u.Id == Id);
 

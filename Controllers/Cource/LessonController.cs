@@ -7,23 +7,23 @@ using Backend.Attributes.Auth;
 namespace Backend.Controllers.Cource
 {
     [ApiController]
-    [Route("/api/cource/module")]
-    public class ModuleController : ControllerBase
+    [Route("/api/cource/lesson")]
+    public class LessonController : ControllerBase
     {
-        private readonly ModuleService moduleService;
+        private readonly LessonService lessonService;
 
-        public ModuleController(
-            ModuleService _moduleService
+        public LessonController(
+            LessonService _lessonService
         )
         {
-            moduleService = _moduleService;
+            lessonService = _lessonService;
         }
 
-        [HttpGet("get-all-on-cource/{id}")]
+        [HttpGet("get-all-on-module/{id}")]
         [Authorize]
-        public async Task<IActionResult> GetAllOnCource(string id)
+        public async Task<IActionResult> GetAllOnModule(string id)
         {
-            var result = await moduleService.GetAllOnCource(id);
+            var result = await lessonService.GetAllOnModule(id);
 
             if (!result.Success)
             {
@@ -43,10 +43,10 @@ namespace Backend.Controllers.Cource
         }
 
         [HttpPost("create")]
-        [Permission(Permissions.ModuleCreate)]
-        public async Task<IActionResult> CreateModule(CreateModuleDTO dTO)
+        [Permission(Permissions.LessonCreate)]
+        public async Task<IActionResult> CreateLesson(CreateLessonDTO dTO)
         {
-            var result = await moduleService.CreateModule(dTO);
+            var result = await lessonService.CreateLesson(dTO);
 
             if (!result.Success)
             {
@@ -66,10 +66,10 @@ namespace Backend.Controllers.Cource
         }
 
         [HttpPatch("update")]
-        [Permission(Permissions.ModuleUpdate)]
-        public async Task<IActionResult> UpdateMoudle(UpdateMoudleDTO dTO)
+        [Permission(Permissions.LessonUpdate)]
+        public async Task<IActionResult> UpdateLesson(UpdateLessonDTO dTO)
         {
-            var result = await moduleService.UpdateMoudle(dTO);
+            var result = await lessonService.UpdateLesson(dTO);
 
             if (!result.Success)
             {
@@ -89,10 +89,10 @@ namespace Backend.Controllers.Cource
         }
 
         [HttpDelete("delete/{id}")]
-        [Permission(Permissions.ModuleDelete)]
+        [Permission(Permissions.LessonDelete)]
         public async Task<IActionResult> DeleteModule(string id)
         {
-            var result = await moduleService.DeleteModule(id);
+            var result = await lessonService.DeleteLesson(id);
 
             if (!result.Success)
             {
