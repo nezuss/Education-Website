@@ -6,7 +6,7 @@ namespace Backend.Models {
         public string Password { get; set; }
         public string AuthorizedKeyId { get; set; }
         public string Salt { get; set; }
-        public string EnrolledCourcesId { get; set; }
+        public List<string>? EnrolledCourcesId { get; set; }
         public string? RoleId { get; set; }
         public DateTime UpdatedAt { get; set; }
         public DateTime CreatedAt { get; set; }

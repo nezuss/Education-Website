@@ -66,6 +66,30 @@ namespace Backend.Controllers.Cource
             });
         }
 
+        [HttpPost("enrol/{id}")]
+        [Authorize]
+        public async Task<IActionResult> EnrolToCource(string id)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await courcesService.EnrolToCource(id, userId);
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data
+            });
+        }
+
         [HttpPost("create")]
         [Permission(Permissions.CourseCreate)]
         public async Task<IActionResult> CreateCource(CreateCourceDTO dTO)

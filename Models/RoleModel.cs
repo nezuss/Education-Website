@@ -5,7 +5,7 @@ namespace Backend.Models
         public string Id { get; set; }
         public string Name { get; set; }
 
-        // Course
+        // ? Course
         public bool CanCreateCourse { get; set; }
         public bool CanUpdateCourse { get; set; }
         public bool CanDeleteCourse { get; set; }

@@ -47,6 +47,31 @@ namespace Backend.Services.Cource
             return ServiceResult<List<CourceModel>>.Ok(cources, "All enrolled cources get successfully");
         }
 
+        public async Task<ServiceResult<string>> EnrolToCource(string Id, string userId)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                return ServiceResult<string>.Fail("User not found", 404);
+
+            var cource = await db.Cources.FirstOrDefaultAsync(c => c.Id == Id);
+
+            if (cource == null)
+                return ServiceResult<string>.Fail("Cource not found", 404);
+
+            user.EnrolledCourcesId ??= new List<string>();
+
+            if (user.EnrolledCourcesId.Contains(cource.Id))
+                return ServiceResult<string>.Fail("You already enrolled to this cource", 403);
+
+            user.EnrolledCourcesId.Add(cource.Id);
+
+            db.Users.Update(user);
+            await db.SaveChangesAsync();
+
+            return ServiceResult<string>.Ok("You enrolled to cource " + cource.Title, "You have been enrolled successfully");
+        }
+
         public async Task<ServiceResult<CourceModel>> CreateCource(CreateCourceDTO dTO)
         {
             if (string.IsNullOrEmpty(dTO.BannerUrl) ||
