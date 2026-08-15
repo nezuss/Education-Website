@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Backend.Models;
+using Backend.Attributes.Auth;
 
 namespace Backend
 {
@@ -73,6 +75,8 @@ namespace Backend
             services.AddScoped<Backend.Services.Auth.UserService>();
             services.AddScoped<Backend.Services.Auth.DBService>();
             services.AddScoped<Backend.Services.JWT.JWTService>();
+            services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+            services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
         }
 
         private static void Run(WebApplication app)

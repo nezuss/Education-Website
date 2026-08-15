@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Backend.Services.Cource;
 using Backend.DTO.Cource;
+using Backend.Attributes.Auth;
 
 namespace Backend.Controllers.Cource
 {
@@ -66,6 +67,7 @@ namespace Backend.Controllers.Cource
         }
 
         [HttpPost("create")]
+        [Permission(Permissions.CourseCreate)]
         public async Task<IActionResult> CreateCource(CreateCourceDTO dTO)
         {
             var result = await courcesService.CreateCource(dTO);
@@ -88,6 +90,7 @@ namespace Backend.Controllers.Cource
         }
 
         [HttpPut("update")]
+        [Permission(Permissions.CourseUpdate)]
         public async Task<IActionResult> UpdateCource(UpdateCourceDTO dTO)
         {
             var result = await courcesService.UpdateCource(dTO);
@@ -110,6 +113,7 @@ namespace Backend.Controllers.Cource
         }
 
         [HttpDelete("delete/{id}")]
+        [Permission(Permissions.CourseDelete)]
         public async Task<IActionResult> DeleteCource(string Id)
         {
             var result = await courcesService.DeleteCource(Id);
