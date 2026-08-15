@@ -10,6 +10,11 @@ namespace Backend.Models
         public bool CanUpdateCourse { get; set; }
         public bool CanDeleteCourse { get; set; }
 
+        // ? Module
+        public bool CanCreateModule { get; set; }
+        public bool CanUpdateModule { get; set; }
+        public bool CanDeleteModule { get; set; }
+
         public DateTime UpdatedAt { get; set; }
         public DateTime CreatedAt { get; set; }
     }

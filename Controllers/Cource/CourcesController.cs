@@ -113,7 +113,7 @@ namespace Backend.Controllers.Cource
             });
         }
 
-        [HttpPut("update")]
+        [HttpPatch("update")]
         [Permission(Permissions.CourseUpdate)]
         public async Task<IActionResult> UpdateCource(UpdateCourceDTO dTO)
         {

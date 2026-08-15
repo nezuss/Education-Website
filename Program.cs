@@ -71,6 +71,7 @@ namespace Backend
         private static void AuthorizeServices(IServiceCollection services)
         {
             services.AddScoped<Backend.Services.Cource.CourcesService>();
+            services.AddScoped<Backend.Services.Cource.ModuleService>();
             services.AddScoped<Backend.Services.Profile.PublicProfileService>();
             services.AddScoped<Backend.Services.Auth.UserService>();
             services.AddScoped<Backend.Services.Auth.DBService>();
