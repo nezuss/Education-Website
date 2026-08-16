@@ -1,6 +1,6 @@
 namespace Backend.Models.Cource
 {
-    public class MaterialModel
+    public abstract class MaterialModel
     {
         public string Id { get; set; }
         public string Type { get; set; }

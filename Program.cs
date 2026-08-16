@@ -23,8 +23,21 @@ namespace Backend
             AuthorizeServices(builder.Services);
             ConnectDatabase(builder);
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
+
             var app = builder.Build();
 
+            ConfigureStaticFiles(app, builder);
+
+            app.UseCors("AllowAll");
             app.MapControllers();
             app.UsePathBase("/api");
             app.UseAuthentication();
@@ -73,12 +86,27 @@ namespace Backend
             services.AddScoped<Backend.Services.Cource.CourcesService>();
             services.AddScoped<Backend.Services.Cource.ModuleService>();
             services.AddScoped<Backend.Services.Cource.LessonService>();
+            services.AddScoped<Backend.Services.Cource.MaterialService>();
             services.AddScoped<Backend.Services.Profile.PublicProfileService>();
             services.AddScoped<Backend.Services.Auth.UserService>();
             services.AddScoped<Backend.Services.Auth.DBService>();
             services.AddScoped<Backend.Services.JWT.JWTService>();
             services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
             services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        }
+
+        private static void ConfigureStaticFiles(WebApplication app, WebApplicationBuilder builder)
+        {
+            var uploadsPath = Path.Combine(builder.Environment.WebRootPath ?? Path.Combine(builder.Environment.ContentRootPath, "wwwroot"), "uploads");
+            if (!Directory.Exists(uploadsPath))
+            { Directory.CreateDirectory(uploadsPath); }
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
+                RequestPath = "/api/uploads"
+            });
+            app.UseStaticFiles();
         }
 
         private static void Run(WebApplication app)

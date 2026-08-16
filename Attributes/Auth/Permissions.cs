@@ -13,8 +13,13 @@ namespace Backend.Attributes.Auth
         public const string ModuleDelete = "module.delete";
 
         // ? Lesson
-        public const string LessonCreate = "module.create";
-        public const string LessonUpdate = "module.update";
-        public const string LessonDelete = "module.delete";
+        public const string LessonCreate = "lesson.create";
+        public const string LessonUpdate = "lesson.update";
+        public const string LessonDelete = "lesson.delete";
+
+        // ? Material
+        public const string MaterialCreate = "material.create";
+        public const string MaterialUpdate = "material.update";
+        public const string MaterialDelete = "material.delete";
     }
 }

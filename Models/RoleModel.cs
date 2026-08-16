@@ -15,10 +15,15 @@ namespace Backend.Models
         public bool CanUpdateModule { get; set; }
         public bool CanDeleteModule { get; set; }
 
-        // ? Module
+        // ? Lesson
         public bool CanCreateLesson { get; set; }
         public bool CanUpdateLesson { get; set; }
         public bool CanDeleteLesson { get; set; }
+
+        // ? Material
+        public bool CanCreateMaterial { get; set; }
+        public bool CanUpdateMaterial { get; set; }
+        public bool CanDeleteMaterial { get; set; }
 
         public DateTime UpdatedAt { get; set; }
         public DateTime CreatedAt { get; set; }

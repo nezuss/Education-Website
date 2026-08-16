@@ -58,6 +58,11 @@ namespace Backend.Attributes.Auth
                 case Permissions.LessonUpdate: hasPermission = role.CanUpdateLesson; break;
                 case Permissions.LessonDelete: hasPermission = role.CanDeleteLesson; break;
 
+                // ? Material
+                case Permissions.MaterialCreate: hasPermission = role.CanCreateMaterial; break;
+                case Permissions.MaterialUpdate: hasPermission = role.CanUpdateMaterial; break;
+                case Permissions.MaterialDelete: hasPermission = role.CanDeleteMaterial; break;
+
                 default:
                     hasPermission = false;
                     break;

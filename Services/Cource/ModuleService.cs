@@ -27,7 +27,7 @@ namespace Backend.Services.Cource
                        .Fail("There are no cource with this id", 404);
             }
 
-            if (cource.ModulesId.Count <= 0)
+            if (cource.ModulesId == null || cource.ModulesId.Count <= 0)
             {
                 return ServiceResult<List<ModuleModel>>
                        .Fail("There are no modules yet", 404);

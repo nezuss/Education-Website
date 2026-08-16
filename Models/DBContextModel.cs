@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Backend.Models.Cource;
+using Backend.Models.Cource.Materials;
 
 namespace Backend.Models
 {
@@ -16,5 +17,21 @@ namespace Backend.Models
         public DbSet<ModuleModel> Modules { get; set; }
         public DbSet<LessonModel> Lessons { get; set; }
         public DbSet<MaterialModel> Materials { get; set; }
+        public DbSet<QuestionModel> Questions { get; set; }
+        public DbSet<AnswerModel> Answers { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<MaterialModel>()
+                .HasDiscriminator<string>("Type")
+                .HasValue<FileMaterialModel>("File")
+                .HasValue<TextMaterialModel>("Text")
+                .HasValue<AssignmentMaterialModel>("Assignment")
+                .HasValue<VideoMaterialModel>("Video")
+                .HasValue<LinkMaterialModel>("Link")
+                .HasValue<TestMaterialModel>("Test");
+        }
     }
 }
