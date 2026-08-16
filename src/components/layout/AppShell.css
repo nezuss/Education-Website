@@ -1,0 +1,4 @@
+.app-shell { min-height: 100vh; }
+.site-header { min-height: 64px; display: flex; align-items: center; gap: 28px; padding: 0 32px; border-bottom: 1px solid #d5d5d5; background: #fff; }
+.brand { font-weight: 700; letter-spacing: .08em; }.site-header nav { display: flex; gap: 18px; flex: 1; }.site-header nav a, .header-login { padding: 6px 0; color: #454545; }.site-header nav a.active { color: #000; font-weight: 700; border-bottom: 2px solid #000; }.header-login { border: 1px solid #777; padding: 7px 14px; }.page-container { max-width: 1180px; margin: 0 auto; padding: 40px 24px 64px; }
+@media (max-width: 700px) { .site-header { padding: 14px 20px; flex-wrap: wrap; gap: 14px; } .site-header nav { order: 3; flex-basis: 100%; overflow-x: auto; } .page-container { padding: 28px 16px 48px; } }

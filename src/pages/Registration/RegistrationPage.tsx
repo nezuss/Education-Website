@@ -1,0 +1,3 @@
+import { useNavigate } from "react-router-dom";
+import "../PlatformPages.css";
+export default function RegistrationPage() { const navigate = useNavigate(); return <main className="auth-page"><section className="form-panel panel"><h1>Реєстрація</h1><p>Створіть обліковий запис, щоб записатися на курс.</p><form onSubmit={(e) => { e.preventDefault(); navigate("/student"); }}><label>Email<input type="email" required /></label><label>Пароль<input type="password" required /></label><label>Підтвердьте пароль<input type="password" required /></label><button type="submit">Створити акаунт</button></form></section></main>; }

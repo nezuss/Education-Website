@@ -1,0 +1,37 @@
+import { Link } from "react-router-dom";
+import { courses } from "../../data/mockData";
+import { CourseCard, PageHeader, Panel } from "../shared/PageComponents";
+import "../PlatformPages.css";
+
+const directions = ["Sustainable design", "Circular design", "Eco branding"];
+
+export default function HomePage() {
+    return (
+        <>
+            <PageHeader
+                title="Освіта для сталого майбутнього"
+                description="Онлайн-платформа NEXYLVA для навчання sustainable та circular design."
+                action={<Link className="button-link" to="/courses">Переглянути курси</Link>}
+            />
+
+            <section className="section">
+                <h2>Напрями навчання</h2>
+                <div className="grid grid-3">
+                    {directions.map((direction) => (
+                        <Panel key={direction}>
+                            <h3>{direction}</h3>
+                            <p>Практичні курси, робота з ментором і фінальний проєкт.</p>
+                        </Panel>
+                    ))}
+                </div>
+            </section>
+
+            <section className="section">
+                <h2>Популярні курси</h2>
+                <div className="grid grid-3">
+                    {courses.map((course) => <CourseCard key={course.id} course={course} />)}
+                </div>
+            </section>
+        </>
+    );
+}
