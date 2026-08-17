@@ -39,6 +39,28 @@ namespace Backend.Controllers.Auth
             });
         }
 
+        [HttpPost("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail(string code)
+        {
+            var result = await userService.ConfirmEmail(code);
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data
+            });
+        }
+
         [HttpPost("sign-in")]
         public async Task<IActionResult> SignIn(SignInDTO dTO)
         {

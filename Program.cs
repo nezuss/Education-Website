@@ -19,6 +19,8 @@ namespace Backend
             builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
 
+            builder.Services.AddMemoryCache();
+
             ConfigureAuthentication(builder);
             AuthorizeServices(builder.Services);
             ConnectDatabase(builder);

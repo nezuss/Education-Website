@@ -8,6 +8,7 @@ namespace Backend.Models {
         public string Salt { get; set; }
         public List<string>? EnrolledCourcesId { get; set; }
         public string? RoleId { get; set; }
+        public bool IsEmailConfirmed { get; set; }
         public DateTime UpdatedAt { get; set; }
         public DateTime CreatedAt { get; set; }
     }
