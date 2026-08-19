@@ -20,12 +20,28 @@ namespace Backend.Services.Cource
             db = _db;
         }
 
-        public async Task<ServiceResult<List<object>>> GetAllOnLesson(string Id)
+        public async Task<ServiceResult<List<object>>> GetAllOnLesson(string Id, string userId)
         {
             var lesson = await db.Lessons.FirstOrDefaultAsync(l => l.Id == Id);
 
             if (lesson == null)
                 return ServiceResult<List<object>>.Fail("There is no lesson with this id", 404);
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (user != null)
+                {
+                    var module = await db.Modules.FirstOrDefaultAsync(m => m.LessonsId != null && m.LessonsId.Contains(Id));
+                    if (module != null)
+                    {
+                        var course = await db.Cources.FirstOrDefaultAsync(c => c.ModulesId != null && c.ModulesId.Contains(module.Id));
+                        if (course != null)
+                            if (user.EnrolledCourcesId == null || !user.EnrolledCourcesId.Contains(course.Id))
+                                return ServiceResult<List<object>>.Fail("You are not enrolled in the course that contains this material", 403);
+                    }
+                }
+            }
 
             if (lesson.MaterialsId == null || !lesson.MaterialsId.Any())
                 return ServiceResult<List<object>>.Fail("There are no materials yet", 404);

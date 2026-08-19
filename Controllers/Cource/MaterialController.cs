@@ -66,7 +66,8 @@ namespace Backend.Controllers.Cource
         [Authorize]
         public async Task<IActionResult> GetAllOnLesson(string id)
         {
-            var result = await materialService.GetAllOnLesson(id);
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var result = await materialService.GetAllOnLesson(id, userId);
 
             if (!result.Success)
             {

@@ -23,7 +23,8 @@ namespace Backend.Controllers.Cource
         [Authorize]
         public async Task<IActionResult> GetAllOnModule(string id)
         {
-            var result = await lessonService.GetAllOnModule(id);
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var result = await lessonService.GetAllOnModule(id, userId);
 
             if (!result.Success)
             {

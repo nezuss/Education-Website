@@ -17,14 +17,24 @@ namespace Backend.Services.Cource
             db = _db;
         }
 
-        public async Task<ServiceResult<List<LessonModel>>> GetAllOnModule(string Id)
+        public async Task<ServiceResult<List<LessonModel>>> GetAllOnModule(string Id, string userId)
         {
             var module = await db.Modules.FirstOrDefaultAsync(m => m.Id == Id);
 
             if (module == null)
-            {
                 return ServiceResult<List<LessonModel>>
                        .Fail("There is no module with this id", 404);
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (user != null)
+                {
+                    var course = await db.Cources.FirstOrDefaultAsync(c => c.ModulesId != null && c.ModulesId.Contains(Id));
+                    if (course != null)
+                        if (user.EnrolledCourcesId == null || !user.EnrolledCourcesId.Contains(course.Id))
+                            return ServiceResult<List<LessonModel>>.Fail("You are not enrolled in the course that contains this module", 403);
+                }
             }
 
             if (module.LessonsId == null || !module.LessonsId.Any())

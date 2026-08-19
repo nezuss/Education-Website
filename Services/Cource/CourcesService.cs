@@ -91,6 +91,8 @@ namespace Backend.Services.Cource
                 Description = dTO.Description,
                 Price = dTO.Price,
                 ModulesId = dTO.ModulesId,
+                TotalLearningPeriodWeeks = dTO.TotalLearningPeriodWeeks,
+                ProjectsReadyForPortfolio = dTO.ProjectsReadyForPortfolio,
                 UpdatedAt = DateTime.UtcNow,
                 CreatedAt = DateTime.UtcNow,
             };
@@ -123,6 +125,8 @@ namespace Backend.Services.Cource
             cource.Description = dTO.Description ?? cource.Description;
             cource.Price = dTO.Price ?? cource.Price;
             cource.ModulesId = dTO.ModulesId ?? cource.ModulesId;
+            cource.TotalLearningPeriodWeeks = dTO.TotalLearningPeriodWeeks ?? cource.TotalLearningPeriodWeeks;
+            cource.ProjectsReadyForPortfolio = dTO.ProjectsReadyForPortfolio ?? cource.ProjectsReadyForPortfolio;
             cource.UpdatedAt = DateTime.UtcNow;
 
             db.Cources.Update(cource);
