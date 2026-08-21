@@ -21,5 +21,8 @@ namespace Backend.Attributes.Auth
         public const string MaterialCreate = "material.create";
         public const string MaterialUpdate = "material.update";
         public const string MaterialDelete = "material.delete";
+
+        // ? Dashboard
+        public const string GetTotalUsers = "totalUsers.get";
     }
 }

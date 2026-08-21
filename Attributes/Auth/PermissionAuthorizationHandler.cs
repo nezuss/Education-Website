@@ -63,6 +63,9 @@ namespace Backend.Attributes.Auth
                 case Permissions.MaterialUpdate: hasPermission = role.CanUpdateMaterial; break;
                 case Permissions.MaterialDelete: hasPermission = role.CanDeleteMaterial; break;
 
+                // ? Dashboard
+                case Permissions.GetTotalUsers: hasPermission = role.CanGetTotalUsers; break;
+
                 default:
                     hasPermission = false;
                     break;

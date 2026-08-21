@@ -25,6 +25,9 @@ namespace Backend.Models
         public bool CanUpdateMaterial { get; set; }
         public bool CanDeleteMaterial { get; set; }
 
+        // ? Dashboard
+        public bool CanGetTotalUsers { get; set; }
+
         public DateTime UpdatedAt { get; set; }
         public DateTime CreatedAt { get; set; }
     }
