@@ -39,7 +39,7 @@ namespace Backend.Controllers.Auth
             });
         }
 
-        [HttpPost("confirm-email")]
+        [HttpPost("confirm-email/{code}")]
         public async Task<IActionResult> ConfirmEmail(string code)
         {
             var result = await userService.ConfirmEmail(code);

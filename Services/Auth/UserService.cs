@@ -48,8 +48,6 @@ namespace Backend.Services.Auth
 
             var code = new Random().Next(100000, 1000000).ToString();
 
-            cache.Set(dTO.Email, code, TimeSpan.FromMinutes(30));
-
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Nexylva", configuration["Smtp:From"]));
             message.To.Add(new MailboxAddress("", dTO.Email));
@@ -148,6 +146,8 @@ namespace Backend.Services.Auth
 
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
+
+            cache.Set(code, dTO.Email, TimeSpan.FromMinutes(30));
 
             UserModel user = new UserModel
             {
