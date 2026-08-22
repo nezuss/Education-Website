@@ -1,11 +1,16 @@
 import { Link, useParams } from "react-router-dom";
-import { activeCourse, courses } from "../../data/mockData";
+import { useCourses } from "../../hooks/useCourses";
 import { PageHeader, Panel } from "../shared/PageComponents";
 import "../PlatformPages.css";
 
 export default function CourseDetailsPage() {
     const { courseId } = useParams();
-    const course = courses.find((item) => item.id === courseId) ?? activeCourse;
+    const { courses } = useCourses();
+    const course = courses.find((item) => item.id === courseId) ?? courses[0];
+
+    if (!course) {
+        return <PageHeader title="Курс не знайдено" description="Перевірте посилання або оберіть курс у каталозі." />;
+    }
 
     return (
         <>

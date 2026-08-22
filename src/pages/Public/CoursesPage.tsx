@@ -1,19 +1,20 @@
 import { useMemo, useState } from "react";
-import { courses } from "../../data/mockData";
+import { useCourses } from "../../hooks/useCourses";
 import { CourseCard, PageHeader, Panel } from "../shared/PageComponents";
 import "../PlatformPages.css";
 
 const allDirections = "Усі напрями";
-const directions = [...new Set(courses.map((course) => course.direction))];
 
 export default function CoursesPage() {
+    const { courses } = useCourses();
     const [query, setQuery] = useState("");
     const [direction, setDirection] = useState(allDirections);
+    const directions = [...new Set(courses.map((course) => course.direction))];
     const visibleCourses = useMemo(() => courses.filter((course) => {
         const matchesDirection = direction === allDirections || course.direction === direction;
         const matchesQuery = course.title.toLowerCase().includes(query.toLowerCase());
         return matchesDirection && matchesQuery;
-    }), [direction, query]);
+    }), [courses, direction, query]);
 
     return (
         <>
