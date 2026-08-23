@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
+using BCrypt.Net;
 
 namespace Backend.Services.Auth
 {
@@ -149,14 +150,15 @@ namespace Backend.Services.Auth
 
             cache.Set(code, dTO.Email, TimeSpan.FromMinutes(30));
 
+            string salt = BCrypt.Net.BCrypt.GenerateSalt(workFactor: 12);
             UserModel user = new UserModel
             {
                 Id = Guid.NewGuid().ToString(),
                 Email = dTO.Email,
                 Username = dTO.Username,
-                Password = dTO.Password,
+                Password = BCrypt.Net.BCrypt.HashPassword(dTO.Password, salt),
                 AuthorizedKeyId = "",
-                Salt = "",
+                Salt = salt,
                 RoleId = "",
                 IsEmailConfirmed = false,
                 UpdatedAt = DateTime.UtcNow,
@@ -207,7 +209,9 @@ namespace Backend.Services.Auth
             if (user.IsEmailConfirmed == false)
             { return ServiceResult<string>.Fail("Please confirm your email", 403); }
 
-            if (user.Password != dTO.Password)
+            dTO.Password = BCrypt.Net.BCrypt.HashPassword(dTO.Password, user.Salt);
+
+            if (BCrypt.Net.BCrypt.Verify(dTO.Password, user.Password))
             { return ServiceResult<string>.Fail("Credentials are wrong", 401); }
 
             string AuthorizedKeyId = Guid.NewGuid().ToString();
@@ -220,9 +224,23 @@ namespace Backend.Services.Auth
             return ServiceResult<string>.Ok(token, "You successfully signed in");
         }
 
-        public async Task<ServiceResult<string>> SignOut() {
+        public async Task<ServiceResult<string>> SignOut()
+        {
             return ServiceResult<string>.Ok("Token unauthorized successfully",
                                             "You successfully signed out");
+        }
+
+        public async Task<UserModel> GetUserByIdAsync(string id)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+            { return new UserModel(); }
+
+            user.Password = "";
+            user.Salt = "";
+
+            return user;
         }
     }
 }

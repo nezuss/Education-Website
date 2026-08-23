@@ -4,7 +4,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Backend.Models;
+using Backend.Services.Auth;
 using Backend.Attributes.Auth;
+using System.Security.Claims;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.JsonWebTokens;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Backend
 {
@@ -16,12 +21,14 @@ namespace Backend
 
             builder.Services.AddControllers();
 
-            builder.Services.AddAuthentication();
+            // ? Auth
+            ConfigureAuthentication(builder);
             builder.Services.AddAuthorization();
+            builder.Services.AddAuthentication();
 
             builder.Services.AddMemoryCache();
 
-            ConfigureAuthentication(builder);
+            // ? Other
             AuthorizeServices(builder.Services);
             ConnectDatabase(builder);
 
@@ -40,10 +47,10 @@ namespace Backend
             ConfigureStaticFiles(app, builder);
 
             app.UseCors("AllowAll");
-            app.MapControllers();
             app.UsePathBase("/api");
             app.UseAuthentication();
             app.UseAuthorization();
+            app.MapControllers();
 
             Run(app);
         }
@@ -79,6 +86,27 @@ namespace Backend
                     ValidIssuer = jwtSettings["Issuer"],
                     ValidAudience = jwtSettings["Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        string? kid = context.Principal?.FindFirst("kid")?.Value;
+                        var userId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(kid))
+                        {
+                            context.Fail("UserId or Kid is missing.");
+                            return;
+                        }
+
+                        var userService = context.HttpContext.RequestServices.GetRequiredService<UserService>();
+                        var user = await userService.GetUserByIdAsync(userId);
+
+                        if (user == null || user.AuthorizedKeyId.ToString() != kid)
+                        { context.Fail("Invalid kid"); }
+                    }
                 };
             });
         }
