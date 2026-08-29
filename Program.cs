@@ -117,6 +117,7 @@ namespace Backend
             services.AddScoped<Backend.Services.Cource.ModuleService>();
             services.AddScoped<Backend.Services.Cource.LessonService>();
             services.AddScoped<Backend.Services.Cource.MaterialService>();
+            services.AddScoped<Backend.Services.Cource.SubmitMaterialAnswerService>();
             services.AddScoped<Backend.Services.Stats.UsersStatsService>();
             services.AddScoped<Backend.Services.Profile.PublicProfileService>();
             services.AddScoped<Backend.Services.Auth.UserService>();

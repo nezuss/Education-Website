@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Backend.Models.Cource;
 using Backend.Models.Cource.Materials;
+using Backend.Models.Cource.MaterialAnswers;
 
 namespace Backend.Models
 {
@@ -19,6 +20,8 @@ namespace Backend.Models
         public DbSet<MaterialModel> Materials { get; set; }
         public DbSet<QuestionModel> Questions { get; set; }
         public DbSet<AnswerModel> Answers { get; set; }
+        public DbSet<MaterialSubmissionModel> MaterialSubmissions { get; set; }
+        public DbSet<TestQuestionAnswerModel> TestQuestionAnswers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,6 +35,11 @@ namespace Backend.Models
                 .HasValue<VideoMaterialModel>("Video")
                 .HasValue<LinkMaterialModel>("Link")
                 .HasValue<TestMaterialModel>("Test");
+
+            modelBuilder.Entity<MaterialSubmissionModel>()
+                .HasDiscriminator<string>("Type")
+                .HasValue<AssignmentSubmissionModel>("Assignment")
+                .HasValue<TestSubmissionModel>("Test");
         }
     }
 }

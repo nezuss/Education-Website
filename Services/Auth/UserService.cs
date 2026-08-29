@@ -237,10 +237,13 @@ namespace Backend.Services.Auth
             if (user == null)
             { return new UserModel(); }
 
-            user.Password = "";
-            user.Salt = "";
+            var saveUser = new UserModel();
+            saveUser = user;
 
-            return user;
+            saveUser.Password = "";
+            saveUser.Salt = "";
+
+            return saveUser;
         }
     }
 }
