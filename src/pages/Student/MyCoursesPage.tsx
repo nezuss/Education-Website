@@ -18,7 +18,7 @@ export default function MyCoursesPage() {
                     setCourses(loaded);
                 }
             })
-            .catch((reason: Error) => !isCancelled && setError(reason.message));
+            .catch((reason: Error) => !isCancelled && reason.message !== "There are no enrolled courses" && setError(reason.message));
 
         return () => {
             isCancelled = true;

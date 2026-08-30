@@ -12,6 +12,15 @@ type ApiCourse = {
     modulesId?: string[];
 };
 
+export type CreateCourseData = {
+    title: string;
+    description: string;
+    price: number;
+    bannerUrl?: string;
+    totalLearningPeriodWeeks?: number;
+    projectsReadyForPortfolio?: number;
+};
+
 function mapCourse(course: ApiCourse): Course {
     return {
         id: course.id,
@@ -39,4 +48,19 @@ export async function getEnrolledCourses() {
 
 export async function enrollToCourse(courseId: string) {
     await request(`/api/cource/enrol/${courseId}`, { method: "POST" });
+}
+
+export async function createCourse(data: CreateCourseData) {
+    const course = await request<ApiCourse>("/api/cource/create", {
+        method: "POST",
+        body: JSON.stringify({
+            ...data,
+            modulesId: [],
+            bannerUrl: data.bannerUrl ?? "",
+            totalLearningPeriodWeeks: data.totalLearningPeriodWeeks ?? 4,
+            projectsReadyForPortfolio: data.projectsReadyForPortfolio ?? 1,
+        }),
+    });
+
+    return mapCourse(course);
 }

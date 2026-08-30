@@ -24,6 +24,22 @@ export const getLessons = (moduleId: string) => request<Lesson[]>(`/api/cource/l
 export const getMaterials = (lessonId: string) => request<Material[]>(`/api/cource/material/get-all-on-lesson/${lessonId}`);
 export const getSubmissionStatus = (materialId: string) => request<SubmissionStatus>(`/api/cource/submit-material/status/${materialId}`);
 
+export async function createModule(data: { title: string; description: string }) {
+    return request<Module>("/api/cource/module/create", { method: "POST", body: JSON.stringify({ ...data, lessonsId: [] }) });
+}
+
+export async function createLesson(data: { title: string; description: string }) {
+    return request<Lesson>("/api/cource/lesson/create", { method: "POST", body: JSON.stringify({ ...data, materialsId: [] }) });
+}
+
+export async function createTextMaterial(content: string) {
+    return request<Material>("/api/cource/material/create", { method: "POST", body: JSON.stringify({ type: "Text", content }) });
+}
+
+export const assignModuleToCourse = (courseId: string, moduleId: string) => request("/admin/assign/module-to-cource", { method: "POST", body: JSON.stringify({ courceId: courseId, moduleId }) });
+export const assignLessonToModule = (moduleId: string, lessonId: string) => request("/admin/assign/lesson-to-module", { method: "POST", body: JSON.stringify({ moduleId, lessonId }) });
+export const assignMaterialToLesson = (lessonId: string, materialId: string) => request("/admin/assign/material-to-lesson", { method: "POST", body: JSON.stringify({ lessonId, materialId }) });
+
 export async function submitAssignment(assignmentId: string, file: File) {
     const formData = new FormData();
     formData.append("assignmentId", assignmentId);

@@ -20,6 +20,7 @@ export default function RegistrationPage() {
         }
 
         setError("");
+        setSuccess("");
         setIsLoading(true);
 
         try {

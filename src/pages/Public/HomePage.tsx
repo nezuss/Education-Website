@@ -11,7 +11,7 @@ export default function HomePage() {
         <>
             <PageHeader
                 title="Освіта для сталого майбутнього"
-                description="Онлайн-платформа NEXYLVA для навчання sustainable та circular design."
+                description="Онлайн-платформа NEXYLVA для навчання"
                 action={<Link className="button-link" to="/courses">Переглянути курси</Link>}
             />
 
