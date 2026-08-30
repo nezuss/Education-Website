@@ -86,7 +86,8 @@ namespace Backend.Controllers.Auth
         [HttpPost("sign-out")]
         public async Task<IActionResult> SignOut()
         {
-            var result = await userService.SignOut();
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var result = await userService.SignOut(userId);
 
             if (!result.Success)
             {

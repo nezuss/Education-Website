@@ -224,8 +224,16 @@ namespace Backend.Services.Auth
             return ServiceResult<string>.Ok(token, "You successfully signed in");
         }
 
-        public async Task<ServiceResult<string>> SignOut()
+        public async Task<ServiceResult<string>> SignOut(string id)
         {
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+                return ServiceResult<string>
+                       .Fail("User does not exist with this id", 404);
+
+            user.AuthorizedKeyId = "";
+
             return ServiceResult<string>.Ok("Token unauthorized successfully",
                                             "You successfully signed out");
         }
