@@ -22,6 +22,16 @@ namespace Backend.Attributes.Auth
         public const string MaterialUpdate = "material.update";
         public const string MaterialDelete = "material.delete";
 
+        // ? Admin
+        public const string AssignTeacherToCource = "admin.assign.teacherToCource";
+        public const string AssignModuleToCource = "admin.assign.moduleToCource";
+        public const string AssignLessonToModule = "admin.assign.lessonToModule";
+        public const string AssignMaterialToLesson = "admin.assign.materialToLesson";
+        public const string UnassignTeacherFromCource = "admin.unassign.teacherFromCource";
+        public const string UnassignModuleFromCource = "admin.unassign.moduleFromCource";
+        public const string UnassignLessonFromModule = "admin.unassign.lessonFromModule";
+        public const string UnassignMaterialFromLesson = "admin.unassign.materialFromLesson";
+
         // ? Dashboard
         public const string GetTotalUsers = "totalUsers.get";
     }

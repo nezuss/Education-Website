@@ -63,6 +63,16 @@ namespace Backend.Attributes.Auth
                 case Permissions.MaterialUpdate: hasPermission = role.CanUpdateMaterial; break;
                 case Permissions.MaterialDelete: hasPermission = role.CanDeleteMaterial; break;
 
+                // ? Admin
+                case Permissions.AssignTeacherToCource: hasPermission = role.CanAssignTeacherToCource; break;
+                case Permissions.AssignModuleToCource: hasPermission = role.CanAssignModuleToCource; break;
+                case Permissions.AssignLessonToModule: hasPermission = role.CanAssignLessonToModule; break;
+                case Permissions.AssignMaterialToLesson: hasPermission = role.CanAssignMaterialToLesson; break;
+                case Permissions.UnassignTeacherFromCource: hasPermission = role.CanUnassignTeacherFromCource; break;
+                case Permissions.UnassignModuleFromCource: hasPermission = role.CanUnassignModuleFromCource; break;
+                case Permissions.UnassignLessonFromModule: hasPermission = role.CanUnassignLessonFromModule; break;
+                case Permissions.UnassignMaterialFromLesson: hasPermission = role.CanUnassignMaterialFromLesson; break;
+
                 // ? Dashboard
                 case Permissions.GetTotalUsers: hasPermission = role.CanGetTotalUsers; break;
 

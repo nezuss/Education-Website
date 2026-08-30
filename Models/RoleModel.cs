@@ -25,6 +25,16 @@ namespace Backend.Models
         public bool CanUpdateMaterial { get; set; }
         public bool CanDeleteMaterial { get; set; }
 
+        // ? Admin
+        public bool CanAssignTeacherToCource { get; set; }
+        public bool CanAssignModuleToCource { get; set; }
+        public bool CanAssignLessonToModule { get; set; }
+        public bool CanAssignMaterialToLesson { get; set; }
+        public bool CanUnassignTeacherFromCource { get; set; }
+        public bool CanUnassignModuleFromCource { get; set; }
+        public bool CanUnassignLessonFromModule { get; set; }
+        public bool CanUnassignMaterialFromLesson { get; set; }
+
         // ? Dashboard
         public bool CanGetTotalUsers { get; set; }
 
