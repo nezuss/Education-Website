@@ -1,4 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getSubmissionStatus, type SubmissionStatus } from "../../services/learningService";
 import { PageHeader, Panel } from "../shared/PageComponents";
 import "../PlatformPages.css";
-export default function AssignmentPage() { return <><PageHeader title="Завдання: редизайн упаковки" action={<Link className="button-link" to="/student/upload/packaging-project">Завантажити проєкт</Link>} /><div className="two-column"><Panel><h2>Бриф</h2><p>Запропонуйте екологічніший варіант упаковки.</p><ul className="list"><li>PDF-презентація до 10 слайдів.</li><li>Дедлайн: 20 серпня.</li></ul></Panel><Panel><h2>Статус роботи</h2><p>Не надіслано</p></Panel></div></>; }
+export default function AssignmentPage() {
+    const { assignmentId } = useParams();
+    const [status, setStatus] = useState<SubmissionStatus>();
+    const [error, setError] = useState("");
+    useEffect(() => { if (assignmentId) getSubmissionStatus(assignmentId).then(setStatus).catch((reason: Error) => setError(reason.message)); }, [assignmentId]);
+    return <><PageHeader title="Практичне завдання" action={assignmentId ? <Link className="button-link" to={`/student/upload/${assignmentId}`}>Завантажити проєкт</Link> : undefined} /><div className="two-column"><Panel><h2>Виконання</h2><p>Завантажте файл виконаної роботи для перевірки.</p></Panel><Panel><h2>Статус роботи</h2>{error ? <p role="alert">Не вдалося отримати статус: {error}</p> : <p>{status?.isSubmitted ? "Роботу надіслано" : "Роботу ще не надіслано"}</p>}</Panel></div></>;
+}

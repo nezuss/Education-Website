@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
-import { courses } from "../../data/mockData";
+import { useCourses } from "../../hooks/useCourses";
 import { CourseCard, PageHeader, Panel } from "../shared/PageComponents";
 import "../PlatformPages.css";
 
 const directions = ["Sustainable design", "Circular design", "Eco branding"];
 
 export default function HomePage() {
+    const { courses, error } = useCourses();
     return (
         <>
             <PageHeader
@@ -31,6 +32,7 @@ export default function HomePage() {
                 <div className="grid grid-3">
                     {courses.map((course) => <CourseCard key={course.id} course={course} />)}
                 </div>
+                {error && <p role="alert">Не вдалося завантажити курси: {error}</p>}
             </section>
         </>
     );

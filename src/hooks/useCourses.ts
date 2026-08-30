@@ -1,20 +1,15 @@
 import { useEffect, useState } from "react";
 import { getCourses } from "../services/courseService";
-import type { Course } from "../data/mockData";
-import { courses as mockCourses } from "../data/mockData";
+import type { Course } from "../types/course";
 
 export function useCourses() {
-    const [courses, setCourses] = useState<Course[]>(mockCourses);
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState("");
 
     useEffect(() => {
-        getCourses()
-            .then((loaded) => {
-                if (loaded.length > 0) {
-                    setCourses(loaded);
-                }
-            })
-            .catch(() => setCourses(mockCourses));
+        getCourses().then(setCourses).catch((reason: Error) => setError(reason.message)).finally(() => setIsLoading(false));
     }, []);
 
-    return { courses };
+    return { courses, isLoading, error };
 }

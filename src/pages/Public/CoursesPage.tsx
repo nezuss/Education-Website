@@ -6,7 +6,7 @@ import "../PlatformPages.css";
 const allDirections = "Усі напрями";
 
 export default function CoursesPage() {
-    const { courses } = useCourses();
+    const { courses, isLoading, error } = useCourses();
     const [query, setQuery] = useState("");
     const [direction, setDirection] = useState(allDirections);
     const directions = [...new Set(courses.map((course) => course.direction))];
@@ -33,6 +33,8 @@ export default function CoursesPage() {
                 </label>
             </Panel>
             <p className="result-count">Знайдено курсів: {visibleCourses.length}</p>
+            {isLoading && <p>Завантаження курсів…</p>}
+            {error && <p role="alert">Не вдалося завантажити курси: {error}</p>}
             <section className="grid grid-3">
                 {visibleCourses.map((course) => <CourseCard key={course.id} course={course} />)}
             </section>

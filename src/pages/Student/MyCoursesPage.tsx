@@ -1,26 +1,24 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getEnrolledCourses } from "../../services/courseService";
-import type { Course } from "../../data/mockData";
-import { courses as mockCourses } from "../../data/mockData";
+import type { Course } from "../../types/course";
 import { PageHeader, Panel } from "../shared/PageComponents";
 import "../PlatformPages.css";
 
 export default function MyCoursesPage() {
-    const [courses, setCourses] = useState<Course[]>(mockCourses);
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [error, setError] = useState("");
 
     useEffect(() => {
         let isCancelled = false;
 
         getEnrolledCourses()
             .then((loaded) => {
-                if (!isCancelled && loaded.length > 0) {
+                if (!isCancelled) {
                     setCourses(loaded);
                 }
             })
-            .catch(() => {
-                setCourses(mockCourses);
-            });
+            .catch((reason: Error) => !isCancelled && setError(reason.message));
 
         return () => {
             isCancelled = true;
@@ -30,6 +28,8 @@ export default function MyCoursesPage() {
     return (
         <>
             <PageHeader title="Мої курси" />
+            {error && <p role="alert">Не вдалося завантажити курси: {error}</p>}
+            {!error && courses.length === 0 && <p>У вас поки немає активних курсів.</p>}
             <section className="grid grid-2">
                 {courses.map((course, index) => (
                     <Panel key={course.id}>

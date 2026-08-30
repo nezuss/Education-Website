@@ -25,6 +25,14 @@ export async function signUp(data: SignUpData) {
     });
 }
 
-export function signOut() {
+export async function confirmEmail(code: string) {
+    await request(`/auth/confirm-email/${encodeURIComponent(code)}`, { method: "POST" });
+}
+
+export async function signOut() {
+    try {
+        await request("/auth/sign-out", { method: "POST" });
+    } finally {
     localStorage.removeItem("token");
+    }
 }

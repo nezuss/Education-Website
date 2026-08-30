@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
-import { submissions } from "../../data/mockData";
+import { useEffect, useState } from "react";
+import { useCourses } from "../../hooks/useCourses";
+import { getUsersStats, type UsersByRole } from "../../services/statsService";
 import { PageHeader, Panel, Stat } from "../shared/PageComponents";
-import SubmissionsTable from "../shared/SubmissionsTable";
 import "../PlatformPages.css";
-export default function AdminDashboardPage() { return <><PageHeader title="Адміністрування" description="Коротка аналітика навчальної платформи." action={<Link className="button-link" to="/admin/users">Користувачі</Link>} /><section className="grid grid-3"><Stat value="148" label="Користувачів" /><Stat value="37" label="Активних курсів" /><Stat value="18" label="Нових реєстрацій" /></section><section className="section"><Panel><h2>Остання активність</h2><SubmissionsTable rows={submissions} /></Panel></section></>; }
+export default function AdminDashboardPage() { const { courses, error } = useCourses(); const [users, setUsers] = useState<UsersByRole[]>([]); const [usersError, setUsersError] = useState(""); useEffect(() => { getUsersStats().then(setUsers).catch((reason: Error) => setUsersError(reason.message)); }, []); const totalUsers = users.reduce((total, item) => item.roleName === "None" ? total + item.userCount : total, 0); return <><PageHeader title="Адміністрування" description="Дані платформи з API." /><section className="grid grid-3"><Stat value={String(courses.length)} label="Курсів" /><Stat value={String(totalUsers)} label="Користувачів" /></section><section className="section"><Panel><h2>Статистика користувачів</h2>{usersError ? <p role="alert">Не вдалося завантажити статистику: {usersError}</p> : <ul className="list">{users.filter((item) => item.roleName !== "None").map((item) => <li key={item.roleName}>{item.roleName}: {item.userCount}</li>)}</ul>}{error && <p role="alert">Не вдалося завантажити курси: {error}</p>}</Panel></section></>; }

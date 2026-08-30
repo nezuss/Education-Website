@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import type { Course } from "../../data/mockData";
+import type { Course } from "../../types/course";
 
 export function PageHeader({ title, description, action }: { title: string; description?: string; action?: ReactNode }) { return <section className="page-header"><div><h1>{title}</h1>{description && <p>{description}</p>}</div>{action}</section>; }
 export function Panel({ children, className = "" }: { children: ReactNode; className?: string }) { return <article className={`panel ${className}`}>{children}</article>; }

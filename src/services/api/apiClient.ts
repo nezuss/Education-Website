@@ -15,11 +15,12 @@ export async function request<T>(path: string, options: RequestInit = {}) {
     }
 
     const response = await fetch(`${apiBaseUrl}${path}`, { ...options, headers });
-    const body = await response.json() as ApiResponse<T> | ApiError;
+    const text = await response.text();
+    const body = text ? JSON.parse(text) as ApiResponse<T> | ApiError : undefined;
 
     if (!response.ok) {
-        throw Object.assign(new Error(body.message || "Сталася помилка запиту"), { status: response.status });
+        throw Object.assign(new Error(body?.message || "Сталася помилка запиту"), { status: response.status });
     }
 
-    return (body as ApiResponse<T>).data;
+    return (body as ApiResponse<T>)?.data;
 }

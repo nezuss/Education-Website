@@ -1,6 +1,5 @@
-import { Link } from "react-router-dom";
-import { submissions } from "../../data/mockData";
-import { PageHeader, Panel, Stat } from "../shared/PageComponents";
-import SubmissionsTable from "../shared/SubmissionsTable";
+import { useEffect, useState } from "react";
+import { getProfile, type UserProfile } from "../../services/profileService";
+import { PageHeader, Panel } from "../shared/PageComponents";
 import "../PlatformPages.css";
-export default function MentorDashboardPage() { return <><PageHeader title="Кабінет ментора" action={<Link className="button-link" to="/mentor/submissions">Відкрити чергу</Link>} /><section className="grid grid-3"><Stat value="3" label="Нові роботи" /><Stat value="5" label="На перевірці" /><Stat value="2" label="На доопрацюванні" /></section><section className="section"><Panel><h2>Найближчі перевірки</h2><SubmissionsTable rows={submissions.slice(0, 2)} /></Panel></section></>; }
+export default function MentorDashboardPage() { const [profile, setProfile] = useState<UserProfile>(); const [error, setError] = useState(""); useEffect(() => { getProfile().then(setProfile).catch((reason: Error) => setError(reason.message)); }, []); return <><PageHeader title="Кабінет ментора" /><Panel>{error ? <p role="alert">Не вдалося завантажити профіль: {error}</p> : <p>Ви увійшли як {profile?.username ?? profile?.email ?? "користувач"}.</p>}<p>У специфікації API немає ендпоінтів для черги робіт ментора або надсилання фідбеку.</p></Panel></>; }
