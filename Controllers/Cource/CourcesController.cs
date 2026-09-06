@@ -68,10 +68,10 @@ namespace Backend.Controllers.Cource
 
         [HttpPost("enrol/{id}")]
         [Authorize]
-        public async Task<IActionResult> EnrolToCource(string id)
+        public async Task<IActionResult> EnrolToCource(string id, [FromServices] Backend.Services.User.AccountingService accountingService)
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await courcesService.EnrolToCource(id, userId);
+            var result = await accountingService.Pay(new Backend.DTO.User.Accounting.PayDTO { CourceId = id }, userId);
 
             if (!result.Success)
             {
