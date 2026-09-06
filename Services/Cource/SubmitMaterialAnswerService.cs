@@ -52,6 +52,7 @@ namespace Backend.Services.Cource
                 Id = Guid.NewGuid().ToString(),
                 RelatedMaterialId = dTO.TestId,
                 UserId = userId,
+                Rate = -1,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 Answers = dTO.Answers?.Select(a => new TestQuestionAnswerModel
