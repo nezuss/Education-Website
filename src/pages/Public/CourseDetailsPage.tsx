@@ -6,7 +6,7 @@ import "../PlatformPages.css";
 export default function CourseDetailsPage() {
     const { courseId } = useParams();
     const { courses } = useCourses();
-    const course = courses.find((item) => item.id === courseId) ?? courses[0];
+    const course = courseId ? courses.find((item) => item.id === courseId) : courses[0];
 
     if (!course) {
         return <PageHeader title="Курс не знайдено" description="Перевірте посилання або оберіть курс у каталозі." />;

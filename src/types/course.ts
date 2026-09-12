@@ -4,6 +4,7 @@ export type Course = {
     direction: string;
     description: string;
     mentor: string;
+    assignedTeacherId?: string;
     modules: string[];
     price: number;
     bannerUrl?: string;

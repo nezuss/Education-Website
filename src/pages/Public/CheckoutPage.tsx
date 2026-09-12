@@ -2,16 +2,16 @@ import { useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { enrollToCourse } from "../../services/courseService";
 import { useCourses } from "../../hooks/useCourses";
-import { PageHeader, Panel, Success } from "../shared/PageComponents";
+import { PageHeader, Panel } from "../shared/PageComponents";
 import "../PlatformPages.css";
 
 export default function CheckoutPage() {
     const { courseId } = useParams();
     const navigate = useNavigate();
     const { courses } = useCourses();
-    const course = courses.find((item) => item.id === courseId) ?? courses[0];
+    const course = courseId ? courses.find((item) => item.id === courseId) : undefined;
     const [error, setError] = useState("");
-    const [isPaid, setIsPaid] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     if (!course) {
         return <PageHeader title="Курс не знайдено" />;
@@ -19,20 +19,59 @@ export default function CheckoutPage() {
 
     async function handlePay(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        if (!course) return;
         setError("");
+        setLoading(true);
 
         try {
-            await enrollToCourse(course.id);
-            setIsPaid(true);
+            const redirectUrl = await enrollToCourse(course.id);
+            if (redirectUrl && (redirectUrl.startsWith("http://") || redirectUrl.startsWith("https://"))) {
+                window.location.assign(redirectUrl);
+            } else {
+                navigate(`/success?course_id=${encodeURIComponent(course.id)}`);
+            }
         } catch (e) {
             const err = e as { status?: number; message?: string };
             if (err.status === 401) {
                 navigate("/login");
                 return;
             }
-            setError(err.message ?? "Не вдалося записатися на курс");
+            setError(err.message ?? "Не вдалося ініціалізувати оплату курсу");
+        } finally {
+            setLoading(false);
         }
     }
 
-    return <><PageHeader title="Оформлення курсу" /><section className="form-panel"><Panel><h2>{course.title}</h2><p>До сплати: <strong>{course.price.toLocaleString("uk-UA")} грн</strong></p>{isPaid ? <Success title="Запис оформлено" text="Курс додано до розділу «Мої курси»." to="/student/courses" label="Перейти до курсів" /> : <form onSubmit={handlePay}><label>Email<input type="email" required /></label><label>Спосіб оплати<select><option>Банківська картка</option><option>Банківський переказ</option></select></label>{error && <p role="alert">{error}</p>}<button type="submit">Підтвердити оплату</button></form>}</Panel></section></>;
+    return (
+        <>
+            <PageHeader
+                title="Оформлення та оплата курсу"
+                description="Безпечна оплата банківською карткою через платіжну систему Stripe."
+            />
+            <section className="form-panel">
+                <Panel>
+                    <h2>{course.title}</h2>
+                    <p style={{ margin: "8px 0" }}>{course.description}</p>
+                    <p style={{ fontSize: "20px", marginTop: "12px" }}>
+                        До сплати: <strong>{course.price.toLocaleString("uk-UA")} грн</strong>
+                    </p>
+
+                    <form onSubmit={handlePay} style={{ marginTop: "24px" }}>
+                        <label>
+                            Спосіб оплати
+                            <select defaultValue="card">
+                                <option value="card">💳 Банківська картка (Stripe Checkout)</option>
+                            </select>
+                        </label>
+
+                        {error && <p role="alert" style={{ color: "#d32f2f" }}>{error}</p>}
+
+                        <button type="submit" disabled={loading}>
+                            {loading ? "Перенаправлення на оплату..." : `Оплатити ${course.price.toLocaleString("uk-UA")} грн`}
+                        </button>
+                    </form>
+                </Panel>
+            </section>
+        </>
+    );
 }

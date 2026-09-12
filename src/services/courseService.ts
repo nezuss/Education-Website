@@ -9,6 +9,7 @@ type ApiCourse = {
     bannerUrl?: string;
     totalLearningPeriodWeeks?: number;
     projectsReadyForPortfolio?: number;
+    assignedTeacherId?: string;
     modulesId?: string[];
 };
 
@@ -28,7 +29,8 @@ function mapCourse(course: ApiCourse): Course {
         description: course.description,
         price: course.price,
         direction: "Без категорії",
-        mentor: "Не вказано",
+        mentor: course.assignedTeacherId ? `ID: ${course.assignedTeacherId}` : "Не призначено",
+        assignedTeacherId: course.assignedTeacherId,
         modules: course.modulesId ?? [],
         bannerUrl: course.bannerUrl,
         totalLearningPeriodWeeks: course.totalLearningPeriodWeeks,
@@ -38,16 +40,16 @@ function mapCourse(course: ApiCourse): Course {
 
 export async function getCourses() {
     const courses = await request<ApiCourse[]>("/api/cource/get-all");
-    return courses.map(mapCourse);
+    return (courses ?? []).map(mapCourse);
 }
 
 export async function getEnrolledCourses() {
     const courses = await request<ApiCourse[]>("/api/cource/get-enrolled");
-    return courses.map(mapCourse);
+    return (courses ?? []).map(mapCourse);
 }
 
-export async function enrollToCourse(courseId: string) {
-    await request(`/api/cource/enrol/${courseId}`, { method: "POST" });
+export async function enrollToCourse(courseId: string): Promise<string | undefined> {
+    return request<string>(`/api/cource/enrol/${courseId}`, { method: "POST" });
 }
 
 export async function createCourse(data: CreateCourseData) {
@@ -63,4 +65,26 @@ export async function createCourse(data: CreateCourseData) {
     });
 
     return mapCourse(course);
+}
+
+export type UpdateCourseData = {
+    id: string;
+    title?: string;
+    description?: string;
+    price?: number;
+    bannerUrl?: string;
+    totalLearningPeriodWeeks?: number;
+    projectsReadyForPortfolio?: number;
+};
+
+export async function updateCourse(data: UpdateCourseData) {
+    const course = await request<ApiCourse>("/api/cource/update", {
+        method: "PATCH",
+        body: JSON.stringify(data),
+    });
+    return mapCourse(course);
+}
+
+export async function deleteCourse(id: string) {
+    return request<string>(`/api/cource/delete/${encodeURIComponent(id)}`, { method: "DELETE" });
 }
