@@ -31,12 +31,56 @@ export default function RegistrationPage() {
             });
             setSuccess("Акаунт створено. Перевірте пошту та підтвердьте email.");
             event.currentTarget.reset();
-        } catch {
-            setError("Не вдалося зареєструватися. Спробуйте інший email.");
+        } catch (e) {
+            setError((e as Error)?.message ?? "Не вдалося зареєструватися. Спробуйте інший email.");
         } finally {
             setIsLoading(false);
         }
     }
 
-    return <main className="auth-page"><section className="form-panel panel"><h1>Реєстрація</h1><p>Створіть обліковий запис, щоб записатися на курс.</p><form onSubmit={handleSubmit}><label>Ім’я<input name="username" required /></label><label>Email<input name="email" type="email" required /></label><label>Пароль<input name="password" type="password" required /></label><label>Підтвердьте пароль<input name="confirmPassword" type="password" required /></label>{error && <p role="alert">{error}</p>}{success && <p>{success}</p>}<button type="submit" disabled={isLoading}>{isLoading ? "Реєстрація..." : "Створити акаунт"}</button></form><p><Link to="/login">Вже є акаунт? Увійти</Link></p></section></main>;
+    return (
+        <main className="auth-page">
+            <section className="form-panel panel">
+                <h1>Реєстрація</h1>
+                <p>Створіть обліковий запис, щоб записатися на курс.</p>
+                {success ? (
+                    <div style={{ margin: "20px 0", textAlign: "center" }}>
+                        <p style={{ color: "#2e7d32", fontWeight: 600, fontSize: "16px" }}>{success}</p>
+                        <p style={{ margin: "12px 0", color: "#555" }}>
+                            Введіть 6-значний код підтвердження, який було надіслано на вашу пошту.
+                        </p>
+                        <Link className="button-link" to="/confirm-email" style={{ display: "inline-block", marginTop: "12px" }}>
+                            Ввести код підтвердження →
+                        </Link>
+                    </div>
+                ) : (
+                    <form onSubmit={handleSubmit}>
+                        <label>
+                            Ім’я
+                            <input name="username" required placeholder="ivan_dev" />
+                        </label>
+                        <label>
+                            Email
+                            <input name="email" type="email" required placeholder="you@example.com" />
+                        </label>
+                        <label>
+                            Пароль
+                            <input name="password" type="password" required />
+                        </label>
+                        <label>
+                            Підтвердьте пароль
+                            <input name="confirmPassword" type="password" required />
+                        </label>
+                        {error && <p role="alert" style={{ color: "#d32f2f" }}>{error}</p>}
+                        <button type="submit" disabled={isLoading}>
+                            {isLoading ? "Реєстрація..." : "Створити акаунт"}
+                        </button>
+                    </form>
+                )}
+                <p style={{ marginTop: "16px" }}>
+                    <Link to="/login">Вже є акаунт? Увійти</Link>
+                </p>
+            </section>
+        </main>
+    );
 }

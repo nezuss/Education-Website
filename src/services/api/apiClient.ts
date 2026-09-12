@@ -14,12 +14,48 @@ export async function request<T>(path: string, options: RequestInit = {}) {
         headers.set("Authorization", `Bearer ${token}`);
     }
 
-    const response = await fetch(`${apiBaseUrl}${path}`, { ...options, headers });
+    const cleanBase = apiBaseUrl.replace(/\/+$/, "");
+    const cleanPath = path.startsWith("/") ? path : `/${path}`;
+
+    let url: string;
+    if (cleanBase.endsWith("/api") && cleanPath.startsWith("/api/")) {
+        url = `${cleanBase}${cleanPath.slice(4)}`;
+    } else if (!cleanBase.endsWith("/api") && !cleanPath.startsWith("/api/")) {
+        url = `${cleanBase}/api${cleanPath}`;
+    } else {
+        url = `${cleanBase}${cleanPath}`;
+    }
+
+    const response = await fetch(url, { ...options, headers });
     const text = await response.text();
-    const body = text ? JSON.parse(text) as ApiResponse<T> | ApiError : undefined;
+    let body: ApiResponse<T> | ApiError | undefined;
+    try {
+        body = text ? JSON.parse(text) : undefined;
+    } catch {
+        body = undefined;
+    }
 
     if (!response.ok) {
-        throw Object.assign(new Error(body?.message || "Сталася помилка запиту"), { status: response.status });
+        if (response.status === 401) {
+            localStorage.removeItem("token");
+            if (typeof window !== "undefined") {
+                window.dispatchEvent(new Event("auth:unauthorized"));
+                const publicPaths = ["/login", "/registration", "/confirm-email", "/", "/courses", "/not-found"];
+                const currentPath = window.location.pathname;
+                const isPublic = publicPaths.some((p) => (p === "/" ? currentPath === "/" : currentPath.startsWith(p)));
+                if (!isPublic && !currentPath.startsWith("/login")) {
+                    const returnUrl = encodeURIComponent(currentPath + window.location.search);
+                    window.location.href = `/login?from=${returnUrl}`;
+                }
+            }
+        }
+
+        const message =
+            body?.message ||
+            (response.status === 401
+                ? "Необхідна авторизація для доступу (401 Unauthorized)"
+                : "Сталася помилка запиту");
+        throw Object.assign(new Error(message), { status: response.status });
     }
 
     return (body as ApiResponse<T>)?.data;
