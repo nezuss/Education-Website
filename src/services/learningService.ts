@@ -17,7 +17,18 @@ export type Material = {
     questions?: TestQuestion[];
 };
 export type TestQuestion = { id: string; text: string; answers: { id: string; text: string; isCorrect?: boolean }[] };
-export type SubmissionStatus = { isSubmitted: boolean; submission?: unknown };
+export type CreateAnswerDTO = { text: string; isCorrect: boolean };
+export type CreateQuestionDTO = { text: string; answers: CreateAnswerDTO[] };
+export type SubmissionDetail = {
+    id: string;
+    relatedMaterialId: string;
+    userId: string;
+    rate: number;
+    fileUrl?: string;
+    createdAt: string;
+    updatedAt: string;
+};
+export type SubmissionStatus = { isSubmitted: boolean; submission?: SubmissionDetail };
 
 export const getModules = (courseId: string) => request<Module[]>(`/api/cource/module/get-all-on-cource/${courseId}`);
 export const getLessons = (moduleId: string) => request<Lesson[]>(`/api/cource/lesson/get-all-on-module/${moduleId}`);
