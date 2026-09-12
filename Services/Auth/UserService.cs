@@ -211,7 +211,7 @@ namespace Backend.Services.Auth
 
             dTO.Password = BCrypt.Net.BCrypt.HashPassword(dTO.Password, user.Salt);
 
-            if (BCrypt.Net.BCrypt.Verify(dTO.Password, user.Password))
+            if (!BCrypt.Net.BCrypt.Verify(dTO.Password, user.Password))
             { return ServiceResult<string>.Fail("Credentials are wrong", 401); }
 
             string AuthorizedKeyId = Guid.NewGuid().ToString();
