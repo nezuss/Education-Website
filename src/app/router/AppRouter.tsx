@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import AppShell from "../../components/layout/AppShell";
 import LoginPage from "../../pages/Login/LoginPage";
+import ProtectedRoute from "../../components/auth/ProtectedRoute";
 import AdminDashboardPage from "../../pages/Admin/AdminDashboardPage";
 import UsersPage from "../../pages/Admin/UsersPage";
 import MentorDashboardPage from "../../pages/Mentor/MentorDashboardPage";
@@ -8,6 +9,8 @@ import MentorReviewPage from "../../pages/Mentor/MentorReviewPage";
 import MentorSubmissionsPage from "../../pages/Mentor/MentorSubmissionsPage";
 import NotFoundPage from "../../pages/NotFound/NotFoundPage";
 import CheckoutPage from "../../pages/Public/CheckoutPage";
+import SuccessPage from "../../pages/Public/SuccessPage";
+import CancelPage from "../../pages/Public/CancelPage";
 import CourseDetailsPage from "../../pages/Public/CourseDetailsPage";
 import CoursesPage from "../../pages/Public/CoursesPage";
 import HomePage from "../../pages/Public/HomePage";
@@ -20,9 +23,51 @@ import ProfilePage from "../../pages/Student/ProfilePage";
 import StudentDashboardPage from "../../pages/Student/StudentDashboardPage";
 import UploadProjectPage from "../../pages/Student/UploadProjectPage";
 
-export default function AppRouter() { return <BrowserRouter><Routes><Route element={<AppShell />}>
-    <Route path="/" element={<HomePage />} /><Route path="/courses" element={<CoursesPage />} /><Route path="/courses/:courseId" element={<CourseDetailsPage />} /><Route path="/checkout/:courseId" element={<CheckoutPage />} />
-    <Route path="/student" element={<StudentDashboardPage />} /><Route path="/student/courses" element={<MyCoursesPage />} /><Route path="/student/learning/:courseId" element={<LearningPage />} /><Route path="/student/learning/:courseId/lesson/:lessonId" element={<LearningPage />} /><Route path="/student/lesson/:lessonId" element={<LearningPage />} /><Route path="/student/assignments/:assignmentId" element={<AssignmentPage />} /><Route path="/student/upload/:assignmentId" element={<UploadProjectPage />} /><Route path="/student/profile" element={<ProfilePage />} />
-    <Route path="/mentor" element={<MentorDashboardPage />} /><Route path="/mentor/submissions" element={<MentorSubmissionsPage />} /><Route path="/mentor/review/:submissionId" element={<MentorReviewPage />} />
-    <Route path="/admin" element={<AdminDashboardPage />} /><Route path="/admin/users" element={<UsersPage />} />
-</Route><Route path="/login" element={<LoginPage />} /><Route path="/registration" element={<RegistrationPage />} /><Route path="/confirm-email" element={<ConfirmationPage />} /><Route path="/confirm-email/:code" element={<ConfirmationPage />} /><Route path="/not-found" element={<NotFoundPage />} /><Route path="*" element={<Navigate to="/not-found" replace />} /></Routes></BrowserRouter>; }
+export default function AppRouter() {
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route element={<AppShell />}>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/courses" element={<CoursesPage />} />
+                    <Route path="/courses/:courseId" element={<CourseDetailsPage />} />
+                    <Route path="/checkout/:courseId" element={<CheckoutPage />} />
+                    <Route path="/success" element={<SuccessPage />} />
+                    <Route path="/cancel" element={<CancelPage />} />
+
+                    {/* Student routes: any authenticated user */}
+                    <Route element={<ProtectedRoute />}>
+                        <Route path="/student" element={<StudentDashboardPage />} />
+                        <Route path="/student/courses" element={<MyCoursesPage />} />
+                        <Route path="/student/learning/:courseId" element={<LearningPage />} />
+                        <Route path="/student/learning/:courseId/lesson/:lessonId" element={<LearningPage />} />
+                        <Route path="/student/lesson/:lessonId" element={<LearningPage />} />
+                        <Route path="/student/assignments/:assignmentId" element={<AssignmentPage />} />
+                        <Route path="/student/upload/:assignmentId" element={<UploadProjectPage />} />
+                        <Route path="/student/profile" element={<ProfilePage />} />
+                    </Route>
+
+                    {/* Mentor routes: Teacher or Admin */}
+                    <Route element={<ProtectedRoute allowedRoles={["Teacher", "Admin"]} />}>
+                        <Route path="/mentor" element={<MentorDashboardPage />} />
+                        <Route path="/mentor/submissions" element={<MentorSubmissionsPage />} />
+                        <Route path="/mentor/review/:submissionId" element={<MentorReviewPage />} />
+                    </Route>
+
+                    {/* Admin routes: Admin only */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
+                        <Route path="/admin" element={<AdminDashboardPage />} />
+                        <Route path="/admin/users" element={<UsersPage />} />
+                    </Route>
+                </Route>
+
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/registration" element={<RegistrationPage />} />
+                <Route path="/confirm-email" element={<ConfirmationPage />} />
+                <Route path="/confirm-email/:code" element={<ConfirmationPage />} />
+                <Route path="/not-found" element={<NotFoundPage />} />
+                <Route path="*" element={<Navigate to="/not-found" replace />} />
+            </Routes>
+        </BrowserRouter>
+    );
+}
