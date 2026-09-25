@@ -57,14 +57,13 @@ export default function MyCoursesPage() {
 
   return (
     <div className="std-dash">
-      {/* Breadcrumbs */}
+      
       <div style={{ fontSize: "14px", color: "var(--color-brand-soft)", display: "flex", gap: "8px" }}>
         <Link to="/student" style={{ color: "var(--color-brand-soft)", textDecoration: "none" }}>Головна</Link>
         <span>&gt;</span>
         <span style={{ color: "var(--color-brand-dark)", fontWeight: 500 }}>Мої курси</span>
       </div>
 
-      {/* Title + Date */}
       <div className="std-greeting-row">
         <div>
           <h1 className="std-greeting-title">Мої курси</h1>
@@ -75,7 +74,6 @@ export default function MyCoursesPage() {
         <div className="std-date-badge">10 серпня 2026</div>
       </div>
 
-      {/* Filters & Search Toolbar */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
         <div style={{ display: "flex", gap: "10px" }}>
           <button
@@ -142,7 +140,6 @@ export default function MyCoursesPage() {
         </div>
       </div>
 
-      {/* Top Banner: Active Course + Next Step */}
       <div className="std-top-grid">
         <div className="std-active-course-card">
           <div className="std-active-course-left">
@@ -194,7 +191,6 @@ export default function MyCoursesPage() {
         </div>
       </div>
 
-      {/* All Courses Grid */}
       <div>
         <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "28px", fontWeight: 700, color: "var(--color-brand-dark)", marginBottom: "20px" }}>
           Усі мої курси

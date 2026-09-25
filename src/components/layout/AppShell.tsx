@@ -7,6 +7,7 @@ export default function AppShell() {
   const navigate = useNavigate();
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchVal, setSearchVal] = useState("");
 
   const isMentor = location.pathname.startsWith("/mentor");
@@ -18,49 +19,64 @@ export default function AppShell() {
     navigate("/");
   }
 
+  const closeSidebar = () => setSidebarOpen(false);
+
   return (
     <div className="lms-layout">
-      {/* Left Sidebar */}
-      <aside className="lms-sidebar">
-        <Link to="/" className="lms-brand-link">
-          <img src="/logo.svg" alt="NEXYLVA" className="lms-brand-logo" />
-        </Link>
+      {sidebarOpen && (
+        <div className="lms-sidebar-backdrop" onClick={closeSidebar} />
+      )}
+
+      <aside className={`lms-sidebar ${sidebarOpen ? "open" : ""}`}>
+        <div className="lms-sidebar-top-row">
+          <Link to="/" className="lms-brand-link" onClick={closeSidebar}>
+            <img src="/logo.svg" alt="NEXYLVA" className="lms-brand-logo" />
+          </Link>
+          <button
+            type="button"
+            className="lms-sidebar-close-btn"
+            onClick={closeSidebar}
+            aria-label="Закрити меню"
+          >
+            &times;
+          </button>
+        </div>
 
         <nav className="lms-nav-group" aria-label="LMS Navigation">
           {isStudent && (
             <>
-              <NavLink to="/student" end className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/student" end className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">🏠</span>
                 <span>Головна</span>
               </NavLink>
-              <NavLink to="/student/courses" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/student/courses" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">📚</span>
                 <span>Мої курси</span>
               </NavLink>
-              <NavLink to="/student/assignments/1" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/student/assignments/1" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">📝</span>
                 <span>Завдання</span>
               </NavLink>
-              <NavLink to="/student/progress" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/student/progress" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">📊</span>
                 <span>Прогрес</span>
               </NavLink>
-              <NavLink to="/student/schedule" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/student/schedule" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">📅</span>
                 <span>Розклад</span>
               </NavLink>
-              <NavLink to="/student/reviews" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/student/reviews" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">💬</span>
                 <span>Відгуки ментора</span>
               </NavLink>
-              <NavLink to="/community" className="lms-nav-item">
+              <NavLink to="/community" className="lms-nav-item" onClick={closeSidebar}>
                 <span className="lms-nav-icon">👥</span>
                 <span>Спільнота</span>
               </NavLink>
 
               <div className="lms-nav-divider"></div>
 
-              <NavLink to="/student/profile" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/student/profile" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">👤</span>
                 <span>Профіль</span>
               </NavLink>
@@ -69,19 +85,19 @@ export default function AppShell() {
 
           {isMentor && (
             <>
-              <NavLink to="/mentor" end className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/mentor" end className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">📋</span>
                 <span>Головна панель</span>
               </NavLink>
-              <NavLink to="/mentor/submissions" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/mentor/submissions" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">📥</span>
                 <span>Черга перевірки</span>
               </NavLink>
-              <NavLink to="/mentor/profile" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/mentor/profile" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">👤</span>
                 <span>Профіль ментора</span>
               </NavLink>
-              <NavLink to="/community" className="lms-nav-item">
+              <NavLink to="/community" className="lms-nav-item" onClick={closeSidebar}>
                 <span className="lms-nav-icon">👥</span>
                 <span>Спільнота</span>
               </NavLink>
@@ -90,27 +106,27 @@ export default function AppShell() {
 
           {isAdmin && (
             <>
-              <NavLink to="/admin" end className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/admin" end className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">⚙️</span>
                 <span>Головна панель</span>
               </NavLink>
-              <NavLink to="/admin/users" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/admin/users" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">👥</span>
                 <span>Користувачі</span>
               </NavLink>
-              <NavLink to="/admin/courses" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/admin/courses" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">🎓</span>
                 <span>Керування курсами</span>
               </NavLink>
-              <NavLink to="/admin/orders" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/admin/orders" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">💳</span>
                 <span>Замовлення / Оплати</span>
               </NavLink>
-              <NavLink to="/admin/analytics" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/admin/analytics" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">📈</span>
                 <span>Аналітика</span>
               </NavLink>
-              <NavLink to="/admin/profile" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`}>
+              <NavLink to="/admin/profile" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">👤</span>
                 <span>Профіль адміністратора</span>
               </NavLink>
@@ -118,29 +134,38 @@ export default function AppShell() {
           )}
         </nav>
 
-        {/* Bottom Promo Card */}
         <div className="lms-sidebar-promo-card">
           <div className="lms-promo-icon">🌿</div>
           <div className="lms-promo-title">Створи свій шлях у сталому дизайні</div>
           <div className="lms-promo-desc">
             Кожен проєкт — це крок до кращого майбутнього для нас і планети.
           </div>
-          <Link to="/about" className="lms-promo-link">
+          <Link to="/about" className="lms-promo-link" onClick={closeSidebar}>
             <span>Дізнатися більше &rarr;</span>
           </Link>
         </div>
 
         <div className="lms-sidebar-footer">
           <span>&copy; 2026 NEXYLVA</span>
-          <Link to="/contacts" style={{ color: '#AABDB3', textDecoration: 'none' }}>Підтримка</Link>
+          <Link to="/contacts" style={{ color: '#AABDB3', textDecoration: 'none' }} onClick={closeSidebar}>Підтримка</Link>
         </div>
       </aside>
 
-      {/* Main Container */}
       <div className="lms-main">
-        {/* Topbar */}
         <header className="lms-topbar">
           <div className="lms-topbar-left">
+            <button
+              type="button"
+              className="lms-mobile-menu-btn"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label="Відкрити меню"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </button>
             <span className="lms-topbar-breadcrumb">
               {isAdmin ? "Admin LMS / Панель" : isMentor ? "Mentor LMS / Кабінет ментора" : "Student LMS / Головна"}
             </span>
@@ -215,7 +240,6 @@ export default function AppShell() {
           </div>
         </header>
 
-        {/* Content View */}
         <main className="lms-content">
           <Outlet />
         </main>

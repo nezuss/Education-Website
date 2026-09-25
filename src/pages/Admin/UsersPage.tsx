@@ -152,14 +152,13 @@ export default function UsersPage() {
 
   return (
     <div className="admin-container">
-      {/* Breadcrumbs */}
+      
       <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "16px" }}>
         <Link to="/admin" style={{ color: "inherit", textDecoration: "none" }}>Головна</Link>
         {" > "}
         <span style={{ color: "var(--accent-primary)", fontWeight: 600 }}>Керування користувачами</span>
       </div>
 
-      {/* Header */}
       <header className="admin-header">
         <div>
           <h1 className="admin-header-title">
@@ -178,7 +177,6 @@ export default function UsersPage() {
         </button>
       </header>
 
-      {/* Overview Cards Row */}
       <section className="admin-stats-row">
         <div className="admin-overview-card">
           <div className="admin-tag">[ ОГЛЯД ]</div>
@@ -217,7 +215,6 @@ export default function UsersPage() {
         Структура аудиторії: 89% студентів, 9,8% менторів та 1,2% адміністраторів
       </div>
 
-      {/* Toolbar */}
       <div className="admin-toolbar">
         <div className="admin-filter-pills">
           <button
@@ -290,7 +287,6 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Users Data Table */}
       <div className="admin-table-wrap">
         <div className="admin-table-header">
           <span>№</span>
@@ -353,7 +349,6 @@ export default function UsersPage() {
         ))}
       </div>
 
-      {/* User Details Modal (Figma 18-01 User Details) */}
       {selectedUser && (
         <div
           style={{
@@ -377,7 +372,7 @@ export default function UsersPage() {
             style={{ maxWidth: "860px", width: "100%", maxHeight: "90vh", overflowY: "auto" }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Hero */}
+            
             <div className="admin-user-card-hero">
               <img
                 src={selectedUser.avatar}
@@ -401,7 +396,6 @@ export default function UsersPage() {
               </div>
             </div>
 
-            {/* Metrics */}
             <div className="admin-user-card-metrics">
               <div className="admin-user-metric-box">
                 <div className="admin-user-metric-val">{selectedUser.coursesCount}</div>
@@ -421,7 +415,6 @@ export default function UsersPage() {
               </div>
             </div>
 
-            {/* Contact details */}
             <div style={{ padding: "32px 40px" }}>
               <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "20px", fontWeight: 700, color: "var(--accent-primary)", margin: "0 0 16px 0" }}>
                 Контактна інформація

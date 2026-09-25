@@ -87,7 +87,6 @@ export default function CourseDetailsPage() {
     useEffect(() => {
         if (!courseId) return;
 
-        // Try to fetch backend course details
         getCourses()
             .then((courses) => {
                 const found = courses.find(
@@ -100,7 +99,6 @@ export default function CourseDetailsPage() {
             })
             .catch(() => {});
 
-        // Try to fetch backend modules
         getModules(courseId)
             .then((mods) => {
                 if (mods && mods.length > 0) {
@@ -126,7 +124,6 @@ export default function CourseDetailsPage() {
 
     return (
         <div className="course-details-container">
-            {/* Breadcrumbs */}
             <nav className="catalog-breadcrumbs" aria-label="Хлібні крихти">
                 <Link to="/" className="breadcrumb-link">Головна</Link>
                 <span className="breadcrumb-sep">&gt;</span>
@@ -135,7 +132,6 @@ export default function CourseDetailsPage() {
                 <span className="breadcrumb-current">{courseTitle}</span>
             </nav>
 
-            {/* 1. Course Hero */}
             <section className="course-hero-grid">
                 <div className="course-hero-left">
                     <span className="course-online-badge">[ ПРАКТИЧНИЙ ОНЛАЙН КУРС ]</span>
@@ -167,7 +163,6 @@ export default function CourseDetailsPage() {
                         </button>
                     </div>
 
-                    {/* Instructor snippet */}
                     <div className="course-instructor-card">
                         <img 
                             src="/courses/instructor-andriy.webp" 
@@ -188,7 +183,6 @@ export default function CourseDetailsPage() {
                     </div>
                 </div>
 
-                {/* Right Visual */}
                 <div className="course-hero-visual-frame">
                     <img 
                         src="/courses/catalog-lca.webp" 
@@ -207,7 +201,6 @@ export default function CourseDetailsPage() {
                 </div>
             </section>
 
-            {/* 2. Key Metrics Bar */}
             <section className="course-metrics-bar">
                 <div className="metric-col">
                     <span className="metric-number">10</span>
@@ -231,11 +224,9 @@ export default function CourseDetailsPage() {
                 </div>
             </section>
 
-            {/* 3. What You Learn Section */}
             <section className="learn-section">
                 <h2 className="learn-section-title">Чого навчають на курсі</h2>
                 <div className="learn-grid-layout">
-                    {/* 2x2 cards */}
                     <div className="learn-cards-2x2">
                         <div className="learn-module-card">
                             <div className="learn-card-header">
@@ -295,7 +286,6 @@ export default function CourseDetailsPage() {
                         </div>
                     </div>
 
-                    {/* Right Practice First Day Card */}
                     <div className="practice-banner-card">
                         <div>
                             <h3 className="practice-title">Практика першого дня</h3>
@@ -329,7 +319,6 @@ export default function CourseDetailsPage() {
                 </div>
             </section>
 
-            {/* 4. Curriculum Accordion */}
             <section className="curriculum-section">
                 <div className="curriculum-header-row">
                     <div>
@@ -377,12 +366,10 @@ export default function CourseDetailsPage() {
                 </div>
             </section>
 
-            {/* 5. Student Projects Showcase */}
             <section className="students-showcase-section">
                 <h2 className="learn-section-title">Роботи наших студентів</h2>
                 
                 <div className="showcase-featured-grid">
-                    {/* Featured Student Card */}
                     <div className="featured-project-card">
                         <div className="featured-project-photo-box">
                             <span className="best-project-badge">[ КРАЩИЙ ПРОЄКТ ]</span>
@@ -427,7 +414,6 @@ export default function CourseDetailsPage() {
                         </div>
                     </div>
 
-                    {/* Want Same Card */}
                     <div className="want-same-card">
                         <h3 className="want-same-title">Хочеш так само?</h3>
                         <p className="want-same-desc">
@@ -443,7 +429,6 @@ export default function CourseDetailsPage() {
                     </div>
                 </div>
 
-                {/* 4 Thumbnails */}
                 <div className="student-thumbnails-grid">
                     <div className="thumbnail-work-card">
                         <div className="work-photo-box">
@@ -495,7 +480,6 @@ export default function CourseDetailsPage() {
                 </div>
             </section>
 
-            {/* 6. Expert Testimonial Quote */}
             <section className="testimonial-quote-card">
                 <div className="expert-portrait-box">
                     <img 
@@ -552,12 +536,10 @@ export default function CourseDetailsPage() {
                 </div>
             </section>
 
-            {/* 7. Pricing & FAQ Section */}
             <section className="pricing-faq-grid">
                 <div className="pricing-formats-col">
                     <h2 className="learn-section-title">Обери свій формат навчання</h2>
                     <div className="pricing-cards-3-row">
-                        {/* Plan 1 */}
                         <div className="pricing-plan-card">
                             <div>
                                 <h3 className="plan-name">Базовий (Basic)</h3>
@@ -575,7 +557,6 @@ export default function CourseDetailsPage() {
                             </div>
                         </div>
 
-                        {/* Plan 2 */}
                         <div className="pricing-plan-card featured">
                             <span className="hit-badge">[ ХІТ ПРОДАЖІВ ]</span>
                             <div>
@@ -594,7 +575,6 @@ export default function CourseDetailsPage() {
                             </div>
                         </div>
 
-                        {/* Plan 3 */}
                         <div className="pricing-plan-card">
                             <div>
                                 <h3 className="plan-name">Mentorship (VIP)</h3>
@@ -614,7 +594,6 @@ export default function CourseDetailsPage() {
                     </div>
                 </div>
 
-                {/* FAQ Column */}
                 <div className="faq-widget-col">
                     <span className="faq-badge">[ FAQ ]</span>
                     <h3 className="faq-title">Часті запитання</h3>
@@ -642,7 +621,6 @@ export default function CourseDetailsPage() {
                 </div>
             </section>
 
-            {/* 8. Stream Announcement Banner */}
             <section className="stream-banner">
                 <div>
                     <h3 className="stream-banner-title">Готові створювати дизайн?</h3>
@@ -664,7 +642,6 @@ export default function CourseDetailsPage() {
                 </div>
             </section>
 
-            {/* Video Trailer Modal */}
             {isVideoModalOpen && (
                 <div className="landing-modal-overlay" onClick={() => setIsVideoModalOpen(false)}>
                     <div className="landing-modal-content" onClick={(e) => e.stopPropagation()}>
@@ -677,7 +654,7 @@ export default function CourseDetailsPage() {
                         </button>
                         <div className="video-responsive-container">
                             <iframe 
-                                src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                src="https://www.youtube-nocookie.com/embed/LXb3EKWsInQ?autoplay=1" 
                                 title="Курс LCA &amp; Еко-проєктування — Трейлер" 
                                 frameBorder="0" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 

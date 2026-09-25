@@ -17,7 +17,6 @@ export interface CatalogCourse {
 }
 
 export const CATALOG_DATA: CatalogCourse[] = [
-    // Row 1
     {
         id: "lca-eco-design",
         level: "JUNIOR",
@@ -54,7 +53,6 @@ export const CATALOG_DATA: CatalogCourse[] = [
         rating: 5.0,
         reviewsCount: 375
     },
-    // Row 2
     {
         id: "biomaterials-in-product",
         level: "JUNIOR",
@@ -91,7 +89,6 @@ export const CATALOG_DATA: CatalogCourse[] = [
         rating: 4.9,
         reviewsCount: 310
     },
-    // Row 3 (Expanded)
     {
         id: "eco-textiles-fashion",
         level: "JUNIOR",
@@ -128,7 +125,6 @@ export const CATALOG_DATA: CatalogCourse[] = [
         rating: 4.9,
         reviewsCount: 140
     },
-    // Row 4 (Expanded)
     {
         id: "energy-efficient-lighting",
         level: "JUNIOR",
@@ -201,7 +197,6 @@ export default function CoursesPage() {
                 }
             })
             .catch(() => {
-                // Keep default CATALOG_DATA on network/backend failure
             });
     }, []);
 
@@ -241,7 +236,7 @@ export default function CoursesPage() {
 
     return (
         <div className="catalog-page-container">
-            {/* 1. Breadcrumbs */}
+            
             <nav className="catalog-breadcrumbs" aria-label="Хлібні крихти">
                 <Link to="/" className="breadcrumb-link">Головна</Link>
                 <span className="breadcrumb-sep">&gt;</span>
@@ -250,7 +245,6 @@ export default function CoursesPage() {
                 <span className="breadcrumb-current">Каталог навчальних програм</span>
             </nav>
 
-            {/* 2. Top Header Row */}
             <div className="catalog-top-row">
                 <div className="catalog-title-group">
                     <h1 className="catalog-main-title">Каталог навчальних програм</h1>
@@ -258,7 +252,7 @@ export default function CoursesPage() {
                 </div>
 
                 <div className="catalog-controls-group">
-                    {/* Search Field */}
+                    
                     <div className="catalog-search-box">
                         <svg className="catalog-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#557061" strokeWidth="2">
                             <circle cx="11" cy="11" r="8"/>
@@ -273,7 +267,6 @@ export default function CoursesPage() {
                         />
                     </div>
 
-                    {/* Sort Dropdown */}
                     <div className="catalog-sort-select-wrapper">
                         <label htmlFor="course-sort" className="catalog-sort-label">Сортувати</label>
                         <select 
@@ -294,7 +287,6 @@ export default function CoursesPage() {
                 </div>
             </div>
 
-            {/* 3. Category Filter Pills */}
             <div className="catalog-filter-pills-row">
                 {CATEGORIES.map((cat) => (
                     <button
@@ -308,7 +300,6 @@ export default function CoursesPage() {
                 ))}
             </div>
 
-            {/* 4. 3-Column Courses Grid */}
             <div className="catalog-courses-grid">
                 {displayedCourses.map((course) => (
                     <article key={course.id} className="catalog-card">
@@ -344,7 +335,6 @@ export default function CoursesPage() {
                 ))}
             </div>
 
-            {/* 5. Load More / Collapse Button */}
             {filteredCourses.length > 6 && (
                 <div className="catalog-more-row">
                     <button 
@@ -361,7 +351,6 @@ export default function CoursesPage() {
                 </div>
             )}
 
-            {/* 6. Curator Consultation Banner */}
             <section className="consultation-banner">
                 <div className="consultation-left">
                     <h3 className="consultation-title">Не знаєте, який напрям обрати?</h3>
@@ -393,7 +382,6 @@ export default function CoursesPage() {
                 </div>
             </section>
 
-            {/* Consultation Modal */}
             {consultationModalOpen && (
                 <div className="landing-modal-overlay" onClick={() => setConsultationModalOpen(false)}>
                     <div className="landing-modal-content" style={{ maxWidth: "480px", padding: "36px 32px", background: "#FFFFFF", color: "#0A2D1B" }} onClick={(e) => e.stopPropagation()}>

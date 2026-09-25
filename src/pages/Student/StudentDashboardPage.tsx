@@ -25,7 +25,6 @@ export default function StudentDashboardPage() {
             const stats = await getCourseStats(enrolled[0].id);
             setActiveCourseStats(stats);
           } catch {
-            // stats not ready
           }
         }
       })
@@ -37,7 +36,7 @@ export default function StudentDashboardPage() {
 
   return (
     <div className="std-dash">
-      {/* Greeting Row */}
+      
       <div className="std-greeting-row">
         <div>
           <h1 className="std-greeting-title">
@@ -51,7 +50,6 @@ export default function StudentDashboardPage() {
         <div className="std-date-badge">10 серпня 2026</div>
       </div>
 
-      {/* Row 1: Active Course + Overview Stats */}
       <div className="std-top-grid">
         <div className="std-active-course-card">
           <div className="std-active-course-left">
@@ -99,7 +97,6 @@ export default function StudentDashboardPage() {
           </div>
         </div>
 
-        {/* Overview Stats */}
         <div className="std-overview-card">
           <span className="std-badge-tag" style={{ color: "#385546" }}>[ ОГЛЯД ]</span>
           <h3 className="std-overview-title">Навчання</h3>
@@ -131,7 +128,6 @@ export default function StudentDashboardPage() {
         </div>
       </div>
 
-      {/* Row 2: Practical Assignment + Mentor Feedback */}
       <div className="std-mid-grid">
         <div className="std-assignment-card">
           <div>
@@ -176,7 +172,6 @@ export default function StudentDashboardPage() {
         </div>
       </div>
 
-      {/* Row 3: Recent Activity + Show Progress + Tree Illustration */}
       <div className="std-bot-grid">
         <div className="std-activity-card">
           <span className="std-badge-tag">[ АКТИВНІСТЬ ]</span>

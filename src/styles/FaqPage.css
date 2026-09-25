@@ -1,5 +1,3 @@
-/* FAQ & Support Page Styles - NEXYLVA Design System */
-
 .faq-page {
   background-color: var(--color-bg-main, #E8E4DF);
   color: var(--color-brand-dark, #0A2D1B);
@@ -25,7 +23,6 @@
   }
 }
 
-/* Breadcrumbs */
 .faq-breadcrumbs {
   display: flex;
   align-items: center;
@@ -50,7 +47,6 @@
   font-weight: 500;
 }
 
-/* Tag badge */
 .faq-tag-badge {
   display: inline-block;
   font-size: 13px;
@@ -61,7 +57,6 @@
   text-transform: uppercase;
 }
 
-/* Section 1: Hero */
 .faq-hero-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -144,7 +139,6 @@
   display: block;
 }
 
-/* Section 2: Topics Grid */
 .faq-topics-section {
   margin-bottom: 96px;
 }
@@ -233,7 +227,6 @@
   line-height: 1.4;
 }
 
-/* Section 3: Popular Questions / Accordion */
 .faq-questions-section {
   margin-bottom: 96px;
 }
@@ -328,7 +321,6 @@
   background: #C4D3CB;
 }
 
-/* Section 4: Missing Answer / Direct Card */
 .faq-unresolved-card {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -414,7 +406,6 @@
   transform: translateY(-2px);
 }
 
-/* Section 5: Useful Resources (Green Bar) */
 .faq-resources-section {
   background: #0A2D1B;
   color: #FFFFFF;
@@ -514,7 +505,6 @@
   line-height: 1.4;
 }
 
-/* Section 6: Bottom Banner */
 .faq-bottom-banner {
   background: #CDC0B5;
   border-radius: 72px 24px;
@@ -592,7 +582,6 @@
   z-index: 1;
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
   .faq-hero-grid {
     grid-template-columns: 1fr;

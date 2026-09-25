@@ -1,12 +1,9 @@
-/* Student Dashboard Styling - Matching Figma 7-Student Dashboard */
-
 .std-dash {
   display: flex;
   flex-direction: column;
   gap: 32px;
 }
 
-/* Header greeting */
 .std-greeting-row {
   display: flex;
   justify-content: space-between;
@@ -39,7 +36,6 @@
   color: #8C6D53;
 }
 
-/* Grid Top: Active Course + Overview Stats */
 .std-top-grid {
   display: grid;
   grid-template-columns: 2fr 1.2fr;
@@ -142,10 +138,17 @@
   gap: 8px;
   align-self: flex-start;
   transition: all 0.2s;
+  border: none;
+  cursor: pointer;
 }
 
 .std-continue-btn:hover {
   background: #0E3620;
+}
+
+.std-continue-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .std-active-course-art {
@@ -163,7 +166,6 @@
   object-fit: cover;
 }
 
-/* Overview Card */
 .std-overview-card {
   background: #C4D3CB;
   border-radius: 24px;
@@ -219,7 +221,6 @@
   color: var(--color-brand-primary, #13492C);
 }
 
-/* Middle Row: Practical assignment + Mentor Feedback */
 .std-mid-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -309,7 +310,6 @@
   color: var(--color-brand-soft, #557061);
 }
 
-/* Bottom Row: Recent Activity + Show Progress */
 .std-bot-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -433,11 +433,113 @@
   display: block;
 }
 
-/* Responsive */
+.assignment-card-box {
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 4px 16px rgba(10, 45, 27, 0.04);
+}
+
+.assignment-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 8px 0 16px 0;
+}
+
+.assignment-desc {
+  font-size: 16px;
+  color: var(--color-brand-soft, #557061);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.assignment-grid-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.assignment-req-box {
+  background: var(--color-bg-sand, #E0D3C7);
+  padding: 24px;
+  border-radius: 18px;
+}
+
+.assignment-req-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin-bottom: 12px;
+}
+
+.assignment-req-list {
+  padding-left: 20px;
+  font-size: 14px;
+  color: #444444;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.assignment-deadline-box {
+  background: #C4D3CB;
+  padding: 24px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.assignment-deadline-caption {
+  font-size: 12px;
+  font-weight: 600;
+  color: #385546;
+  text-transform: uppercase;
+}
+
+.assignment-deadline-date {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin-top: 4px;
+}
+
+.assignment-submitted-box {
+  background: #E8EFEA;
+  border: 1px solid rgba(19, 73, 44, 0.2);
+  border-radius: 18px;
+  padding: 32px;
+}
+
+.assignment-dropzone {
+  border: 2px dashed #B8C7BF;
+  border-radius: 18px;
+  padding: 48px 32px;
+  text-align: center;
+  background: #F8F7F5;
+  cursor: pointer;
+  margin-bottom: 24px;
+  transition: all 0.2s ease;
+}
+
+.assignment-dropzone:hover {
+  background: #f1ede8;
+  border-color: #0A2D1B;
+}
+
 @media (max-width: 1100px) {
   .std-top-grid,
   .std-mid-grid,
   .std-bot-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .assignment-grid-cols {
     grid-template-columns: 1fr;
   }
 }

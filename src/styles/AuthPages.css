@@ -1,5 +1,3 @@
-/* NEXYLVA Auth Pages Styling - Matching Figma 5-Log In / Registration */
-
 .nex-auth-wrapper {
   position: relative;
   min-height: calc(100vh - 96px);
@@ -263,7 +261,6 @@
   text-decoration: underline;
 }
 
-/* Choose Role Cards */
 .nex-role-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

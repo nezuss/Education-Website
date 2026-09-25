@@ -6,7 +6,6 @@ import "../../styles/MentorPortal.css";
 export default function MentorReviewPage() {
   const { id } = useParams();
 
-  // Criteria scores (1 to 5)
   const [scores, setScores] = useState<{ [key: string]: number }>({
     cycle: 5,
     materials: 4,
@@ -24,7 +23,6 @@ export default function MentorReviewPage() {
 
   const calculateTotal = () => {
     const sum = Object.values(scores).reduce((a, b) => a + b, 0);
-    // 4 criteria * 5 = 20 max; scaled to 100
     return Math.round((sum / 20) * 100);
   };
 
@@ -39,7 +37,7 @@ export default function MentorReviewPage() {
         await rateSubmission({ submissionId: id, rate: total });
       }
       setSubmittedStatus(`Схвалено! Оцінка (${total}/100) збережена та надіслана студенту.`);
-    } catch (e: any) {
+    } catch {
       setSubmittedStatus(`Схвалено! Оцінка (${total}/100) зафіксована.`);
     }
   };
@@ -48,9 +46,16 @@ export default function MentorReviewPage() {
     setSubmittedStatus("Роботу повернуто на доопрацювання з вашим коментарем.");
   };
 
+  const handleSaveNotes = () => {
+    setSubmittedStatus("Особисті нотатки ментора успішно збережено.");
+  };
+
+  const handleSaveDraft = () => {
+    setSubmittedStatus("Поточний стан перевірки збережено як чернетку.");
+  };
+
   return (
     <div className="mentor-container">
-      {/* Breadcrumbs */}
       <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "16px" }}>
         <Link to="/mentor" style={{ color: "inherit", textDecoration: "none" }}>Головна</Link>
         {" > "}
@@ -59,7 +64,6 @@ export default function MentorReviewPage() {
         <span style={{ color: "var(--accent-primary)", fontWeight: 600 }}>Анна Коваль / Перевірка роботи</span>
       </div>
 
-      {/* Header */}
       <header className="mentor-header">
         <div>
           <div style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", color: "var(--accent-warm)", letterSpacing: "0.05em", marginBottom: "4px" }}>
@@ -77,7 +81,6 @@ export default function MentorReviewPage() {
         </div>
       </header>
 
-      {/* Top Student Header Card */}
       <section className="review-student-header-card">
         <div className="review-student-meta">
           <img
@@ -110,18 +113,14 @@ export default function MentorReviewPage() {
         </div>
       </section>
 
-      {/* Notification Banner on Decision */}
       {submittedStatus && (
         <div style={{ background: "#E2ECE5", border: "1px solid #557061", color: "#0A2D1B", padding: "16px 24px", borderRadius: "16px", marginBottom: "24px", fontWeight: 600 }}>
           ✓ {submittedStatus}
         </div>
       )}
 
-      {/* Main Grid: Work & Scoring */}
       <div className="mentor-grid-layout">
-        {/* Left Column: Work Details, Files, Preview, Feedback */}
         <div>
-          {/* Assignment Description Card */}
           <div className="review-task-desc-card">
             <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--accent-secondary)", textTransform: "uppercase" }}>
               [ ЗАВАНТАЖЕННЯ ПРОЄКТУ ]
@@ -138,7 +137,6 @@ export default function MentorReviewPage() {
             </div>
           </div>
 
-          {/* Student Files Panel */}
           <div className="review-files-panel">
             <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--accent-primary)", textTransform: "uppercase", marginBottom: "12px" }}>
               [ МАТЕРІАЛИ СТУДЕНТА ]
@@ -187,7 +185,6 @@ export default function MentorReviewPage() {
             </div>
           </div>
 
-          {/* Work Preview Slides */}
           <div className="review-preview-panel">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
@@ -231,7 +228,6 @@ export default function MentorReviewPage() {
             </div>
           </div>
 
-          {/* Mentor Feedback Panel */}
           <div className="review-feedback-panel">
             <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--accent-secondary)", textTransform: "uppercase" }}>
               [ FEEDBACK ]
@@ -255,7 +251,6 @@ export default function MentorReviewPage() {
             </div>
           </div>
 
-          {/* Mentor Private Notes */}
           <div className="review-task-desc-card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
               <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--accent-warm)", textTransform: "uppercase" }}>
@@ -278,7 +273,7 @@ export default function MentorReviewPage() {
               <button
                 type="button"
                 className="mentor-action-btn"
-                onClick={() => alert("Нотатки збережено!")}
+                onClick={handleSaveNotes}
               >
                 Зберегти нотатку
               </button>
@@ -286,9 +281,7 @@ export default function MentorReviewPage() {
           </div>
         </div>
 
-        {/* Right Column: Status, Criteria Scoring, Decision */}
         <aside className="review-right-column">
-          {/* Status Card */}
           <div className="review-status-card">
             <div className="review-status-tag">[ СТАТУС ]</div>
             <h3 className="review-status-title">Робота на перевірці</h3>
@@ -315,7 +308,6 @@ export default function MentorReviewPage() {
             </div>
           </div>
 
-          {/* Scoring Criteria Card */}
           <div className="review-criteria-card">
             <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--accent-secondary)", textTransform: "uppercase" }}>
               [ КРИТЕРІЇ ]
@@ -324,7 +316,6 @@ export default function MentorReviewPage() {
               Оцінювання
             </h3>
 
-            {/* Criteria 1 */}
             <div className="review-criterion-item">
               <div className="review-criterion-title">Аналіз життєвого циклу</div>
               <div className="review-criterion-desc">Логіка етапів, повнота та аргументація.</div>
@@ -342,7 +333,6 @@ export default function MentorReviewPage() {
               </div>
             </div>
 
-            {/* Criteria 2 */}
             <div className="review-criterion-item">
               <div className="review-criterion-title">Робота з матеріалами</div>
               <div className="review-criterion-desc">Походження, властивості та повторне використання.</div>
@@ -360,7 +350,6 @@ export default function MentorReviewPage() {
               </div>
             </div>
 
-            {/* Criteria 3 */}
             <div className="review-criterion-item">
               <div className="review-criterion-title">Якість запропонованих рішень</div>
               <div className="review-criterion-desc">Реалістичність і екологічний ефект.</div>
@@ -378,7 +367,6 @@ export default function MentorReviewPage() {
               </div>
             </div>
 
-            {/* Criteria 4 */}
             <div className="review-criterion-item">
               <div className="review-criterion-title">Візуальна подача</div>
               <div className="review-criterion-desc">Структура, читабельність та оформлення.</div>
@@ -396,7 +384,6 @@ export default function MentorReviewPage() {
               </div>
             </div>
 
-            {/* Total score box */}
             <div className="review-total-score-box">
               <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--accent-primary)" }}>
                 Підсумкова оцінка:
@@ -407,7 +394,6 @@ export default function MentorReviewPage() {
             </div>
           </div>
 
-          {/* Decision Box */}
           <div className="review-decision-card">
             <div style={{ fontSize: "11px", fontWeight: 700, color: "#C2D1C9", textTransform: "uppercase" }}>
               [ ФІНАЛЬНЕ РІШЕННЯ ]
@@ -437,7 +423,7 @@ export default function MentorReviewPage() {
               <button
                 type="button"
                 className="review-decision-btn-outline"
-                onClick={() => alert("Збережено як чернетку!")}
+                onClick={handleSaveDraft}
               >
                 <span>Зберегти як чернетку</span>
                 <span>&rarr;</span>
@@ -470,7 +456,6 @@ export default function MentorReviewPage() {
         </aside>
       </div>
 
-      {/* History Timeline Card */}
       <section className="review-history-card">
         <div style={{ fontSize: "11px", fontWeight: 700, color: "#C2D1C9", textTransform: "uppercase" }}>
           [ ІСТОРІЯ ]

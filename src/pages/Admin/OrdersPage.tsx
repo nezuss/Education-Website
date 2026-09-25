@@ -99,14 +99,13 @@ export default function OrdersPage() {
 
   return (
     <div className="admin-container">
-      {/* Breadcrumbs */}
+      
       <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "16px" }}>
         <Link to="/admin" style={{ color: "inherit", textDecoration: "none" }}>Головна</Link>
         {" > "}
         <span style={{ color: "var(--accent-primary)", fontWeight: 600 }}>Замовлення / Оплати</span>
       </div>
 
-      {/* Header */}
       <header className="admin-header">
         <div>
           <h1 className="admin-header-title">
@@ -125,7 +124,6 @@ export default function OrdersPage() {
         </button>
       </header>
 
-      {/* Overview Cards Row */}
       <section className="admin-stats-row">
         <div className="admin-overview-card">
           <div className="admin-tag">[ ФІНАНСИ ]</div>
@@ -164,7 +162,6 @@ export default function OrdersPage() {
         32 транзакція за серпень • 3 потребують перевірки
       </div>
 
-      {/* Toolbar */}
       <div className="admin-toolbar">
         <div className="admin-filter-pills">
           <button
@@ -224,7 +221,6 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {/* Monthly highlight & Statuses breakdown */}
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "28px", marginBottom: "32px" }}>
         <div className="admin-orders-banner">
           <div>
@@ -262,7 +258,6 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {/* Orders Data Table */}
       <div className="admin-table-wrap">
         <div className="admin-table-header" style={{ gridTemplateColumns: "1.2fr 2fr 2fr 1.5fr 1.2fr 1.2fr 1.2fr 110px" }}>
           <span>Замовлення</span>
@@ -326,7 +321,6 @@ export default function OrdersPage() {
         ))}
       </div>
 
-      {/* Order Details Modal (Figma 20-01 Order Details) */}
       {selectedOrder && (
         <div
           style={{

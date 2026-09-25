@@ -44,7 +44,6 @@ export default function AssignmentPage() {
 
   return (
     <div className="std-dash">
-      {/* Breadcrumbs */}
       <nav className="learn-breadcrumbs" aria-label="breadcrumb">
         <Link to="/student">Головна</Link>
         <span>&gt;</span>
@@ -55,23 +54,21 @@ export default function AssignmentPage() {
         <span className="active">Практичне завдання №2</span>
       </nav>
 
-      {/* Main Assignment Card */}
-      <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "40px", boxShadow: "0 4px 16px rgba(10, 45, 27, 0.04)" }}>
+      <div className="assignment-card-box">
         <span className="std-badge-tag">[ ПРАКТИЧНЕ ЗАВДАННЯ №2 ]</span>
-        <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "32px", fontWeight: 700, color: "var(--color-brand-dark)", margin: "8px 0 16px 0" }}>
+        <h1 className="assignment-title">
           Аналіз життєвого циклу продукту
         </h1>
-        <p style={{ fontSize: "16px", color: "var(--color-brand-soft)", lineHeight: 1.6, marginBottom: "28px" }}>
+        <p className="assignment-desc">
           Оберіть предмет повсякденного вжитку та оцініть його життєвий цикл від видобутку сировини до завершення експлуатації. Завантажте презентацію чи PDF-дослідження з обґрунтуванням циркулярного підходу.
         </p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px", marginBottom: "32px" }}>
-          {/* Instructions */}
-          <div style={{ background: "var(--color-bg-sand)", padding: "24px", borderRadius: "18px" }}>
-            <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-brand-dark)", marginBottom: "12px" }}>
+        <div className="assignment-grid-cols">
+          <div className="assignment-req-box">
+            <h3 className="assignment-req-title">
               Вимоги до завдання:
             </h3>
-            <ul style={{ paddingLeft: "20px", fontSize: "14px", color: "#444", lineHeight: 1.6, margin: 0 }}>
+            <ul className="assignment-req-list">
               <li>Визначте матеріальний склад обраного продукту (не менше 3 матеріалів).</li>
               <li>Складіть схему життєвого циклу (сировина &rarr; виробництво &rarr; використання &rarr; переробка).</li>
               <li>Запропонуйте мінімум 2 рішення для оптимізації екологічного сліду.</li>
@@ -79,11 +76,10 @@ export default function AssignmentPage() {
             </ul>
           </div>
 
-          {/* Meta & Deadline */}
-          <div style={{ background: "#C4D3CB", padding: "24px", borderRadius: "18px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <div className="assignment-deadline-box">
             <div>
-              <div style={{ fontSize: "12px", fontWeight: 600, color: "#385546", textTransform: "uppercase" }}>Дедлайн здачі</div>
-              <div style={{ fontFamily: "var(--font-heading)", fontSize: "24px", fontWeight: 700, color: "var(--color-brand-dark)", marginTop: "4px" }}>
+              <div className="assignment-deadline-caption">Дедлайн здачі</div>
+              <div className="assignment-deadline-date">
                 14 серпня 2026, 23:59
               </div>
             </div>
@@ -95,9 +91,8 @@ export default function AssignmentPage() {
           </div>
         </div>
 
-        {/* Upload Zone or Status */}
         {isSubmitted ? (
-          <div style={{ background: "#E8EFEA", border: "1px solid rgba(19, 73, 44, 0.2)", borderRadius: "18px", padding: "32px" }}>
+          <div className="assignment-submitted-box">
             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
               <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--color-brand-primary)", color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>
                 ✓
@@ -128,15 +123,7 @@ export default function AssignmentPage() {
         ) : (
           <form onSubmit={handleUpload}>
             <div
-              style={{
-                border: "2px dashed #B8C7BF",
-                borderRadius: "18px",
-                padding: "48px 32px",
-                textAlign: "center",
-                background: "#F8F7F5",
-                cursor: "pointer",
-                marginBottom: "24px"
-              }}
+              className="assignment-dropzone"
               onClick={() => document.getElementById("file-upload")?.click()}
             >
               <input

@@ -15,7 +15,7 @@ export default function PopularDirections() {
             </div>
 
             <div className="directions-grid">
-                {/* Direction Card 1 */}
+                
                 <article className="direction-card">
                     <div className="direction-photo-wrapper">
                         <img 
@@ -39,7 +39,6 @@ export default function PopularDirections() {
                     </Link>
                 </article>
 
-                {/* Direction Card 2 */}
                 <article className="direction-card">
                     <div className="direction-photo-wrapper">
                         <img 
@@ -63,7 +62,6 @@ export default function PopularDirections() {
                     </Link>
                 </article>
 
-                {/* Direction Card 3 */}
                 <article className="direction-card">
                     <div className="direction-photo-wrapper">
                         <img 
@@ -87,7 +85,6 @@ export default function PopularDirections() {
                     </Link>
                 </article>
 
-                {/* Why NEXYLVA Card */}
                 <div className="why-nexylva-card">
                     <h3 className="why-title">Чому NEXYLVA ?</h3>
                     <div className="why-items-list">

@@ -75,7 +75,7 @@ export default function PopularCourses() {
                 {COURSES_DATA.map((course) => (
                     <article key={course.id} className="landing-course-card">
                         <Link to={`/courses/${course.id}`} className="course-card-link">
-                            {/* Photo and Badge */}
+                            
                             <div className="course-card-photo-box">
                                 <span className="course-card-tag">[ {course.tag} ]</span>
                                 <span className="course-card-duration">[ {course.duration} ]</span>
@@ -87,12 +87,10 @@ export default function PopularCourses() {
                                 />
                             </div>
 
-                            {/* Card Content */}
                             <div className="course-card-content">
                                 <h3 className="course-card-title">{course.title}</h3>
                                 <p className="course-card-desc">{course.description}</p>
 
-                                {/* Card Meta & Rating */}
                                 <div className="course-card-footer">
                                     <div className="course-card-meta">
                                         <span>{course.modules} модулів</span>

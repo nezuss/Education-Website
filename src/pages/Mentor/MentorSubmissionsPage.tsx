@@ -107,14 +107,13 @@ export default function MentorSubmissionsPage() {
 
   return (
     <div className="mentor-container">
-      {/* Breadcrumbs */}
+      
       <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "16px" }}>
         <Link to="/mentor" style={{ color: "inherit", textDecoration: "none" }}>Головна</Link>
         {" > "}
         <span style={{ color: "var(--accent-primary)", fontWeight: 600 }}>На перевірці</span>
       </div>
 
-      {/* Header */}
       <header className="mentor-header">
         <div>
           <h1 className="mentor-header-title">
@@ -129,7 +128,6 @@ export default function MentorSubmissionsPage() {
         </div>
       </header>
 
-      {/* Top 4 stat cards */}
       <section className="queue-stats-row">
         <div className="queue-banner-card">
           <div className="queue-tag">[ Огляд ]</div>
@@ -155,7 +153,6 @@ export default function MentorSubmissionsPage() {
         </div>
       </section>
 
-      {/* Filter and search toolbar */}
       <div className="mentor-toolbar">
         <div className="mentor-filter-group">
           <button
@@ -215,7 +212,6 @@ export default function MentorSubmissionsPage() {
         </div>
       </div>
 
-      {/* Review Queue Table */}
       <div className="mentor-table-wrap">
         <div className="mentor-table-header">
           <span>№</span>

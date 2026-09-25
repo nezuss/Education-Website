@@ -1,8 +1,3 @@
-/* ==========================================================================
-   NEXYLVA — Checkout Page Styles
-   Based on exact Figma 6-Checkout layout
-   ========================================================================== */
-
 .checkout-page-root {
     max-width: 1920px;
     margin: 0 auto;
@@ -34,7 +29,6 @@
     align-items: flex-start;
 }
 
-/* 1. Left Card: Order Details */
 .checkout-order-card {
     background: #ffffff;
     border: 1px solid rgba(10, 45, 27, 0.15);
@@ -130,7 +124,6 @@
     object-fit: cover;
 }
 
-/* 2. Right Card: Price & Payment */
 .checkout-summary-card {
     background: #ffffff;
     border: 1px solid rgba(10, 45, 27, 0.15);
@@ -291,7 +284,64 @@
     font-size: 13px;
 }
 
-/* Responsive */
+.plan-switch-dialog {
+    max-width: 560px;
+    padding: 36px;
+    background: #ffffff;
+    color: #0A2D1B;
+}
+
+.plan-switch-title {
+    font-family: var(--font-heading);
+    font-size: 22px;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.plan-switch-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.plan-switch-item {
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(10, 45, 27, 0.15);
+    background: #ffffff;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.plan-switch-item.selected {
+    border: 2px solid #0A2D1B;
+    background: #f0f7f3;
+}
+
+.plan-switch-item:hover {
+    border-color: #0A2D1B;
+}
+
+.plan-item-title {
+    font-weight: 700;
+    font-size: 16px;
+    color: #0A2D1B;
+}
+
+.plan-item-sub {
+    font-size: 13px;
+    color: #557061;
+}
+
+.plan-item-price {
+    font-weight: 800;
+    font-size: 17px;
+    color: #0A2D1B;
+}
+
 @media (max-width: 1024px) {
     .checkout-two-cards-grid {
         grid-template-columns: 1fr;

@@ -1,19 +1,9 @@
-/* ==========================================================================
-   NEXYLVA Mentor Portal Styles
-   Matching Figma:
-   - 13-Mentor Dashboard
-   - 14-Mentor Review Queue
-   - 15-Review Project & 16-Mentor Feedback
-   - 13-04-Mentor Profile
-   ========================================================================== */
-
 .mentor-container {
   padding: 40px;
   max-width: 1440px;
   margin: 0 auto;
 }
 
-/* Header & Date */
 .mentor-header {
   display: flex;
   justify-content: space-between;
@@ -51,7 +41,6 @@
   white-space: nowrap;
 }
 
-/* Hero Overview Card */
 .mentor-hero-card {
   background: #E1DAD2;
   border: 1px solid rgba(85, 112, 97, 0.2);
@@ -142,14 +131,12 @@
   font-weight: 500;
 }
 
-/* Two-column layout */
 .mentor-grid-layout {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 32px;
 }
 
-/* Section Header */
 .mentor-section-header {
   display: flex;
   justify-content: space-between;
@@ -180,7 +167,6 @@
   color: var(--accent-primary);
 }
 
-/* Works Box */
 .mentor-works-panel {
   background: #FFFFFF;
   border: 1px solid var(--accent-border);
@@ -325,7 +311,6 @@
   background: #9D8169;
 }
 
-/* Deadlines Panel */
 .mentor-deadlines-panel {
   background: #FFFFFF;
   border: 1px solid var(--accent-border);
@@ -380,10 +365,6 @@
   color: var(--text-secondary);
 }
 
-/* ==========================================================================
-   QUEUE PAGE SPECIFIC
-   ========================================================================== */
-
 .queue-stats-row {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr 1fr;
@@ -421,7 +402,6 @@
   margin: 0;
 }
 
-/* Filter & Controls Toolbar */
 .mentor-toolbar {
   display: flex;
   justify-content: space-between;
@@ -494,7 +474,6 @@
   outline: none;
 }
 
-/* Table Style for Queue */
 .mentor-table-wrap {
   background: #FFFFFF;
   border: 1px solid var(--accent-border);
@@ -566,10 +545,6 @@
   color: var(--text-secondary);
 }
 
-/* ==========================================================================
-   REVIEW PROJECT & FEEDBACK PAGE
-   ========================================================================== */
-
 .review-student-header-card {
   background: #FFFFFF;
   border: 1px solid var(--accent-border);
@@ -626,7 +601,6 @@
   font-weight: 600;
 }
 
-/* Files Section */
 .review-files-panel {
   background: #E8EFEA;
   border: 1px solid #C2D1C9;
@@ -678,7 +652,6 @@
   color: var(--text-secondary);
 }
 
-/* Work preview slides */
 .review-preview-panel {
   background: #E2DAD2;
   border: 1px solid #C9BDB2;
@@ -722,7 +695,6 @@
   color: var(--text-secondary);
 }
 
-/* Scoring Criteria & Right Column */
 .review-right-column {
   display: flex;
   flex-direction: column;
@@ -783,7 +755,6 @@
   font-weight: 700;
 }
 
-/* Evaluation criteria card */
 .review-criteria-card {
   background: #FFFFFF;
   border: 1px solid var(--accent-border);
@@ -861,7 +832,6 @@
   color: var(--accent-warm);
 }
 
-/* Feedback & Comments */
 .review-feedback-panel {
   background: #FFFFFF;
   border: 1px solid var(--accent-border);
@@ -902,7 +872,6 @@
   font-weight: 600;
 }
 
-/* Decision Box */
 .review-decision-card {
   background: #0A2D1B;
   color: #FFFFFF;
@@ -987,7 +956,6 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* History Timeline */
 .review-history-card {
   background: #557061;
   color: #FFFFFF;
@@ -1041,7 +1009,6 @@
   color: #C2D1C9;
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
   .mentor-grid-layout {
     grid-template-columns: 1fr;

@@ -32,7 +32,6 @@ export default function ProtectedRoute({ allowedRoles, children }: ProtectedRout
                 }
             })
             .catch(() => {
-                // If profile fails but token exists, parsed JWT role will still be used
             })
             .finally(() => {
                 if (isMounted) {

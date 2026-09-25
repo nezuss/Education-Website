@@ -80,8 +80,9 @@ export default function CoursesManagePage() {
   const [search, setSearch] = useState<string>("");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<CourseManageItem | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
-  // Form states for Course Editor modal
   const [formTitle, setFormTitle] = useState("Сталий і циркулярний дизайн");
   const [formCategory, setFormCategory] = useState("Сталий і циркулярний дизайн");
   const [formMentor, setFormMentor] = useState("Олексій Романенко");
@@ -119,8 +120,7 @@ export default function CoursesManagePage() {
         const merged = [...mapped, ...DEFAULT_COURSES.filter((c) => !existingIds.has(c.id))];
         setCourses(merged);
       }
-    } catch (e) {
-      console.warn("Could not load backend courses:", e);
+    } catch {
     }
   };
 
@@ -145,6 +145,7 @@ export default function CoursesManagePage() {
   });
 
   const openEditor = (course?: CourseManageItem) => {
+    setShowDeleteConfirm(false);
     if (course) {
       setEditingCourse(course);
       setFormTitle(course.title);
@@ -173,7 +174,7 @@ export default function CoursesManagePage() {
           price: cleanPrice,
           totalLearningPeriodWeeks: cleanWeeks
         });
-        alert("✓ Курс успішно оновлено на сервері!");
+        setNoticeMessage("✓ Курс успішно оновлено на сервері!");
       } else {
         await createCourse({
           title: formTitle,
@@ -183,12 +184,11 @@ export default function CoursesManagePage() {
           projectsReadyForPortfolio: 2,
           bannerUrl: "/courses/catalog-lca.webp"
         });
-        alert("✓ Новий курс успішно збережено на сервері!");
+        setNoticeMessage("✓ Новий курс успішно збережено на сервері!");
       }
       await loadCourses();
       setEditorOpen(false);
-    } catch (err: any) {
-      console.warn("Save course error:", err);
+    } catch {
       if (editingCourse) {
         setCourses((prev) =>
           prev.map((c) =>
@@ -217,39 +217,48 @@ export default function CoursesManagePage() {
           }
         ]);
       }
+      setNoticeMessage("✓ Зміни збережено в інтерфейсі!");
       setEditorOpen(false);
     } finally {
       setSaving(false);
+      setTimeout(() => setNoticeMessage(null), 4000);
     }
   };
 
   const handleDeleteCourse = async () => {
     if (!editingCourse) return;
-    if (!confirm(`Ви впевнені, що хочете видалити курс "${editingCourse.title}"?`)) return;
     try {
       if (editingCourse.id.length > 10) {
         await deleteCourse(editingCourse.id);
       }
       setCourses((prev) => prev.filter((c) => c.id !== editingCourse.id));
       setEditorOpen(false);
-      alert("✓ Курс видалено!");
-    } catch (err: any) {
-      console.warn("Delete error:", err);
+      setShowDeleteConfirm(false);
+      setNoticeMessage("✓ Курс видалено!");
+    } catch {
       setCourses((prev) => prev.filter((c) => c.id !== editingCourse.id));
       setEditorOpen(false);
+      setShowDeleteConfirm(false);
+      setNoticeMessage("✓ Курс видалено!");
+    } finally {
+      setTimeout(() => setNoticeMessage(null), 4000);
     }
   };
 
   return (
     <div className="admin-container">
-      {/* Breadcrumbs */}
       <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "16px" }}>
         <Link to="/admin" style={{ color: "inherit", textDecoration: "none" }}>Головна</Link>
         {" > "}
         <span style={{ color: "var(--accent-primary)", fontWeight: 600 }}>Керування курсами</span>
       </div>
 
-      {/* Header */}
+      {noticeMessage && (
+        <div style={{ background: "#E2ECE5", border: "1px solid #557061", color: "#0A2D1B", padding: "14px 20px", borderRadius: "12px", marginBottom: "20px", fontWeight: 600 }}>
+          {noticeMessage}
+        </div>
+      )}
+
       <header className="admin-header">
         <div>
           <h1 className="admin-header-title">
@@ -268,7 +277,6 @@ export default function CoursesManagePage() {
         </button>
       </header>
 
-      {/* Overview Cards Row */}
       <section className="admin-stats-row">
         <div className="admin-overview-card">
           <div className="admin-tag">[ ОГЛЯД ]</div>
@@ -307,7 +315,6 @@ export default function CoursesManagePage() {
         36 курсів у бібліотеці • 6 у роботі
       </div>
 
-      {/* Toolbar */}
       <div className="admin-toolbar">
         <div className="admin-filter-pills">
           <button
@@ -367,7 +374,6 @@ export default function CoursesManagePage() {
         </div>
       </div>
 
-      {/* Courses Cards Grid */}
       <div className="admin-courses-grid">
         {filtered.map((course) => (
           <div
@@ -434,42 +440,19 @@ export default function CoursesManagePage() {
         ))}
       </div>
 
-      {/* Course Editor Modal (Figma 19-02 Create / Edit Course) */}
       {editorOpen && (
         <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0, 0, 0, 0.6)",
-            backdropFilter: "blur(6px)",
-            zIndex: 1000,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "24px"
-          }}
+          className="admin-modal-overlay"
           onClick={() => setEditorOpen(false)}
         >
           <div
-            style={{
-              background: "#E8E4DF",
-              borderRadius: "var(--radius-lg)",
-              maxWidth: "1000px",
-              width: "100%",
-              maxHeight: "92vh",
-              overflowY: "auto",
-              padding: "36px"
-            }}
+            className="admin-modal-window"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px" }}>
+            <div className="admin-modal-header">
               <div>
                 <span className="admin-tag">[ ROLES / РОЛІ ]</span>
-                <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "28px", fontWeight: 700, color: "var(--accent-primary)", margin: "4px 0" }}>
+                <h2 className="admin-modal-title">
                   {editingCourse ? "Редагування курсу" : "Створення нового курсу"}
                 </h2>
                 <p style={{ fontSize: "14px", color: "var(--text-secondary)", margin: 0 }}>
@@ -479,14 +462,34 @@ export default function CoursesManagePage() {
               <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
                 <span style={{ fontSize: "12px", color: "#C07C54", fontWeight: 600 }}>&bull; Є неопубліковані зміни</span>
                 {editingCourse && (
-                  <button
-                    type="button"
-                    style={{ background: "rgba(220, 53, 69, 0.15)", color: "#C53030", border: "1px solid rgba(220, 53, 69, 0.3)", padding: "10px 18px", borderRadius: "12px", fontWeight: 600, cursor: "pointer" }}
-                    onClick={handleDeleteCourse}
-                    disabled={saving}
-                  >
-                    Видалити курс
-                  </button>
+                  !showDeleteConfirm ? (
+                    <button
+                      type="button"
+                      style={{ background: "rgba(220, 53, 69, 0.15)", color: "#C53030", border: "1px solid rgba(220, 53, 69, 0.3)", padding: "10px 18px", borderRadius: "12px", fontWeight: 600, cursor: "pointer" }}
+                      onClick={() => setShowDeleteConfirm(true)}
+                      disabled={saving}
+                    >
+                      Видалити курс
+                    </button>
+                  ) : (
+                    <div style={{ display: "flex", gap: "6px" }}>
+                      <button
+                        type="button"
+                        style={{ background: "#C53030", color: "#FFFFFF", border: "none", padding: "10px 14px", borderRadius: "12px", fontWeight: 600, cursor: "pointer" }}
+                        onClick={handleDeleteCourse}
+                        disabled={saving}
+                      >
+                        Підтвердити видалення
+                      </button>
+                      <button
+                        type="button"
+                        style={{ background: "#C2D1C9", border: "none", padding: "10px 14px", borderRadius: "12px", fontWeight: 600, cursor: "pointer" }}
+                        onClick={() => setShowDeleteConfirm(false)}
+                      >
+                        Ні
+                      </button>
+                    </div>
+                  )
                 )}
                 <button
                   type="button"
@@ -506,12 +509,9 @@ export default function CoursesManagePage() {
               </div>
             </div>
 
-            {/* Form grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1.2fr", gap: "24px" }}>
-              {/* Left Column: Basic Info & Program */}
+            <div className="admin-modal-form-grid">
               <div>
-                {/* Basic info box */}
-                <div style={{ background: "#476252", color: "#FFFFFF", borderRadius: "var(--radius-lg)", padding: "28px", marginBottom: "24px" }}>
+                <div className="admin-box-basic">
                   <div className="admin-tag" style={{ color: "#C2D1C9" }}>[ BASIC INFO / ОСНОВНА ІНФОРМАЦІЯ ]</div>
                   <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "22px", fontWeight: 700, margin: "6px 0 20px 0" }}>
                     Основні дані
@@ -523,7 +523,7 @@ export default function CoursesManagePage() {
                       type="text"
                       value={formTitle}
                       onChange={(e) => setFormTitle(e.target.value)}
-                      style={{ width: "100%", padding: "12px 16px", borderRadius: "12px", border: "none", background: "#FAF8F5", fontSize: "14px", fontWeight: 600 }}
+                      className="admin-modal-input"
                     />
                   </div>
 
@@ -533,7 +533,7 @@ export default function CoursesManagePage() {
                       <select
                         value={formCategory}
                         onChange={(e) => setFormCategory(e.target.value)}
-                        style={{ width: "100%", padding: "12px 14px", borderRadius: "12px", border: "none", background: "#FAF8F5", fontSize: "13px", fontWeight: 600 }}
+                        className="admin-modal-select"
                       >
                         <option>Сталий і циркулярний дизайн</option>
                         <option>Zero-Waste Пакування</option>
@@ -545,7 +545,7 @@ export default function CoursesManagePage() {
                       <select
                         value={formMentor}
                         onChange={(e) => setFormMentor(e.target.value)}
-                        style={{ width: "100%", padding: "12px 14px", borderRadius: "12px", border: "none", background: "#FAF8F5", fontSize: "13px", fontWeight: 600 }}
+                        className="admin-modal-select"
                       >
                         <option>Олексій Романенко</option>
                         <option>Максим Ковальчук</option>
@@ -561,13 +561,12 @@ export default function CoursesManagePage() {
                       value={formDesc}
                       onChange={(e) => setFormDesc(e.target.value)}
                       rows={3}
-                      style={{ width: "100%", padding: "12px 16px", borderRadius: "12px", border: "none", background: "#FAF8F5", fontSize: "13px" }}
+                      className="admin-modal-textarea"
                     />
                   </div>
                 </div>
 
-                {/* Modules list box */}
-                <div style={{ background: "#B6C7BC", borderRadius: "var(--radius-lg)", padding: "28px" }}>
+                <div className="admin-box-modules">
                   <div className="admin-tag" style={{ color: "var(--accent-primary)" }}>[ MODULES / МОДУЛІ ]</div>
                   <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "22px", fontWeight: 700, color: "var(--accent-primary)", margin: "6px 0 18px 0" }}>
                     Програма курсу
@@ -601,10 +600,8 @@ export default function CoursesManagePage() {
                 </div>
               </div>
 
-              {/* Right Column: Publishing & Image */}
               <div>
-                {/* Parameters box */}
-                <div style={{ background: "#C2D1C9", borderRadius: "var(--radius-lg)", padding: "28px", marginBottom: "24px" }}>
+                <div className="admin-box-params">
                   <div className="admin-tag" style={{ color: "var(--accent-primary)" }}>[ PUBLISHING / ПУБЛІКАЦІЯ ]</div>
                   <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "22px", fontWeight: 700, color: "var(--accent-primary)", margin: "6px 0 20px 0" }}>
                     Параметри курсу
@@ -641,22 +638,20 @@ export default function CoursesManagePage() {
                   </div>
                 </div>
 
-                {/* Cover image box */}
-                <div style={{ background: "#E2DAD2", borderRadius: "var(--radius-lg)", padding: "28px", textAlign: "center" }}>
+                <div className="admin-box-cover">
                   <div className="admin-tag" style={{ color: "var(--accent-primary)", textAlign: "left" }}>[ BANNER / ОБКЛАДИНКА ]</div>
                   <img
                     src="/admin/course_lca_banner.webp"
                     alt="Course Preview"
                     style={{ width: "100%", height: "140px", objectFit: "cover", borderRadius: "12px", margin: "14px 0" }}
                   />
-                  <button
-                    type="button"
+                  <label
                     className="admin-btn-primary"
-                    style={{ width: "100%", justifyContent: "center" }}
-                    onClick={() => alert("Виберіть зображення для завантаження")}
+                    style={{ width: "100%", justifyContent: "center", cursor: "pointer", display: "inline-flex", boxSizing: "border-box" }}
                   >
-                    Замінити зображення
-                  </button>
+                    <span>Замінити зображення</span>
+                    <input type="file" style={{ display: "none" }} onChange={() => setNoticeMessage("✓ Зображення оновлено")} />
+                  </label>
                 </div>
               </div>
             </div>

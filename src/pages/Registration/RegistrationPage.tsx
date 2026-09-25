@@ -30,7 +30,6 @@ export default function RegistrationPage() {
         email: String(formData.get("email")),
         password,
       });
-      // Redirect to Choose Role step
       navigate("/choose-role");
     } catch (e) {
       setError((e as Error)?.message ?? "Не вдалося зареєструватися. Спробуйте інший email.");
@@ -42,7 +41,7 @@ export default function RegistrationPage() {
   return (
     <div className="nex-auth-wrapper">
       <div className="nex-auth-card">
-        {/* Step indicator */}
+        
         <div className="nex-auth-steps">
           <div className="nex-auth-step-bar active"></div>
           <div className="nex-auth-step-bar"></div>

@@ -21,7 +21,6 @@ export default function MentorDashboardPage() {
   const [, setCourses] = useState<Course[]>([]);
   const [, setLoading] = useState(true);
 
-  // Sample data faithfully aligned with Figma 13-Mentor Dashboard
   const works: QueueWork[] = [
     {
       id: "1",
@@ -89,7 +88,7 @@ export default function MentorDashboardPage() {
 
   return (
     <div className="mentor-container">
-      {/* Header */}
+      
       <header className="mentor-header">
         <div>
           <h1 className="mentor-header-title">
@@ -105,7 +104,6 @@ export default function MentorDashboardPage() {
         </div>
       </header>
 
-      {/* Hero Overview Card */}
       <section className="mentor-hero-card">
         <div className="mentor-hero-top">
           <div className="mentor-hero-heading">
@@ -135,9 +133,8 @@ export default function MentorDashboardPage() {
         </div>
       </section>
 
-      {/* Main Grid: Works & Deadlines */}
       <div className="mentor-grid-layout">
-        {/* Left Column: Works on Review */}
+        
         <section>
           <div className="mentor-section-header">
             <h2 className="mentor-section-title">На перевірці</h2>
@@ -174,7 +171,6 @@ export default function MentorDashboardPage() {
           </div>
         </section>
 
-        {/* Right Column: Deadlines */}
         <aside>
           <div className="mentor-section-header">
             <h2 className="mentor-section-title">Дедлайни</h2>

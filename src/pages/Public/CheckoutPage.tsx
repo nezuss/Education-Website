@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { enrollToCourse } from "../../services/courseService";
+import { enrollToCourse, getCourses } from "../../services/courseService";
 import "../../styles/CheckoutPage.css";
 
 interface PlanConfig {
@@ -31,6 +31,13 @@ const PLANS: Record<string, PlanConfig> = {
     }
 };
 
+const DEFAULT_COURSE_NAMES: Record<string, string> = {
+    "lca-eco-design": "LCA & Еко-проєктування",
+    "circular-economy": "Циркулярний дизайн та матеріали",
+    "eco-materials": "Біоматеріали та інновації",
+    "green-architecture": "Стала архітектура та біомімікрія"
+};
+
 export default function CheckoutPage() {
     const { courseId = "lca-eco-design" } = useParams();
     const [searchParams] = useSearchParams();
@@ -40,6 +47,9 @@ export default function CheckoutPage() {
     const initialPlan = (planParam && PLANS[planParam]) ? planParam : "pro";
 
     const [selectedPlanKey, setSelectedPlanKey] = useState<string>(initialPlan);
+    const [courseTitle, setCourseTitle] = useState<string>(
+        DEFAULT_COURSE_NAMES[courseId] || "LCA & Еко-проєктування"
+    );
     const [promoInput, setPromoInput] = useState("");
     const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
     const [promoMessage, setPromoMessage] = useState<string>("");
@@ -47,6 +57,18 @@ export default function CheckoutPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [planModalOpen, setPlanModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (!courseId) return;
+        getCourses()
+            .then((courses) => {
+                const found = courses.find((c) => c.id === courseId || c.title.toLowerCase().includes(courseId.toLowerCase()));
+                if (found) {
+                    setCourseTitle(found.title);
+                }
+            })
+            .catch(() => {});
+    }, [courseId]);
 
     const activePlan = PLANS[selectedPlanKey] || PLANS.pro;
 
@@ -58,7 +80,7 @@ export default function CheckoutPage() {
         if (!promoInput.trim()) return;
         const normalized = promoInput.trim().toUpperCase();
         if (normalized === "ECO2026" || normalized === "NEXYLVA" || normalized === "STUDENT") {
-            setAppliedDiscount(0.1); // 10% discount
+            setAppliedDiscount(0.1);
             setPromoMessage(`✓ Промокод ${normalized} застосовано (-10%)`);
         } else {
             setAppliedDiscount(0);
@@ -72,7 +94,6 @@ export default function CheckoutPage() {
         setLoading(true);
 
         try {
-            // Attempt to enroll using backend service
             const redirectUrl = await enrollToCourse(courseId);
             if (redirectUrl && (redirectUrl.startsWith("http://") || redirectUrl.startsWith("https://"))) {
                 window.location.assign(redirectUrl);
@@ -81,12 +102,9 @@ export default function CheckoutPage() {
             }
         } catch (e: any) {
             if (e?.status === 401) {
-                // If unauthenticated, redirect to login with return path
                 navigate(`/login?redirect=/checkout/${courseId}?plan=${selectedPlanKey}`);
                 return;
             }
-            // For demo or if backend DB placeholder: allow demo success flow
-            console.warn("Backend payment returned error, continuing in demo mode:", e?.message);
             navigate(`/success?course_id=${encodeURIComponent(courseId)}&plan=${selectedPlanKey}&amount=${finalPrice}`);
         } finally {
             setLoading(false);
@@ -96,13 +114,12 @@ export default function CheckoutPage() {
     return (
         <div className="checkout-page-root">
             <div className="checkout-two-cards-grid">
-                {/* 1. Left Card: Order Details */}
                 <div className="checkout-order-card">
                     <h2 className="order-card-title">Деталі замовлення</h2>
 
                     <div className="order-card-content-grid">
                         <div>
-                            <h3 className="order-course-title">LCA &amp; Еко-проєктування</h3>
+                            <h3 className="order-course-title">{courseTitle}</h3>
 
                             <div className="order-plan-row">
                                 <span className="order-plan-name">{activePlan.title}</span>
@@ -123,7 +140,6 @@ export default function CheckoutPage() {
                             </ul>
                         </div>
 
-                        {/* Graphic */}
                         <div className="order-graphic-box">
                             <img 
                                 src="/courses/checkout-graphic.webp" 
@@ -134,9 +150,7 @@ export default function CheckoutPage() {
                     </div>
                 </div>
 
-                {/* 2. Right Card: Summary & Payment */}
                 <div className="checkout-summary-card">
-                    {/* Promo Code Input */}
                     <div className="promo-row">
                         <input 
                             type="text" 
@@ -158,19 +172,16 @@ export default function CheckoutPage() {
                         <div className="promo-message-success">{promoMessage}</div>
                     )}
 
-                    {/* Subtotal */}
                     <div className="price-subtotal-row">
                         <span className="subtotal-label">Ціна:</span>
                         <span className="subtotal-val">{activePlan.price.toLocaleString("uk-UA")} грн</span>
                     </div>
 
-                    {/* Total Due */}
                     <div className="total-due-row">
                         <span className="total-label">Разом до сплати:</span>
                         <span className="total-val">{finalPrice.toLocaleString("uk-UA")} грн</span>
                     </div>
 
-                    {/* Payment Method Selector */}
                     <div className="payment-method-selector">
                         <label className="method-option-label">
                             <input 
@@ -194,7 +205,6 @@ export default function CheckoutPage() {
                         </label>
                     </div>
 
-                    {/* Submit Pay Button */}
                     <button 
                         type="button" 
                         className="checkout-pay-btn"
@@ -211,10 +221,9 @@ export default function CheckoutPage() {
                 </div>
             </div>
 
-            {/* Plan Switch Modal */}
             {planModalOpen && (
                 <div className="landing-modal-overlay" onClick={() => setPlanModalOpen(false)}>
-                    <div className="landing-modal-content" style={{ maxWidth: "560px", padding: "36px", background: "#FFFFFF", color: "#0A2D1B" }} onClick={(e) => e.stopPropagation()}>
+                    <div className="landing-modal-content plan-switch-dialog" onClick={(e) => e.stopPropagation()}>
                         <button 
                             className="modal-close-btn" 
                             style={{ color: "#0A2D1B", background: "rgba(10, 45, 27, 0.08)" }}
@@ -222,30 +231,21 @@ export default function CheckoutPage() {
                         >
                             &times;
                         </button>
-                        <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "22px", marginBottom: "20px" }}>
+                        <h3 className="plan-switch-title">
                             Оберіть тариф навчання
                         </h3>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                        <div className="plan-switch-list">
                             {Object.values(PLANS).map((p) => (
                                 <div 
                                     key={p.key}
                                     onClick={() => { setSelectedPlanKey(p.key); setPlanModalOpen(false); }}
-                                    style={{
-                                        padding: "16px 20px",
-                                        borderRadius: "12px",
-                                        border: selectedPlanKey === p.key ? "2px solid #0A2D1B" : "1px solid rgba(10,45,27,0.15)",
-                                        background: selectedPlanKey === p.key ? "#f0f7f3" : "#ffffff",
-                                        cursor: "pointer",
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        alignItems: "center"
-                                    }}
+                                    className={`plan-switch-item ${selectedPlanKey === p.key ? 'selected' : ''}`}
                                 >
                                     <div>
-                                        <div style={{ fontWeight: 700, fontSize: "16px" }}>{p.title}</div>
-                                        <div style={{ fontSize: "13px", color: "#557061" }}>{p.features.join(" • ")}</div>
+                                        <div className="plan-item-title">{p.title}</div>
+                                        <div className="plan-item-sub">{p.features.join(" • ")}</div>
                                     </div>
-                                    <div style={{ fontWeight: 800, fontSize: "17px", color: "#0A2D1B" }}>
+                                    <div className="plan-item-price">
                                         {p.price.toLocaleString("uk-UA")} грн
                                     </div>
                                 </div>

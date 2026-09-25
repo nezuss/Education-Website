@@ -3,7 +3,7 @@ export default function PlatformValues() {
     return (
         <section className="landing-values-bar">
             <div className="landing-values-inner">
-                {/* Item 1 */}
+                
                 <div className="value-item">
                     <span className="value-icon">
                         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -19,7 +19,6 @@ export default function PlatformValues() {
                     </div>
                 </div>
 
-                {/* Item 2 */}
                 <div className="value-item">
                     <span className="value-icon">
                         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -33,7 +32,6 @@ export default function PlatformValues() {
                     </div>
                 </div>
 
-                {/* Item 3 */}
                 <div className="value-item">
                     <span className="value-icon">
                         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -48,7 +46,6 @@ export default function PlatformValues() {
                     </div>
                 </div>
 
-                {/* Item 4 */}
                 <div className="value-item">
                     <span className="value-icon">
                         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.5">

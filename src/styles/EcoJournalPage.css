@@ -1,8 +1,3 @@
-/* ==========================================================================
-   NEXYLVA — Eco Journal Page Styles
-   Based on exact Figma 4-Eco Journal layout & styles
-   ========================================================================== */
-
 .journal-page-container {
     max-width: 1920px;
     margin: 0 auto;
@@ -33,7 +28,6 @@
     display: inline-block;
 }
 
-/* Header Controls & Search */
 .catalog-top-row {
     display: flex;
     justify-content: space-between;
@@ -107,7 +101,6 @@
     user-select: none;
 }
 
-/* Filter Pills */
 .catalog-filter-pills-row {
     display: flex;
     flex-wrap: wrap;
@@ -136,7 +129,6 @@
     font-weight: 600;
 }
 
-/* 1. Featured Articles Grid (Top Row: 2fr 1fr asymmetrical) */
 .journal-top-grid {
     display: grid;
     grid-template-columns: 1.95fr 1.05fr;
@@ -237,7 +229,6 @@
     transform: translateX(3px);
 }
 
-/* 2. Middle Row: 38% Stat Box + Algae Bioplastic (1fr 2fr asymmetrical) */
 .journal-middle-grid {
     display: grid;
     grid-template-columns: 1.05fr 1.95fr;
@@ -308,7 +299,6 @@
     display: block;
 }
 
-/* 3. Section "Актуальні теми" */
 .journal-topics-section {
     margin-bottom: 56px;
 }
@@ -366,7 +356,6 @@
     box-shadow: 0 4px 12px rgba(10, 45, 27, 0.08);
 }
 
-/* 4. Bottom Banner: Read. Explore. Apply. */
 .journal-bottom-banner {
     background: #0A2D1B;
     border-radius: 24px;
@@ -429,7 +418,6 @@
     box-shadow: var(--shadow-medium);
 }
 
-/* Responsive */
 @media (max-width: 1200px) {
     .journal-top-grid {
         grid-template-columns: 1fr;

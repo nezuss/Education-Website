@@ -4,7 +4,7 @@ export default function CommunitySection() {
     return (
         <section className="landing-section" id="community">
             <div className="community-three-cols-grid">
-                {/* Box 1: Community Stats Card */}
+                
                 <div className="community-stats-card">
                     <div className="comm-top-content">
                         <h3 className="comm-card-heading">
@@ -41,7 +41,6 @@ export default function CommunitySection() {
                     </div>
                 </div>
 
-                {/* Box 2: Center Movement Banner */}
                 <div className="movement-banner-card">
                     <div className="movement-banner-photo">
                         <img 
@@ -68,7 +67,6 @@ export default function CommunitySection() {
                     </div>
                 </div>
 
-                {/* Box 3: Eco-Journal Card */}
                 <div className="eco-journal-card" id="journal">
                     <div className="journal-header-row">
                         <h3 className="journal-title">Еко-журнал</h3>
@@ -82,7 +80,7 @@ export default function CommunitySection() {
                     </div>
 
                     <div className="journal-articles-list">
-                        {/* Article 1 */}
+                        
                         <article className="journal-article-item">
                             <div className="article-photo-box">
                                 <img 
@@ -102,7 +100,6 @@ export default function CommunitySection() {
                             </a>
                         </article>
 
-                        {/* Article 2 */}
                         <article className="journal-article-item">
                             <div className="article-photo-box">
                                 <img 

@@ -17,7 +17,7 @@ export const ChooseRolePage: React.FC = () => {
   return (
     <div className="nex-auth-wrapper">
       <div className="nex-auth-card">
-        {/* Step indicator */}
+        
         <div className="nex-auth-steps">
           <div className="nex-auth-step-bar"></div>
           <div className="nex-auth-step-bar active"></div>

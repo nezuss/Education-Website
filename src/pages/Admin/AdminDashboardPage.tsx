@@ -29,14 +29,13 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="admin-container">
-      {/* Breadcrumbs */}
+      
       <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "16px" }}>
         <Link to="/admin" style={{ color: "inherit", textDecoration: "none" }}>Головна</Link>
         {" > "}
         <span style={{ color: "var(--accent-primary)", fontWeight: 600 }}>Головна панель адміністратора</span>
       </div>
 
-      {/* Header */}
       <header className="admin-header">
         <div>
           <h1 className="admin-header-title">
@@ -51,7 +50,6 @@ export default function AdminDashboardPage() {
         </div>
       </header>
 
-      {/* Top 5 Stat Cards */}
       <section className="admin-stats-row">
         <div className="admin-overview-card">
           <div className="admin-tag">[ ОГЛЯД ]</div>
@@ -88,14 +86,12 @@ export default function AdminDashboardPage() {
         </div>
       </section>
 
-      {/* Subline */}
       <div style={{ textAlign: "right", fontSize: "12px", color: "var(--text-secondary)", marginTop: "-16px", marginBottom: "32px" }}>
         *** Усі показники платформи оновлено • Зростання оплат на 12% за місяць
       </div>
 
-      {/* Main Grid: Chart & System Events */}
       <div className="admin-grid-layout">
-        {/* Left Column: Dynamics Chart */}
+        
         <section className="admin-chart-card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span className="admin-tag">[ АКТИВНІСТЬ ]</span>
@@ -105,28 +101,25 @@ export default function AdminDashboardPage() {
           <h2 className="admin-chart-title">Динаміка платформи</h2>
           <p className="admin-chart-sub">Нові користувачі та завершення курсів за останній місяць.</p>
 
-          {/* High-Fidelity SVG Chart matching Figma */}
           <svg className="admin-chart-svg" viewBox="0 0 700 200" fill="none">
-            {/* Grid lines */}
+            
             <line x1="40" y1="20" x2="680" y2="20" stroke="#E8E2DA" strokeDasharray="3 3" />
             <line x1="40" y1="70" x2="680" y2="70" stroke="#E8E2DA" strokeDasharray="3 3" />
             <line x1="40" y1="120" x2="680" y2="120" stroke="#E8E2DA" strokeDasharray="3 3" />
             <line x1="40" y1="170" x2="680" y2="170" stroke="#557061" strokeWidth="1.5" />
 
-            {/* Axis Y Labels */}
             <text x="15" y="24" fontSize="10" fill="#88968E">100</text>
             <text x="15" y="74" fontSize="10" fill="#88968E">75</text>
             <text x="15" y="124" fontSize="10" fill="#88968E">50</text>
             <text x="15" y="174" fontSize="10" fill="#88968E">0</text>
 
-            {/* Line 1: New Users (Dark Green) */}
             <path
               d="M 60 85 L 140 70 L 220 50 L 300 130 L 380 90 L 460 168 L 540 60 L 620 120 L 680 160"
               stroke="#476252"
               strokeWidth="2.5"
               fill="none"
             />
-            {/* Points 1 */}
+            
             <circle cx="60" cy="85" r="4.5" fill="#476252" />
             <circle cx="140" cy="70" r="4.5" fill="#476252" />
             <circle cx="220" cy="50" r="4.5" fill="#476252" />
@@ -137,14 +130,13 @@ export default function AdminDashboardPage() {
             <circle cx="620" cy="120" r="4.5" fill="#476252" />
             <circle cx="680" cy="160" r="4.5" fill="#476252" />
 
-            {/* Line 2: Course Completions (Copper) */}
             <path
               d="M 60 110 L 140 105 L 220 90 L 300 80 L 380 100 L 460 85 L 540 135 L 620 105 L 680 75"
               stroke="#C07C54"
               strokeWidth="2"
               fill="none"
             />
-            {/* Points 2 */}
+            
             <circle cx="60" cy="110" r="4" fill="#C07C54" />
             <circle cx="140" cy="105" r="4" fill="#C07C54" />
             <circle cx="220" cy="90" r="4" fill="#C07C54" />
@@ -156,7 +148,6 @@ export default function AdminDashboardPage() {
             <circle cx="680" cy="75" r="4" fill="#C07C54" />
           </svg>
 
-          {/* Chart Legend */}
           <div className="admin-chart-legend">
             <div className="admin-legend-item">
               <span className="admin-legend-dot" style={{ background: "#476252" }}></span>
@@ -168,7 +159,6 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          {/* 3 Metric Cards below chart */}
           <div className="admin-chart-metrics-row">
             <div className="admin-chart-mini-stat">
               <div className="admin-chart-mini-val">+8,4%</div>
@@ -185,7 +175,6 @@ export default function AdminDashboardPage() {
           </div>
         </section>
 
-        {/* Right Column: System Events */}
         <aside className="admin-events-card">
           <div style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", color: "#C2D1C9", letterSpacing: "0.05em" }}>
             [ ПОТРЕБУЄ УВАГИ ]

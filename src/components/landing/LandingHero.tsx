@@ -7,7 +7,6 @@ export default function LandingHero() {
     return (
         <section className="landing-hero" id="hero">
             <div className="landing-hero-inner">
-                {/* Left Column: Text & CTAs */}
                 <div className="hero-content">
                     <div className="hero-tag">
                         [ NEXT-GEN ECO-TECH EDUCATION ]
@@ -23,7 +22,6 @@ export default function LandingHero() {
                         Практичні знання та інструменти для тих хто створює екологічний світ
                     </p>
 
-                    {/* 4 Feature Pills */}
                     <div className="hero-features-grid">
                         <div className="hero-feature-item">
                             <span className="feature-icon-circle">
@@ -69,7 +67,6 @@ export default function LandingHero() {
                         </div>
                     </div>
 
-                    {/* CTAs */}
                     <div className="hero-actions">
                         <Link to="/courses" className="hero-btn-primary">
                             <span>Обрати курс</span>
@@ -99,7 +96,6 @@ export default function LandingHero() {
                     </div>
                 </div>
 
-                {/* Right Column: Hero Visual Graphic */}
                 <div className="hero-visual-wrapper">
                     <div className="hero-visual-frame">
                         <img 
@@ -111,7 +107,6 @@ export default function LandingHero() {
                 </div>
             </div>
 
-            {/* Video Trailer Modal */}
             {isVideoModalOpen && (
                 <div className="landing-modal-overlay" onClick={() => setIsVideoModalOpen(false)}>
                     <div className="landing-modal-content" onClick={(e) => e.stopPropagation()}>
@@ -124,7 +119,7 @@ export default function LandingHero() {
                         </button>
                         <div className="video-responsive-container">
                             <iframe 
-                                src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1" 
+                                src="https://www.youtube-nocookie.com/embed/LXb3EKWsInQ?autoplay=1" 
                                 title="NEXYLVA Platform Trailer" 
                                 frameBorder="0" 
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 

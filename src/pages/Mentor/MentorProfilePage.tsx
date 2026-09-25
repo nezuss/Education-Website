@@ -7,14 +7,13 @@ export default function MentorProfilePage() {
 
   return (
     <div className="mentor-container">
-      {/* Breadcrumbs */}
+      
       <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "16px" }}>
         <Link to="/mentor" style={{ color: "inherit", textDecoration: "none" }}>Головна</Link>
         {" > "}
         <span style={{ color: "var(--accent-primary)", fontWeight: 600 }}>Профіль ментора</span>
       </div>
 
-      {/* Header */}
       <header className="mentor-header">
         <div>
           <div style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", color: "var(--accent-warm)", letterSpacing: "0.05em", marginBottom: "4px" }}>
@@ -36,7 +35,6 @@ export default function MentorProfilePage() {
         </button>
       </header>
 
-      {/* Hero Profile Card */}
       <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1.2fr", gap: "28px", marginBottom: "32px" }}>
         <div style={{ background: "#0A2D1B", color: "#FFFFFF", borderRadius: "var(--radius-lg)", padding: "36px", display: "flex", gap: "28px", alignItems: "center" }}>
           <img
@@ -74,7 +72,6 @@ export default function MentorProfilePage() {
           </div>
         </div>
 
-        {/* Expertise Card */}
         <div style={{ background: "#E8EFEA", border: "1px solid #C2D1C9", borderRadius: "var(--radius-lg)", padding: "36px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
           <div>
             <div style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", color: "var(--accent-secondary)", letterSpacing: "0.05em", marginBottom: "8px" }}>
@@ -99,7 +96,6 @@ export default function MentorProfilePage() {
         </div>
       </div>
 
-      {/* Metrics Row */}
       <section style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", marginBottom: "36px" }}>
         <div className="mentor-metric-card">
           <div style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", color: "var(--text-secondary)", marginBottom: "4px" }}>
@@ -134,9 +130,8 @@ export default function MentorProfilePage() {
         </div>
       </section>
 
-      {/* Career path and competencies */}
       <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1.2fr", gap: "28px" }}>
-        {/* Mentor Timeline */}
+        
         <div style={{ background: "#E8EFEA", borderRadius: "var(--radius-lg)", padding: "32px", border: "1px solid #C2D1C9" }}>
           <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "22px", fontWeight: 700, color: "var(--accent-primary)", margin: "0 0 24px 0" }}>
             Менторський шлях
@@ -165,7 +160,6 @@ export default function MentorProfilePage() {
           </div>
         </div>
 
-        {/* Competencies Progress Bars */}
         <div style={{ background: "#F5EFEB", borderRadius: "var(--radius-lg)", padding: "32px", border: "1px solid #D8C7B9" }}>
           <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "22px", fontWeight: 700, color: "var(--accent-primary)", margin: "0 0 24px 0" }}>
             Напрями менторства

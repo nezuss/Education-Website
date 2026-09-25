@@ -33,7 +33,6 @@ import AboutPage from "../../pages/Public/AboutPage";
 import ChooseRolePage from "../../pages/Auth/ChooseRolePage";
 import ForgotPasswordPage from "../../pages/Auth/ForgotPasswordPage";
 
-
 import MentorProfilePage from "../../pages/Mentor/MentorProfilePage";
 import CoursesManagePage from "../../pages/Admin/CoursesManagePage";
 import OrdersPage from "../../pages/Admin/OrdersPage";
@@ -42,12 +41,11 @@ import AdminProfilePage from "../../pages/Admin/AdminProfilePage";
 
 import PublicLayout from "../../components/layout/PublicLayout";
 
-
 export default function AppRouter() {
     return (
         <BrowserRouter>
             <Routes>
-                {/* Public Website with NEXYLVA Header and Footer */}
+                
                 <Route element={<PublicLayout />}>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/courses" element={<CoursesPage />} />
@@ -68,10 +66,8 @@ export default function AppRouter() {
                     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 </Route>
 
-                {/* Authenticated Dashboard Routes */}
                 <Route element={<AppShell />}>
 
-                    {/* Student routes: any authenticated user */}
                     <Route element={<ProtectedRoute />}>
                         <Route path="/student" element={<StudentDashboardPage />} />
                         <Route path="/student/courses" element={<MyCoursesPage />} />
@@ -83,7 +79,6 @@ export default function AppRouter() {
                         <Route path="/student/profile" element={<ProfilePage />} />
                     </Route>
 
-                    {/* Mentor routes: Teacher or Admin */}
                     <Route element={<ProtectedRoute allowedRoles={["Teacher", "Admin"]} />}>
                         <Route path="/mentor" element={<MentorDashboardPage />} />
                         <Route path="/mentor/submissions" element={<MentorSubmissionsPage />} />
@@ -91,7 +86,6 @@ export default function AppRouter() {
                         <Route path="/mentor/profile" element={<MentorProfilePage />} />
                     </Route>
 
-                    {/* Admin routes: Admin only */}
                     <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
                         <Route path="/admin" element={<AdminDashboardPage />} />
                         <Route path="/admin/users" element={<UsersPage />} />

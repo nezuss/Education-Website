@@ -8,14 +8,13 @@ export default function AdminProfilePage() {
 
   return (
     <div className="admin-container">
-      {/* Breadcrumbs */}
+      
       <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "16px" }}>
         <Link to="/admin" style={{ color: "inherit", textDecoration: "none" }}>Головна</Link>
         {" > "}
         <span style={{ color: "var(--accent-primary)", fontWeight: 600 }}>Профіль адміністратора</span>
       </div>
 
-      {/* Header */}
       <header className="admin-header">
         <div>
           <div style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", color: "var(--accent-warm)", letterSpacing: "0.05em", marginBottom: "4px" }}>
@@ -37,9 +36,8 @@ export default function AdminProfilePage() {
         </button>
       </header>
 
-      {/* Profile Hero & Security */}
       <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1.2fr", gap: "28px", marginBottom: "32px" }}>
-        {/* Admin Card */}
+        
         <div style={{ background: "#0A2D1B", color: "#FFFFFF", borderRadius: "var(--radius-lg)", padding: "36px", display: "flex", gap: "28px", alignItems: "center" }}>
           <img
             src="/admin/admin_avatar.webp"
@@ -64,7 +62,6 @@ export default function AdminProfilePage() {
           </div>
         </div>
 
-        {/* Security Box */}
         <div style={{ background: "#F5EFEB", borderRadius: "var(--radius-lg)", padding: "32px", border: "1px solid #D8C7B9", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
           <div>
             <div className="admin-tag" style={{ color: "var(--accent-primary)" }}>[ SECURITY / БЕЗПЕКА ]</div>
@@ -128,9 +125,8 @@ export default function AdminProfilePage() {
         </div>
       </div>
 
-      {/* Contact Info & Activity Grid */}
       <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1.2fr", gap: "28px" }}>
-        {/* Contact Info */}
+        
         <div style={{ background: "#476252", color: "#FFFFFF", borderRadius: "var(--radius-lg)", padding: "32px" }}>
           <div className="admin-tag" style={{ color: "#C2D1C9" }}>[ PERSONAL DATA / ОСОБИСТІ ДАНІ ]</div>
           <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "22px", fontWeight: 700, margin: "6px 0 20px 0" }}>
@@ -160,7 +156,6 @@ export default function AdminProfilePage() {
           </div>
         </div>
 
-        {/* Activity Log */}
         <div style={{ background: "#B6C7BC", borderRadius: "var(--radius-lg)", padding: "32px" }}>
           <div className="admin-tag" style={{ color: "var(--accent-primary)" }}>[ ACTIVITY / АКТИВНІСТЬ ]</div>
           <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "22px", fontWeight: 700, color: "var(--accent-primary)", margin: "4px 0 20px 0" }}>

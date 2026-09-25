@@ -11,20 +11,65 @@ const CATEGORIES = [
   'Fashion'
 ];
 
+interface CommunityWork {
+  id: string;
+  title: string;
+  image: string;
+  category: string;
+  theme: 'sage' | 'beige';
+  isLarge?: boolean;
+}
+
+const ALL_COMMUNITY_WORKS: CommunityWork[] = [
+  {
+    id: '1',
+    title: 'Fragments / Світильник із переробленого скла',
+    image: '/community/work_lamp.webp',
+    category: 'Circular Design',
+    theme: 'sage',
+    isLarge: true
+  },
+  {
+    id: '2',
+    title: 'Re:Pack / Переосмислення пакування',
+    image: '/community/work_repack.webp',
+    category: 'Eco Branding',
+    theme: 'beige'
+  },
+  {
+    id: '3',
+    title: 'Biocomposite Surface / Біокомпозитна поверхня',
+    image: '/community/work_biocomposite.webp',
+    category: 'Materials',
+    theme: 'beige'
+  },
+  {
+    id: '4',
+    title: 'Denim Reconstructed / Друге життя текстилю',
+    image: '/community/work_denim.webp',
+    category: 'Creative Upcycling',
+    theme: 'sage'
+  }
+];
+
 export const CommunityPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('Усі');
+
+  const filteredWorks = ALL_COMMUNITY_WORKS.filter((w) => {
+    if (activeCategory === 'Усі') return true;
+    if (activeCategory === 'Fashion') return w.category === 'Creative Upcycling' || w.id === '4';
+    return w.category === activeCategory;
+  });
 
   return (
     <div className="community-page">
       <div className="community-content-pad">
-        {/* Breadcrumbs */}
         <nav className="comm-breadcrumbs" aria-label="breadcrumb">
           <Link to="/">Головна</Link>
           <span>&gt;</span>
           <span className="active">Спільнота</span>
         </nav>
 
-        {/* Section 1: Hero */}
         <section className="comm-hero-grid">
           <div className="comm-hero-left">
             <span className="comm-tag-badge">[ COMMUNITY / СПІЛЬНОТА ]</span>
@@ -67,7 +112,6 @@ export const CommunityPage: React.FC = () => {
         </section>
       </div>
 
-      {/* Section 2: Featured Project of Week (Dark Green) */}
       <section className="comm-featured-section">
         <span className="comm-tag-badge" style={{ color: '#B29074' }}>[ FEATURED / ОБРАНЕ ]</span>
         <div className="comm-featured-top">
@@ -120,7 +164,6 @@ export const CommunityPage: React.FC = () => {
       </section>
 
       <div className="community-content-pad" id="explore">
-        {/* Section 3: Works Grid */}
         <section className="comm-works-section">
           <span className="comm-tag-badge">[ EXPLORE COMMUNITY ]</span>
           <div className="comm-works-header">
@@ -143,51 +186,64 @@ export const CommunityPage: React.FC = () => {
             ))}
           </div>
 
-          <div className="comm-masonry-grid">
-            <div className="comm-work-card-large">
-              <img
-                src="/community/work_lamp.webp"
-                alt="Fragments recycled glass lamp"
-              />
-              <div className="comm-work-card-bottom sage">
-                <h3>Fragments / Світильник із переробленого скла</h3>
-              </div>
-            </div>
-
-            <div className="comm-works-col-right">
-              <div className="comm-works-row-two">
-                <div className="comm-work-small-card">
-                  <img
-                    src="/community/work_repack.webp"
-                    alt="Re:Pack Eco Branding"
-                  />
-                  <div className="comm-work-card-bottom beige">
-                    <h4>Re:Pack / Переосмислення пакування</h4>
-                  </div>
-                </div>
-
-                <div className="comm-work-small-card">
-                  <img
-                    src="/community/work_biocomposite.webp"
-                    alt="Biocomposite surface"
-                  />
-                  <div className="comm-work-card-bottom beige">
-                    <h4>Biocomposite Surface / Біокомпозитна поверхня</h4>
-                  </div>
-                </div>
-              </div>
-
-              <div className="comm-work-wide-card">
+          {activeCategory === 'Усі' ? (
+            <div className="comm-masonry-grid">
+              <div className="comm-work-card-large">
                 <img
-                  src="/community/work_denim.webp"
-                  alt="Denim Reconstructed"
+                  src="/community/work_lamp.webp"
+                  alt="Fragments recycled glass lamp"
                 />
                 <div className="comm-work-card-bottom sage">
-                  <h4>Denim Reconstructed / Друге життя текстилю</h4>
+                  <h3>Fragments / Світильник із переробленого скла</h3>
+                </div>
+              </div>
+
+              <div className="comm-works-col-right">
+                <div className="comm-works-row-two">
+                  <div className="comm-work-small-card">
+                    <img
+                      src="/community/work_repack.webp"
+                      alt="Re:Pack Eco Branding"
+                    />
+                    <div className="comm-work-card-bottom beige">
+                      <h4>Re:Pack / Переосмислення пакування</h4>
+                    </div>
+                  </div>
+
+                  <div className="comm-work-small-card">
+                    <img
+                      src="/community/work_biocomposite.webp"
+                      alt="Biocomposite surface"
+                    />
+                    <div className="comm-work-card-bottom beige">
+                      <h4>Biocomposite Surface / Біокомпозитна поверхня</h4>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="comm-work-wide-card">
+                  <img
+                    src="/community/work_denim.webp"
+                    alt="Denim Reconstructed"
+                  />
+                  <div className="comm-work-card-bottom sage">
+                    <h4>Denim Reconstructed / Друге життя текстилю</h4>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="comm-masonry-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+              {filteredWorks.map((work) => (
+                <div key={work.id} className="comm-work-small-card" style={{ height: '340px' }}>
+                  <img src={work.image} alt={work.title} style={{ height: '240px', objectFit: 'cover' }} />
+                  <div className={`comm-work-card-bottom ${work.theme}`}>
+                    <h4>{work.title}</h4>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="comm-all-works-row">
             <Link to="/portfolio" className="comm-all-works-link">
@@ -196,7 +252,6 @@ export const CommunityPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Section 4: Story & Slides */}
         <section className="comm-story-section">
           <div className="comm-story-content">
             <span className="comm-tag-badge">[ ІСТОРІЯ СПІЛЬНОТИ ]</span>
@@ -224,7 +279,6 @@ export const CommunityPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Section 5: Quote & Choice */}
         <section className="comm-quote-section">
           <div className="comm-quote-card-art">
             <img
@@ -254,7 +308,6 @@ export const CommunityPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Section 6: Bottom Banner */}
         <section className="comm-cta-banner">
           <div className="comm-cta-text-col">
             <span className="comm-tag-badge" style={{ background: 'rgba(232, 222, 213, 0.2)', color: '#E8DED5', border: '1px solid rgba(232, 222, 213, 0.3)', width: 'fit-content', padding: '4px 10px', borderRadius: '4px', marginBottom: '8px' }}>
@@ -278,4 +331,5 @@ export const CommunityPage: React.FC = () => {
     </div>
   );
 };
+
 export default CommunityPage;

@@ -31,19 +31,17 @@ export const ContactsPage: React.FC = () => {
       setName('');
       setEmail('');
       setMessage('');
-    }, 2000);
+    }, 2500);
   };
 
   return (
     <div className="contacts-page">
-      {/* Breadcrumbs */}
       <nav className="contacts-breadcrumbs" aria-label="breadcrumb">
         <Link to="/">Головна</Link>
         <span>&gt;</span>
         <span className="active">Контакти</span>
       </nav>
 
-      {/* Section 1: Hero */}
       <section className="contacts-hero-grid">
         <div className="contacts-hero-left">
           <div className="contacts-tag-badge">[ CONTACT NEXYLVA / КОНТАКТИ ]</div>
@@ -51,7 +49,7 @@ export const ContactsPage: React.FC = () => {
             Є питання?<br />Ми на зв’язку.
           </h1>
           <p className="contacts-hero-desc">
-            Напиши нам про навчання, партнерство, оплату або роботу платформи. Команда NEXYLVA допоможе знайти потрібну відповідь або скерує до відповідного фахівця.
+            Напишіть нам про навчання, партнерство, оплату або роботу платформи. Команда NEXYLVA допоможе знайти потрібну відповідь або скерує до відповідного фахівця.
           </p>
 
           <div className="contacts-hero-stats">
@@ -79,14 +77,13 @@ export const ContactsPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Section 2: Form */}
       <section className="contacts-form-section">
         <div className="contacts-form-grid">
           <div className="contacts-form-info">
             <div className="contacts-tag-badge">[ SEND A MESSAGE / НАПИСАТИ НАМ ]</div>
-            <h2>Розкажи, з чим потрібна допомога.</h2>
+            <h2>Розкажіть, з чим потрібна допомога.</h2>
             <p>
-              Обери тему звернення і залиш повідомлення. Так ми швидше передамо запит тій людині, яка зможе допомогти.
+              Оберіть тему звернення і залиште повідомлення. Так ми швидше передамо запит тій людині, яка зможе фахово допомогти.
             </p>
 
             <div className="contacts-topic-grid">
@@ -106,8 +103,8 @@ export const ContactsPage: React.FC = () => {
 
           <div className="contacts-form-container">
             {submitted ? (
-              <div className="contacts-success-banner">
-                Дякуємо за звернення! Ми отримали ваше повідомлення і зв'яжемося з вами найближчим часом.
+              <div className="contacts-success-banner" style={{ padding: '24px', background: '#97AE9F', color: '#0A2D1B', borderRadius: '8px', fontWeight: 500 }}>
+                ✓ Дякуємо за звернення! Ми отримали ваше повідомлення і відповімо протягом найближчого робочого дня.
               </div>
             ) : (
               <form onSubmit={handleSubmit}>
@@ -137,7 +134,7 @@ export const ContactsPage: React.FC = () => {
                 </div>
 
                 <div className="contacts-form-group" style={{ marginTop: '20px' }}>
-                  <label className="contacts-form-label">Тема звернення*</label>
+                  <label className="contacts-form-label">Повідомлення*</label>
                   <textarea
                     className="contacts-input contacts-textarea"
                     placeholder="Опишіть ваше питання або ситуацію..."
@@ -173,13 +170,12 @@ export const ContactsPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Section 3: Channels / Cards */}
       <section className="contacts-channels-section">
         <div className="contacts-tag-badge">[ CONTACT OPTIONS / ЯК НАС ЗНАЙТИ ]</div>
         <div className="contacts-channels-header">
-          <h2>Обери зручний спосіб</h2>
+          <h2>Оберіть зручний спосіб</h2>
           <div className="contacts-channels-subtext">
-            Для різних питань — різні канали. Так відповідь приходить швидше, а запит не губиться між командами.
+            Для різних питань — зручні канали. Так відповідь приходить швидше, а запит не губиться між командами.
           </div>
         </div>
 
@@ -215,13 +211,13 @@ export const ContactsPage: React.FC = () => {
                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                 <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
               </svg>
-              <a href="#instagram" target="_blank" rel="noreferrer">Instagram</a>
+              <a href="https://instagram.com/nexylva" target="_blank" rel="noreferrer">Instagram</a>
               <span>•</span>
-              <a href="#behance" target="_blank" rel="noreferrer">Behance</a>
+              <a href="https://behance.net/nexylva" target="_blank" rel="noreferrer">Behance</a>
               <span>•</span>
-              <a href="#linkedin" target="_blank" rel="noreferrer">LinkedIn</a>
+              <a href="https://linkedin.com/company/nexylva" target="_blank" rel="noreferrer">LinkedIn</a>
               <span>•</span>
-              <a href="#youtube" target="_blank" rel="noreferrer">YouTube</a>
+              <a href="https://youtube.com/@nexylva" target="_blank" rel="noreferrer">YouTube</a>
             </div>
             <span className="contacts-channel-desc">Новини, проєкти та життя спільноти.</span>
           </div>
@@ -230,6 +226,5 @@ export const ContactsPage: React.FC = () => {
     </div>
   );
 };
+
 export default ContactsPage;
-
-

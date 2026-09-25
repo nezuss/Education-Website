@@ -1,8 +1,3 @@
-/* ==========================================================================
-   NEXYLVA — Landing Page Design System & Layout
-   Based on exact Figma tokens & architecture
-   ========================================================================== */
-
 .landing-page-root {
     width: 100%;
     min-height: 100vh;
@@ -13,7 +8,6 @@
     overflow-x: hidden;
 }
 
-/* Base Container */
 .landing-container {
     max-width: 1920px;
     margin: 0 auto;
@@ -26,9 +20,6 @@
     }
 }
 
-/* ==========================================================================
-   1. HEADER
-   ========================================================================== */
 .landing-header {
     width: 100%;
     height: 96px;
@@ -164,9 +155,6 @@
     transform: translateY(-1px);
 }
 
-/* ==========================================================================
-   2. HERO SECTION
-   ========================================================================== */
 .landing-hero {
     width: 100%;
     padding: 50px 0 70px;
@@ -348,7 +336,6 @@
     color: var(--color-brand-soft);
 }
 
-/* Hero Right Visual */
 .hero-visual-wrapper {
     position: relative;
     width: 100%;
@@ -431,8 +418,6 @@
     display: block;
 }
 
-
-/* Hologram Cylinder Label */
 .hero-hologram-label {
     position: absolute;
     bottom: 24%;
@@ -467,9 +452,6 @@
     opacity: 0.85;
 }
 
-/* ==========================================================================
-   3. SECTIONS COMMON
-   ========================================================================== */
 .landing-section {
     max-width: 1920px;
     margin: 0 auto;
@@ -505,9 +487,6 @@
     transform: translateX(4px);
 }
 
-/* ==========================================================================
-   4. POPULAR DIRECTIONS
-   ========================================================================== */
 .directions-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -588,7 +567,6 @@
     color: #ffffff;
 }
 
-/* Why NEXYLVA Card */
 .why-nexylva-card {
     background: var(--color-brand-dark);
     border-radius: var(--radius-lg);
@@ -659,9 +637,6 @@
     flex-shrink: 0;
 }
 
-/* ==========================================================================
-   5. POPULAR COURSES
-   ========================================================================== */
 .courses-cards-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -797,16 +772,12 @@
     font-weight: 400;
 }
 
-/* ==========================================================================
-   6. COMMUNITY, MOVEMENT & JOURNAL
-   ========================================================================== */
 .community-three-cols-grid {
     display: grid;
     grid-template-columns: 412px 1fr 412px;
     gap: 24px;
 }
 
-/* Box 1: Community Stats */
 .community-stats-card {
     background: var(--color-brand-dark);
     box-shadow: var(--shadow-medium);
@@ -877,7 +848,6 @@
     width: auto;
 }
 
-/* Box 2: Center Movement Banner */
 .movement-banner-card {
     background: #ffffff;
     border-radius: var(--radius-lg);
@@ -944,7 +914,6 @@
     transform: translateY(-2px);
 }
 
-/* Box 3: Eco-Journal */
 .eco-journal-card {
     background: var(--color-bg-card-alt);
     border: 1px solid rgba(10, 45, 27, 0.15);
@@ -1030,9 +999,6 @@
     transform: translateX(3px);
 }
 
-/* ==========================================================================
-   7. PLATFORM VALUES BAR
-   ========================================================================== */
 .landing-values-bar {
     max-width: 1920px;
     margin: 30px auto;
@@ -1071,9 +1037,6 @@
     line-height: 1.4;
 }
 
-/* ==========================================================================
-   8. CTA NEWSLETTER BANNER
-   ========================================================================== */
 .landing-cta-banner-wrapper {
     max-width: 1920px;
     margin: 40px auto 60px;
@@ -1234,9 +1197,6 @@
     padding: 10px 0;
 }
 
-/* ==========================================================================
-   9. FOOTER
-   ========================================================================== */
 .landing-footer {
     width: 100%;
     background: #ffffff;
@@ -1410,7 +1370,6 @@
     transform: translateY(-1px);
 }
 
-/* Footer Bottom Bar */
 .footer-bottom-bar {
     display: flex;
     align-items: center;
@@ -1436,9 +1395,6 @@
     color: var(--color-brand-dark);
 }
 
-/* ==========================================================================
-   10. MODAL TRAILER
-   ========================================================================== */
 .landing-modal-overlay {
     position: fixed;
     inset: 0;
@@ -1490,9 +1446,6 @@
     height: 100%;
 }
 
-/* ==========================================================================
-   11. RESPONSIVE BREAKPOINTS
-   ========================================================================== */
 @media (max-width: 1400px) {
     .community-three-cols-grid {
         grid-template-columns: 1fr 1fr;
@@ -1577,7 +1530,6 @@
         align-items: flex-start;
     }
 }
-
 
 @media (max-width: 1440px) {
     .landing-header-inner,

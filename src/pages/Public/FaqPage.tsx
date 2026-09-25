@@ -60,12 +60,24 @@ const FAQ_QUESTIONS: FaqItem[] = [
     question: 'Чи можна повернути оплату за курс?',
     answer: 'Повернення коштів можливе протягом 14 календарних днів з моменту придбання за умови, що ви пройшли не більше 20% матеріалів курсу.'
   },
+  {
+    id: '7',
+    category: 'profile',
+    question: 'Як змінити пароль або контактний email?',
+    answer: 'Перейдіть у розділ «Особистий кабінет» -> «Профіль». У вкладці безпеки ви можете оновити пароль або зв\'язати акаунт з новою електронною поштою.'
+  },
+  {
+    id: '8',
+    category: 'tech',
+    question: 'Які технічні вимоги до пристрою для проходження курсів?',
+    answer: 'Достатньо будь-якого сучасного комп’ютера чи планшета з оновленим браузером (Chrome, Safari, Firefox або Edge) та стабільним підключенням до Інтернету.'
+  }
 ];
 
 export const FaqPage: React.FC = () => {
   const [selectedTopic, setSelectedTopic] = useState<string>('study');
   const [searchQuery, setSearchQuery] = useState('');
-  const [openIds, setOpenIds] = useState<Record<string, boolean>>({ '1': true });
+  const [openIds, setOpenIds] = useState<Record<string, boolean>>({ '2': true, '3': true });
 
   const toggleAccordion = (id: string) => {
     setOpenIds((prev) => ({
@@ -74,23 +86,35 @@ export const FaqPage: React.FC = () => {
     }));
   };
 
+  const handleTopicClick = (topicId: string) => {
+    if (selectedTopic === topicId) {
+      setSelectedTopic('');
+    } else {
+      setSelectedTopic(topicId);
+    }
+  };
+
   const filteredQuestions = FAQ_QUESTIONS.filter((item) => {
     const matchesSearch = item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.answer.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
+    
+    if (searchQuery.trim().length > 0) {
+      return matchesSearch;
+    }
+
+    if (!selectedTopic) return true;
+    return item.category === selectedTopic;
   });
 
   return (
     <div className="faq-page">
       <div className="faq-container">
-        {/* Breadcrumbs */}
         <nav className="faq-breadcrumbs" aria-label="breadcrumb">
           <Link to="/">Головна</Link>
           <span>&gt;</span>
           <span className="active">FAQ / Підтримка</span>
         </nav>
 
-        {/* Section 1: Hero */}
         <section className="faq-hero-grid">
           <div className="faq-hero-left">
             <div className="faq-tag-badge">[ FAQ & SUPPORT / FAQ ТА ПІДТРИМКА ]</div>
@@ -114,7 +138,7 @@ export const FaqPage: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button type="submit" className="faq-search-btn">
+              <button type="submit" className="faq-search-btn" aria-label="Пошук">
                 <span>Знайти</span>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -133,13 +157,12 @@ export const FaqPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Section 2: Topics Grid */}
         <section className="faq-topics-section">
           <div className="faq-tag-badge">[ SUPPORT TOPICS / ТЕМИ ПІДТРИМКИ ]</div>
           <div className="faq-topics-header">
             <h2 className="faq-topics-title">З чим допомогти?</h2>
             <div className="faq-topics-subtitle">
-              Напиши нам про навчання, партнерство, оплату або роботу платформи. Команда NEXYLVA допоможе знайти потрібну відповідь або скерує до відповідного фахівця.
+              Натисніть на категорію нижче, щоб відфільтрувати часті запитання або скористайтеся рядком пошуку вгорі.
             </div>
           </div>
 
@@ -149,7 +172,7 @@ export const FaqPage: React.FC = () => {
                 type="button"
                 key={topic.id}
                 className={`faq-topic-card ${selectedTopic === topic.id ? 'active' : ''}`}
-                onClick={() => setSelectedTopic(topic.id)}
+                onClick={() => handleTopicClick(topic.id)}
               >
                 <div className="faq-topic-number">{topic.num}</div>
                 <div className="faq-topic-name">{topic.name}</div>
@@ -159,14 +182,13 @@ export const FaqPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Section 3: Popular Questions */}
         <section className="faq-questions-section">
           <div className="faq-tag-badge">[ POPULAR QUESTIONS / ПОПУЛЯРНІ ПИТАННЯ ]</div>
           <div className="faq-questions-grid">
             <div className="faq-questions-intro">
               <h2>Найчастіше запитують</h2>
               <p>
-                Не знайшла потрібної відповіді? Нижче є звернення до підтримки — його можна використати для будь-якого питання.
+                Не знайшли потрібної відповіді? Нижче є прямий зв’язок із нашою підтримкою — ми відповідаємо оперативно.
               </p>
               <img
                 src="/faq/faq_assistant.webp"
@@ -176,41 +198,46 @@ export const FaqPage: React.FC = () => {
             </div>
 
             <div className="faq-accordion-list">
-              {filteredQuestions.map((q) => {
-                const isOpen = !!openIds[q.id];
-                return (
-                  <div key={q.id} className={`faq-accordion-item ${isOpen ? 'open' : ''}`}>
-                    <button
-                      type="button"
-                      className="faq-accordion-trigger"
-                      onClick={() => toggleAccordion(q.id)}
-                    >
-                      <span>{q.question}</span>
-                      <svg
-                        className="faq-accordion-icon"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
+              {filteredQuestions.length === 0 ? (
+                <div style={{ padding: '24px', background: '#F4ECE4', borderRadius: '8px', color: '#6A7D71' }}>
+                  За вашим запитом нічого не знайдено. Спробуйте змінити фільтр або пошуковий термін.
+                </div>
+              ) : (
+                filteredQuestions.map((q) => {
+                  const isOpen = !!openIds[q.id];
+                  return (
+                    <div key={q.id} className={`faq-accordion-item ${isOpen ? 'open' : ''}`}>
+                      <button
+                        type="button"
+                        className="faq-accordion-trigger"
+                        onClick={() => toggleAccordion(q.id)}
                       >
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                      </svg>
-                    </button>
-                    {isOpen && (
-                      <div className="faq-accordion-body">
-                        {q.answer}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                        <span>{q.question}</span>
+                        <svg
+                          className="faq-accordion-icon"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      </button>
+                      {isOpen && (
+                        <div className="faq-accordion-body">
+                          {q.answer}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </section>
 
-        {/* Section 4: Missing Answer / Support Card */}
         <section className="faq-unresolved-card">
           <div className="faq-unresolved-img-wrap">
             <img
@@ -222,9 +249,9 @@ export const FaqPage: React.FC = () => {
 
           <div className="faq-unresolved-content">
             <div className="faq-tag-badge">[ CONTACT SUPPORT / ЗВ'ЯЗАТИСЯ З ПІДТРИМКОЮ ]</div>
-            <h2>Не знайшла своєї відповіді?</h2>
+            <h2>Не знайшли своєї відповіді?</h2>
             <p>
-              Напиши команді NEXYLVA. Опиши питання коротко й додай деталі, якщо вони важливі — так ми швидше зрозуміємо ситуацію.
+              Напишіть команді NEXYLVA. Опишіть питання коротко й додайте деталі, якщо вони важливі — так ми швидше допоможемо вирішити його.
             </p>
 
             <div className="faq-unresolved-metrics">
@@ -248,7 +275,6 @@ export const FaqPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Section 5: Useful Resources (Dark Green Section) */}
         <section className="faq-resources-section">
           <div className="faq-tag-badge" style={{ color: '#E0D3C7' }}>[ USEFUL RESOURCES / КОРИСНІ МАТЕРІАЛИ ]</div>
           <div className="faq-resources-header">
@@ -279,7 +305,6 @@ export const FaqPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Section 6: Bottom Banner */}
         <section className="faq-bottom-banner">
           <div className="faq-bottom-banner-text">
             <div className="faq-tag-badge">[ NEXYLVA SUPPORT / ПІДТРИМКА NEXYLVA ]</div>
@@ -287,7 +312,7 @@ export const FaqPage: React.FC = () => {
               Ми поруч, коли потрібна допомога.
             </h2>
             <p className="faq-bottom-banner-desc">
-              Якщо відповідь не знайшлася у FAQ, звертайся напряму — команда підтримки допоможе розібратися.
+              Якщо відповідь не знайшлася у FAQ, звертайтеся напряму — команда підтримки допоможе розібратися.
             </p>
           </div>
 
@@ -309,4 +334,5 @@ export const FaqPage: React.FC = () => {
     </div>
   );
 };
+
 export default FaqPage;

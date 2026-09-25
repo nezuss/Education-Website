@@ -22,14 +22,13 @@ export default function ProfilePage() {
 
   return (
     <div className="std-dash">
-      {/* Breadcrumbs */}
+      
       <div style={{ fontSize: "14px", color: "var(--color-brand-soft)", display: "flex", gap: "8px" }}>
         <Link to="/student" style={{ color: "var(--color-brand-soft)", textDecoration: "none" }}>Головна</Link>
         <span>&gt;</span>
         <span style={{ color: "var(--color-brand-dark)", fontWeight: 500 }}>Профіль студента</span>
       </div>
 
-      {/* Header Profile Card */}
       <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "36px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "24px", boxShadow: "0 4px 16px rgba(10, 45, 27, 0.04)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
           <img
@@ -61,7 +60,6 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* Tabs */}
       <div style={{ display: "flex", gap: "12px" }}>
         <button
           type="button"
@@ -95,9 +93,8 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* Content Columns */}
       <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1.2fr", gap: "24px" }}>
-        {/* Left Form */}
+        
         <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "36px", boxShadow: "0 4px 16px rgba(10, 45, 27, 0.04)" }}>
           <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "20px", fontWeight: 700, marginBottom: "20px" }}>
             Інформація про користувача
@@ -156,7 +153,6 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        {/* Right Stats & Certs */}
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           <div style={{ background: "var(--color-bg-sand)", borderRadius: "24px", padding: "32px" }}>
             <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "18px", fontWeight: 700, color: "var(--color-brand-dark)", marginBottom: "16px" }}>

@@ -45,14 +45,13 @@ export const AboutPage: React.FC = () => {
   return (
     <div className="about-page">
       <div className="about-pad-container">
-        {/* Breadcrumbs */}
+        
         <nav className="about-breadcrumbs" aria-label="breadcrumb">
           <Link to="/">Головна</Link>
           <span>&gt;</span>
           <span className="active">Про нас</span>
         </nav>
 
-        {/* Section 1: Hero */}
         <section className="about-hero-grid">
           <div className="about-hero-left">
             <span className="about-tag-badge">[ ABOUT NEXYLVA / ПРО NEXYLVA ]</span>
@@ -94,7 +93,6 @@ export const AboutPage: React.FC = () => {
         </section>
       </div>
 
-      {/* Section 2: Mission (Dark Green) */}
       <section className="about-mission-section">
         <div className="about-mission-inner">
           <div className="about-mission-left">
@@ -114,7 +112,7 @@ export const AboutPage: React.FC = () => {
       </section>
 
       <div className="about-pad-container">
-        {/* Section 3: Story */}
+        
         <section className="about-story-section">
           <div className="about-story-media">
             <img
@@ -141,7 +139,6 @@ export const AboutPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Section 4: Our Approach */}
         <section className="about-approach-section" id="approach">
           <span className="about-tag-badge">[ OUR APPROACH / НАШ ПІДХІД ]</span>
           <div className="about-approach-layout">
@@ -211,7 +208,6 @@ export const AboutPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Section 5: Team */}
         <section className="about-team-section">
           <div className="about-team-header">
             <span className="about-tag-badge">[ PEOPLE BEHIND NEXYLVA / КОМАНДА ]</span>
@@ -239,7 +235,6 @@ export const AboutPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Section 6: Numbers Bar */}
         <section className="about-numbers-bar">
           <div className="about-bar-col">
             <span className="about-bar-val">186+</span>
@@ -259,7 +254,6 @@ export const AboutPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Section 7: Bottom CTA Banner */}
         <section className="about-cta-banner">
           <div className="about-cta-text">
             <span className="about-cta-badge">[ NEXYLVA COMMUNITY / СПІЛЬНОТА NEXYLVA ]</span>

@@ -4,14 +4,13 @@ import "../../styles/AdminPortal.css";
 export default function AnalyticsPage() {
   return (
     <div className="admin-container">
-      {/* Breadcrumbs */}
+      
       <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "16px" }}>
         <Link to="/admin" style={{ color: "inherit", textDecoration: "none" }}>Головна</Link>
         {" > "}
         <span style={{ color: "var(--accent-primary)", fontWeight: 600 }}>Аналітика платформи</span>
       </div>
 
-      {/* Header */}
       <header className="admin-header">
         <div>
           <h1 className="admin-header-title">
@@ -37,7 +36,6 @@ export default function AnalyticsPage() {
         </div>
       </header>
 
-      {/* 4 Stat Cards */}
       <section style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", marginBottom: "32px" }}>
         <div className="admin-stat-card">
           <div className="admin-tag">[ КОРИСТУВАЧІ ]</div>
@@ -68,36 +66,32 @@ export default function AnalyticsPage() {
         </div>
       </section>
 
-      {/* Analytics Main Grid: User dynamics & Role Distribution */}
       <div className="admin-analytics-grid">
-        {/* Dynamic Activity Chart */}
+        
         <section className="admin-chart-card">
           <div className="admin-tag">[ ДИНАМІКА ]</div>
           <h2 className="admin-chart-title">Активність користувачів</h2>
           <p className="admin-chart-sub">Динаміка активних користувачів за останні 7 днів.</p>
 
           <svg className="admin-chart-svg" viewBox="0 0 700 240" fill="none">
-            {/* Grid */}
+            
             <line x1="40" y1="30" x2="680" y2="30" stroke="#E8E2DA" strokeDasharray="3 3" />
             <line x1="40" y1="80" x2="680" y2="80" stroke="#E8E2DA" strokeDasharray="3 3" />
             <line x1="40" y1="130" x2="680" y2="130" stroke="#E8E2DA" strokeDasharray="3 3" />
             <line x1="40" y1="180" x2="680" y2="180" stroke="#E8E2DA" strokeDasharray="3 3" />
             <line x1="40" y1="210" x2="680" y2="210" stroke="#557061" strokeWidth="1.5" />
 
-            {/* Y axis numbers */}
             <text x="10" y="34" fontSize="10" fill="#88968E">200</text>
             <text x="10" y="84" fontSize="10" fill="#88968E">150</text>
             <text x="10" y="134" fontSize="10" fill="#88968E">100</text>
             <text x="10" y="184" fontSize="10" fill="#88968E">50</text>
             <text x="10" y="214" fontSize="10" fill="#88968E">0</text>
 
-            {/* Area fill */}
             <polygon
               points="70,195 160,115 250,150 340,95 430,65 520,130 610,35 610,210 70,210"
               fill="rgba(85, 112, 97, 0.08)"
             />
 
-            {/* Line */}
             <path
               d="M 70 195 L 160 115 L 250 150 L 340 95 L 430 65 L 520 130 L 610 35"
               stroke="#557061"
@@ -105,38 +99,30 @@ export default function AnalyticsPage() {
               fill="none"
             />
 
-            {/* Points & Values matching Figma */}
-            {/* Point 1: 14 */}
             <circle cx="70" cy="195" r="7" fill="#476252" />
             <text x="62" y="180" fontSize="11" fontWeight="700" fill="#1F2923">14</text>
             <text x="64" y="226" fontSize="11" fill="#526359">11</text>
 
-            {/* Point 2: 101 */}
             <circle cx="160" cy="115" r="7" fill="#B6C7BC" />
             <text x="150" y="100" fontSize="11" fontWeight="700" fill="#1F2923">101</text>
             <text x="154" y="226" fontSize="11" fill="#526359">12</text>
 
-            {/* Point 3: 62 */}
             <circle cx="250" cy="150" r="7" fill="#476252" />
             <text x="242" y="135" fontSize="11" fontWeight="700" fill="#1F2923">62</text>
             <text x="244" y="226" fontSize="11" fill="#526359">13</text>
 
-            {/* Point 4: 118 */}
             <circle cx="340" cy="95" r="7" fill="#C07C54" />
             <text x="330" y="80" fontSize="11" fontWeight="700" fill="#1F2923">118</text>
             <text x="334" y="226" fontSize="11" fill="#526359">14</text>
 
-            {/* Point 5: 155 */}
             <circle cx="430" cy="65" r="7" fill="#476252" />
             <text x="420" y="50" fontSize="11" fontWeight="700" fill="#1F2923">155</text>
             <text x="424" y="226" fontSize="11" fill="#526359">15</text>
 
-            {/* Point 6: 87 */}
             <circle cx="520" cy="130" r="7" fill="#B6C7BC" />
             <text x="512" y="115" fontSize="11" fontWeight="700" fill="#1F2923">87</text>
             <text x="514" y="226" fontSize="11" fill="#526359">16</text>
 
-            {/* Point 7: 185 */}
             <circle cx="610" cy="35" r="7" fill="#C07C54" />
             <text x="600" y="20" fontSize="11" fontWeight="700" fill="#1F2923">185</text>
             <text x="604" y="226" fontSize="11" fill="#526359">17</text>
@@ -145,7 +131,6 @@ export default function AnalyticsPage() {
           </svg>
         </section>
 
-        {/* Roles Distribution Donut */}
         <aside style={{ background: "#0A2D1B", color: "#FFFFFF", borderRadius: "var(--radius-lg)", padding: "32px" }}>
           <div style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", color: "#C2D1C9", letterSpacing: "0.05em" }}>
             [ СТРУКТУРА ]
@@ -182,9 +167,8 @@ export default function AnalyticsPage() {
         </aside>
       </div>
 
-      {/* Courses Performance & Learning Efficacy */}
       <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1.2fr", gap: "32px" }}>
-        {/* Course Effectiveness */}
+        
         <section style={{ background: "#E8EFEA", borderRadius: "var(--radius-lg)", padding: "32px", border: "1px solid #C2D1C9" }}>
           <div className="admin-tag" style={{ color: "var(--accent-primary)" }}>[ КУРСИ ]</div>
           <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "22px", fontWeight: 700, color: "var(--accent-primary)", margin: "4px 0 20px 0" }}>
@@ -225,7 +209,6 @@ export default function AnalyticsPage() {
           </div>
         </section>
 
-        {/* Learning metrics */}
         <section style={{ background: "#476252", color: "#FFFFFF", borderRadius: "var(--radius-lg)", padding: "32px" }}>
           <div style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", color: "#C2D1C9", letterSpacing: "0.05em" }}>
             [ НАВЧАЛЬНІ ПОКАЗНИКИ ]

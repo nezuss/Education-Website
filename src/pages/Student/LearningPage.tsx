@@ -11,6 +11,13 @@ import {
 import "../../styles/CourseLearning.css";
 import "../../styles/StudentDashboard.css";
 
+const DEFAULT_COURSE_NAMES: Record<string, string> = {
+  "lca-eco-design": "LCA & Еко-проєктування",
+  "circular-economy": "Циркулярний дизайн та матеріали",
+  "eco-materials": "Біоматеріали та інновації",
+  "green-architecture": "Стала архітектура та біомімікрія"
+};
+
 export default function LearningPage() {
   const { courseId, lessonId: paramLessonId } = useParams<{ courseId: string; lessonId?: string }>();
   const [modules, setModules] = useState<Module[]>([]);
@@ -19,6 +26,8 @@ export default function LearningPage() {
   const [activeMaterials, setActiveMaterials] = useState<Material[]>([]);
   const [openModuleId, setOpenModuleId] = useState<string | null>(null);
   const [, setLoading] = useState(true);
+
+  const courseDisplayName = (courseId && DEFAULT_COURSE_NAMES[courseId]) ? DEFAULT_COURSE_NAMES[courseId] : "LCA & Еко-проєктування";
 
   useEffect(() => {
     if (!courseId) return;
@@ -38,7 +47,6 @@ export default function LearningPage() {
           }
           setLessonsByModule(map);
 
-          // Find requested lesson or default to first lesson of first module
           let targetLesson: Lesson | null = null;
           if (paramLessonId) {
             for (const key of Object.keys(map)) {
@@ -61,7 +69,6 @@ export default function LearningPage() {
         }
       })
       .catch(() => {
-        // Mock fallback if course not found in backend
         setModules([
           { id: "mod-1", title: "Основи LCA та сталого проєктування", description: "Життєвий цикл продукту, системне мислення та базові принципи.", lessonsId: ["mock-1", "mock-2"] },
           { id: "mod-2", title: "Матеріали нового покоління", description: "Біополімери, вторинні матеріали та їх властивості.", lessonsId: [] },
@@ -80,20 +87,18 @@ export default function LearningPage() {
 
   return (
     <div className="learn-page">
-      {/* Breadcrumbs */}
       <nav className="learn-breadcrumbs" aria-label="breadcrumb">
         <Link to="/student">Головна</Link>
         <span>&gt;</span>
         <Link to="/student/courses">Мої курси</Link>
         <span>&gt;</span>
-        <span className="active">LCA &amp; Еко-проєктування</span>
+        <span className="active">{courseDisplayName}</span>
       </nav>
 
-      {/* Top Banner Card */}
       <div className="learn-hero-card">
         <div className="learn-hero-info">
           <span className="std-badge-tag">[ НАВЧАЛЬНИЙ КУРС ]</span>
-          <h1 className="learn-hero-title">LCA &amp; Еко-проєктування</h1>
+          <h1 className="learn-hero-title">{courseDisplayName}</h1>
           <p className="learn-hero-desc">
             Практичний курс зі сталого проєктування та оцінки життєвого циклу продукту.
           </p>
@@ -124,7 +129,6 @@ export default function LearningPage() {
         </div>
       </div>
 
-      {/* Active Lesson Viewer (if opened) */}
       {activeLesson && (
         <div className="learn-viewer-card">
           <span className="std-badge-tag">[ УРОК ]</span>
@@ -138,7 +142,7 @@ export default function LearningPage() {
           <div className="learn-video-player-wrap">
             <iframe
               className="learn-video-iframe"
-              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              src="https://www.youtube-nocookie.com/embed/LXb3EKWsInQ"
               title="Лекція"
               allowFullScreen
             />
@@ -171,7 +175,6 @@ export default function LearningPage() {
         </div>
       )}
 
-      {/* Body: Curriculum list + Next Step Panel */}
       <div className="learn-body-grid">
         <div className="learn-curriculum-col">
           <h2>Програма курсу</h2>
@@ -287,7 +290,6 @@ export default function LearningPage() {
           </div>
         </div>
 
-        {/* Right Column: Next Step Panel */}
         <aside className="learn-next-step-panel">
           <span className="std-badge-tag" style={{ color: "#385546" }}>[ ДАЛІ ]</span>
           <h3 className="learn-next-step-title">Наступний крок</h3>

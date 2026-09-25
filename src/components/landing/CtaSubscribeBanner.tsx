@@ -16,7 +16,7 @@ export default function CtaSubscribeBanner() {
     return (
         <section className="landing-cta-banner-wrapper">
             <div className="landing-cta-banner">
-                {/* Left: Moss Nature Visual */}
+                
                 <div className="cta-nature-photo-box">
                     <img 
                         src="/landing/banner-moss.webp" 
@@ -26,7 +26,6 @@ export default function CtaSubscribeBanner() {
                     />
                 </div>
 
-                {/* Center: Main Call To Action */}
                 <div className="cta-main-content">
                     <span className="cta-eyebrow">ГОТОВИЙ ЗРОБИТИ КРОК?</span>
                     <h3 className="cta-headline">
@@ -53,7 +52,6 @@ export default function CtaSubscribeBanner() {
                     </div>
                 </div>
 
-                {/* Right: Newsletter Subscribe Form */}
                 <div className="cta-newsletter-box">
                     <h4 className="newsletter-title">Підписуйся на новини</h4>
                     <p className="newsletter-desc">Отримуй корисні матеріали та новини про курси</p>
