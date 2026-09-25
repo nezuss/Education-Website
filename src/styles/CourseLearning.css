@@ -1,0 +1,384 @@
+/* Course Learning Page Styling - Matching Figma 9-Course Learning & 10-Lesson */
+
+.learn-page {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Breadcrumbs */
+.learn-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-brand-soft, #557061);
+}
+
+.learn-breadcrumbs a {
+  color: var(--color-brand-soft, #557061);
+  text-decoration: none;
+}
+
+.learn-breadcrumbs span.active {
+  color: var(--color-brand-dark, #0A2D1B);
+  font-weight: 500;
+}
+
+/* Hero Top Banner */
+.learn-hero-card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 36px 40px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 32px;
+  align-items: center;
+  box-shadow: 0 4px 16px rgba(10, 45, 27, 0.04);
+}
+
+.learn-hero-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.learn-hero-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 6px 0 10px 0;
+}
+
+.learn-hero-desc {
+  font-size: 14px;
+  color: var(--color-brand-soft, #557061);
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.learn-hero-badges {
+  display: flex;
+  gap: 8px;
+}
+
+.learn-hero-col-center {
+  border-left: 1px solid rgba(10, 45, 27, 0.08);
+  border-right: 1px solid rgba(10, 45, 27, 0.08);
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.learn-col-caption {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--color-brand-soft, #557061);
+  text-transform: uppercase;
+}
+
+.learn-current-stage {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+}
+
+.learn-current-lesson {
+  font-size: 13px;
+  color: #8C6D53;
+}
+
+.learn-hero-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Two Columns: Curriculum Accordions + Next Step Panel */
+.learn-body-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.learn-curriculum-col h2 {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 0 0 8px 0;
+}
+
+.learn-curriculum-sub {
+  font-size: 14px;
+  color: var(--color-brand-soft, #557061);
+  margin-bottom: 24px;
+}
+
+.learn-modules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.learn-module-box {
+  background: #FFFFFF;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(10, 45, 27, 0.04);
+  border: 1px solid rgba(10, 45, 27, 0.06);
+}
+
+.learn-module-header {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  background: #FFFFFF;
+  transition: background 0.2s;
+}
+
+.learn-module-header:hover {
+  background: #F8F7F5;
+}
+
+.learn-module-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.learn-module-num {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--color-bg-sand, #E0D3C7);
+  color: #8C6D53;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.learn-module-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin-bottom: 4px;
+}
+
+.learn-module-summary {
+  font-size: 13px;
+  color: var(--color-brand-soft, #557061);
+}
+
+.learn-module-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.learn-module-pct {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-brand-primary, #13492C);
+}
+
+.learn-module-counter {
+  font-size: 12px;
+  color: var(--color-brand-soft, #557061);
+}
+
+/* Lessons in module */
+.learn-lessons-table {
+  border-top: 1px solid rgba(10, 45, 27, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.learn-lesson-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(10, 45, 27, 0.05);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.learn-lesson-row:hover {
+  background: #F4F8F5;
+}
+
+.learn-lesson-row.active {
+  background: #E8EFEA;
+}
+
+.learn-lesson-row:last-child {
+  border-bottom: none;
+}
+
+.learn-lesson-meta-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.learn-lesson-check {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #C4D3CB;
+  color: var(--color-brand-primary, #13492C);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.learn-lesson-check.done {
+  background: var(--color-brand-primary, #13492C);
+  color: #FFFFFF;
+}
+
+.learn-lesson-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.learn-lesson-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-brand-dark, #0A2D1B);
+}
+
+.learn-lesson-type {
+  font-size: 12px;
+  color: var(--color-brand-soft, #557061);
+}
+
+.learn-lesson-meta-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.learn-lesson-duration {
+  font-size: 12px;
+  color: var(--color-brand-soft, #557061);
+}
+
+.learn-status-pill {
+  background: var(--color-bg-sand, #E0D3C7);
+  color: #8C6D53;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Right Next Step Panel */
+.learn-next-step-panel {
+  background: #C4D3CB;
+  border-radius: 24px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 96px;
+}
+
+.learn-next-step-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 6px 0 16px 0;
+}
+
+.learn-next-lesson-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin-bottom: 8px;
+}
+
+.learn-next-lesson-desc {
+  font-size: 14px;
+  color: #385546;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.learn-next-assignment-bar {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-brand-dark, #0A2D1B);
+  text-decoration: none;
+}
+
+.learn-next-assignment-bar:hover {
+  background: #F8F7F5;
+}
+
+/* Active Lesson View */
+.learn-viewer-card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(10, 45, 27, 0.04);
+  margin-bottom: 24px;
+}
+
+.learn-video-player-wrap {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0A2D1B;
+  margin: 20px 0;
+}
+
+.learn-video-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .learn-hero-card {
+    grid-template-columns: 1fr;
+  }
+  .learn-hero-col-center {
+    border-left: none;
+    border-right: none;
+    padding: 16px 0;
+    border-top: 1px solid rgba(10, 45, 27, 0.08);
+    border-bottom: 1px solid rgba(10, 45, 27, 0.08);
+  }
+  .learn-body-grid {
+    grid-template-columns: 1fr;
+  }
+}

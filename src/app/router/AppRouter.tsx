@@ -23,17 +23,53 @@ import ProfilePage from "../../pages/Student/ProfilePage";
 import StudentDashboardPage from "../../pages/Student/StudentDashboardPage";
 import UploadProjectPage from "../../pages/Student/UploadProjectPage";
 
+import EcoJournalPage from "../../pages/Public/EcoJournalPage";
+import ArticleDetailsPage from "../../pages/Public/ArticleDetailsPage";
+import ContactsPage from "../../pages/Public/ContactsPage";
+import FaqPage from "../../pages/Public/FaqPage";
+import CommunityPage from "../../pages/Public/CommunityPage";
+import PortfolioPage from "../../pages/Public/PortfolioPage";
+import AboutPage from "../../pages/Public/AboutPage";
+import ChooseRolePage from "../../pages/Auth/ChooseRolePage";
+import ForgotPasswordPage from "../../pages/Auth/ForgotPasswordPage";
+
+
+import MentorProfilePage from "../../pages/Mentor/MentorProfilePage";
+import CoursesManagePage from "../../pages/Admin/CoursesManagePage";
+import OrdersPage from "../../pages/Admin/OrdersPage";
+import AnalyticsPage from "../../pages/Admin/AnalyticsPage";
+import AdminProfilePage from "../../pages/Admin/AdminProfilePage";
+
+import PublicLayout from "../../components/layout/PublicLayout";
+
+
 export default function AppRouter() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route element={<AppShell />}>
+                {/* Public Website with NEXYLVA Header and Footer */}
+                <Route element={<PublicLayout />}>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/courses" element={<CoursesPage />} />
                     <Route path="/courses/:courseId" element={<CourseDetailsPage />} />
                     <Route path="/checkout/:courseId" element={<CheckoutPage />} />
                     <Route path="/success" element={<SuccessPage />} />
                     <Route path="/cancel" element={<CancelPage />} />
+                    <Route path="/journal" element={<EcoJournalPage />} />
+                    <Route path="/journal/:articleId" element={<ArticleDetailsPage />} />
+                    <Route path="/contacts" element={<ContactsPage />} />
+                    <Route path="/faq" element={<FaqPage />} />
+                    <Route path="/community" element={<CommunityPage />} />
+                    <Route path="/portfolio" element={<PortfolioPage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/registration" element={<RegistrationPage />} />
+                    <Route path="/choose-role" element={<ChooseRolePage />} />
+                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                </Route>
+
+                {/* Authenticated Dashboard Routes */}
+                <Route element={<AppShell />}>
 
                     {/* Student routes: any authenticated user */}
                     <Route element={<ProtectedRoute />}>
@@ -52,17 +88,20 @@ export default function AppRouter() {
                         <Route path="/mentor" element={<MentorDashboardPage />} />
                         <Route path="/mentor/submissions" element={<MentorSubmissionsPage />} />
                         <Route path="/mentor/review/:submissionId" element={<MentorReviewPage />} />
+                        <Route path="/mentor/profile" element={<MentorProfilePage />} />
                     </Route>
 
                     {/* Admin routes: Admin only */}
                     <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
                         <Route path="/admin" element={<AdminDashboardPage />} />
                         <Route path="/admin/users" element={<UsersPage />} />
+                        <Route path="/admin/courses" element={<CoursesManagePage />} />
+                        <Route path="/admin/orders" element={<OrdersPage />} />
+                        <Route path="/admin/analytics" element={<AnalyticsPage />} />
+                        <Route path="/admin/profile" element={<AdminProfilePage />} />
                     </Route>
                 </Route>
 
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/registration" element={<RegistrationPage />} />
                 <Route path="/confirm-email" element={<ConfirmationPage />} />
                 <Route path="/confirm-email/:code" element={<ConfirmationPage />} />
                 <Route path="/not-found" element={<NotFoundPage />} />

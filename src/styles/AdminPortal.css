@@ -1,0 +1,777 @@
+/* ==========================================================================
+   NEXYLVA Admin Portal Styles
+   Matching Figma:
+   - 17-Admin Dashboard / Analytics
+   - 18-Users Management & 18-01 User Details
+   - 19-Courses Management & 19-02 Edit Course
+   - 20-Orders / Payments & 20-01 Order Details
+   - 21-Analytics
+   ========================================================================== */
+
+.admin-container {
+  padding: 40px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* Header & Date */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  gap: 20px;
+}
+
+.admin-header-title {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.02em;
+}
+
+.admin-header-sub {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.admin-date-badge {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--accent-border);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Overview Top Row (5 cards layout as in 17 & 18 & 19) */
+.admin-stats-row {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.admin-overview-card {
+  background: #B6C7BC;
+  border-radius: var(--radius-md);
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.admin-tag {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin-bottom: 6px;
+}
+
+.admin-overview-title {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin: 0 0 8px 0;
+}
+
+.admin-overview-sub {
+  font-size: 13px;
+  color: var(--accent-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.admin-stat-card {
+  background: #FFFFFF;
+  border-radius: var(--radius-md);
+  padding: 24px;
+  border: 1px solid var(--accent-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.admin-stat-val {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin-bottom: 4px;
+  line-height: 1.1;
+}
+
+.admin-stat-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.admin-stat-change {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Two-column layout */
+.admin-grid-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+}
+
+/* Chart Card */
+.admin-chart-card {
+  background: #FFFFFF;
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.admin-chart-title {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin: 8px 0 6px 0;
+}
+
+.admin-chart-sub {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 24px 0;
+}
+
+.admin-chart-svg {
+  width: 100%;
+  height: 220px;
+  margin-bottom: 20px;
+}
+
+.admin-chart-legend {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.admin-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.admin-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.admin-chart-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.admin-chart-mini-stat {
+  background: #E8E2DA;
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+}
+
+.admin-chart-mini-val {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin-bottom: 4px;
+}
+
+.admin-chart-mini-lbl {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* System Events Right Column */
+.admin-events-card {
+  background: #0A2D1B;
+  color: #FFFFFF;
+  border-radius: var(--radius-lg);
+  padding: 32px;
+}
+
+.admin-events-title {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 8px 0 6px 0;
+}
+
+.admin-events-sub {
+  font-size: 13px;
+  color: #AABDB3;
+  margin-bottom: 24px;
+}
+
+.admin-event-item {
+  background: #193D2A;
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 14px;
+}
+
+.admin-event-item-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.admin-event-item-sub {
+  font-size: 12px;
+  color: #AABDB3;
+}
+
+.admin-events-links {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  margin-top: 24px;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-event-link-btn {
+  background: #E8E2DA;
+  color: var(--accent-primary);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: opacity 0.2s;
+}
+
+.admin-event-link-btn:hover {
+  opacity: 0.9;
+}
+
+/* ==========================================================================
+   USERS MANAGEMENT PAGE
+   ========================================================================== */
+
+.admin-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.admin-filter-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-pill {
+  border: none;
+  background: #DDD8D1;
+  color: var(--text-secondary);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-pill.active {
+  background: var(--accent-primary);
+  color: #FFFFFF;
+}
+
+.admin-controls-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.admin-btn-primary {
+  background: var(--accent-primary);
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.admin-btn-primary:hover {
+  background: #12452B;
+}
+
+.admin-btn-secondary {
+  background: #0A2D1B;
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* User Table */
+.admin-table-wrap {
+  background: #FFFFFF;
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03);
+}
+
+.admin-table-header {
+  background: #557061;
+  color: #FFFFFF;
+  display: grid;
+  grid-template-columns: 50px 2.5fr 1.2fr 1.2fr 1.5fr 1.2fr 80px 110px;
+  padding: 16px 24px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-table-row {
+  display: grid;
+  grid-template-columns: 50px 2.5fr 1.2fr 1.2fr 1.5fr 1.2fr 80px 110px;
+  padding: 18px 24px;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  transition: background-color 0.15s;
+}
+
+.admin-table-row:last-child {
+  border-bottom: none;
+}
+
+.admin-table-row:hover {
+  background-color: #FAF8F5;
+}
+
+.admin-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.admin-user-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.admin-user-email {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.admin-status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-status-badge.active {
+  background: #476252;
+  color: #FFFFFF;
+}
+
+.admin-status-badge.pending {
+  background: #E8E2DA;
+  color: var(--accent-warm);
+}
+
+.admin-status-badge.blocked {
+  background: #FCE8E6;
+  color: #C53929;
+}
+
+.admin-row-btn {
+  background: #E8E2DA;
+  border: 1px solid #D8DFD9;
+  color: var(--accent-primary);
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s;
+}
+
+.admin-row-btn:hover {
+  background: #0A2D1B;
+  color: #FFFFFF;
+}
+
+/* ==========================================================================
+   COURSES MANAGEMENT PAGE
+   ========================================================================== */
+
+.admin-courses-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin-top: 24px;
+}
+
+.admin-course-manage-card {
+  background: #FFFFFF;
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-course-manage-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.admin-course-header-banner {
+  background: #476252;
+  color: #FFFFFF;
+  padding: 24px 28px;
+  position: relative;
+}
+
+.admin-course-status-pill {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--accent-primary);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.admin-course-cat {
+  font-size: 12px;
+  color: #C2D1C9;
+  margin-bottom: 6px;
+}
+
+.admin-course-name {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.admin-course-body {
+  padding: 24px 28px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.admin-course-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.admin-course-mentor-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.admin-course-stats-boxes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.admin-course-stat-mini {
+  background: #F2EDE8;
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+}
+
+.admin-course-stat-mini-val {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.admin-course-stat-mini-lbl {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.admin-course-progress-wrap {
+  margin-top: auto;
+}
+
+.admin-course-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.admin-course-progress-bar {
+  height: 8px;
+  background: #E8E2DA;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.admin-course-progress-fill {
+  height: 100%;
+  background: var(--accent-primary);
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   ORDERS & PAYMENTS
+   ========================================================================== */
+
+.admin-orders-banner {
+  background: #0A2D1B;
+  color: #FFFFFF;
+  border-radius: var(--radius-lg);
+  padding: 32px 40px;
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-orders-banner-title {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  margin: 6px 0;
+}
+
+.admin-orders-banner-amount {
+  font-family: var(--font-heading);
+  font-size: 44px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+/* Analytics Donut and Charts */
+.admin-analytics-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.admin-donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-top: 24px;
+}
+
+.admin-donut-chart {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: conic-gradient(
+    #476252 0% 89%,
+    #C2D1C9 89% 98.8%,
+    #C07C54 98.8% 100%
+  );
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-donut-center {
+  width: 110px;
+  height: 110px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.admin-donut-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-donut-label-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* User Card / Modal View (Figma 18-01) */
+.admin-user-card-view {
+  background: #FFFFFF;
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+}
+
+.admin-user-card-hero {
+  background: #0A2D1B;
+  color: #FFFFFF;
+  padding: 32px 40px;
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.admin-user-card-photo {
+  width: 240px;
+  height: 160px;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+.admin-user-card-hero-info {
+  flex: 1;
+}
+
+.admin-user-card-name {
+  font-family: var(--font-heading);
+  font-size: 30px;
+  font-weight: 700;
+  margin: 6px 0;
+}
+
+.admin-user-card-email {
+  font-size: 14px;
+  color: #AABDB3;
+  margin-bottom: 16px;
+}
+
+.admin-user-card-pills {
+  display: flex;
+  gap: 10px;
+}
+
+.admin-user-card-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 32px 40px;
+  background: #FAF8F5;
+  border-bottom: 1px solid var(--accent-border);
+}
+
+.admin-user-metric-box {
+  background: #B6C7BC;
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: center;
+}
+
+.admin-user-metric-val {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin-bottom: 4px;
+}
+
+.admin-user-metric-lbl {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-primary);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .admin-stats-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .admin-grid-layout,
+  .admin-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-courses-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-stats-row,
+  .admin-courses-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-table-header,
+  .admin-table-row {
+    grid-template-columns: 40px 2fr 1fr 1fr 90px;
+  }
+}

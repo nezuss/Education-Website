@@ -1,109 +1,186 @@
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { getSubmissionStatus, type SubmissionStatus } from "../../services/learningService";
-import { PageHeader, Panel } from "../shared/PageComponents";
-import "../PlatformPages.css";
+import { getSubmissionStatus, submitAssignment, type SubmissionStatus } from "../../services/learningService";
+import "../../styles/StudentDashboard.css";
 
 export default function AssignmentPage() {
-    const { assignmentId } = useParams();
-    const [status, setStatus] = useState<SubmissionStatus>();
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(true);
+  const { assignmentId } = useParams();
+  const [status, setStatus] = useState<SubmissionStatus>();
+  const [file, setFile] = useState<File | null>(null);
+  const [comment, setComment] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [error, setError] = useState("");
 
-    useEffect(() => {
-        if (!assignmentId) return;
-        getSubmissionStatus(assignmentId)
-            .then(setStatus)
-            .catch((reason: Error) => setError(reason.message))
-            .finally(() => setLoading(false));
-    }, [assignmentId]);
+  useEffect(() => {
+    if (!assignmentId) return;
+    getSubmissionStatus(assignmentId)
+      .then(setStatus)
+      .catch(() => {});
+  }, [assignmentId]);
 
-    const submission = status?.submission;
-    const isRated = submission && submission.rate !== -1;
+  const handleUpload = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!file || !assignmentId) return;
 
-    return (
-        <>
-            <PageHeader
-                title="Практичне завдання"
-                description="Перегляд деталей завдання, статусу перевірки та отриманої оцінки від ментора."
-                action={
-                    assignmentId && !status?.isSubmitted ? (
-                        <Link className="button-link" to={`/student/upload/${assignmentId}`}>
-                            Завантажити розв'язок
-                        </Link>
-                    ) : undefined
-                }
-            />
+    setIsUploading(true);
+    setError("");
 
-            <div className="two-column">
-                <Panel>
-                    <h2>Інструкція до виконання</h2>
-                    <p>
-                        Ознайомтеся з описом завдання на сторінці уроку, підготуйте файл розв'язку (проєкт, архів або документ)
-                        та відправте його на перевірку.
-                    </p>
-                    <div style={{ marginTop: "18px" }}>
-                        {status?.isSubmitted ? (
-                            <p style={{ color: "#2e7d32", fontWeight: 600 }}>
-                                ✓ Ви вже успішно надіслали роботу за цим завданням.
-                            </p>
-                        ) : (
-                            <Link className="button-link" to={`/student/upload/${assignmentId}`}>
-                                Перейти до завантаження файлу
-                            </Link>
-                        )}
-                    </div>
-                </Panel>
+    try {
+      await submitAssignment(assignmentId, file);
+      setUploadSuccess(true);
+      const updated = await getSubmissionStatus(assignmentId);
+      setStatus(updated);
+    } catch (err) {
+      setError((err as Error)?.message || "Не вдалося завантажити файл. Спробуйте ще раз.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
-                <Panel>
-                    <h2>Статус перевірки роботи</h2>
-                    {loading ? (
-                        <p>Перевірка статусу...</p>
-                    ) : error ? (
-                        <p role="alert" style={{ color: "#d32f2f" }}>Не вдалося отримати статус: {error}</p>
-                    ) : !status?.isSubmitted ? (
-                        <div>
-                            <p style={{ color: "#e65100", fontWeight: 600 }}>Роботу ще не надіслано</p>
-                            <p className="meta" style={{ marginTop: "8px" }}>
-                                Надішліть файл проєкту, щоб ментор міг його оцінити.
-                            </p>
-                        </div>
-                    ) : (
-                        <dl className="profile-list" style={{ marginTop: "10px" }}>
-                            <dt>Статус</dt>
-                            <dd style={{ color: "#2e7d32", fontWeight: 600 }}>Надіслано на перевірку</dd>
+  const isSubmitted = status?.isSubmitted || uploadSuccess;
+  const submission = status?.submission;
+  const isRated = submission && submission.rate !== -1;
 
-                            <dt>ID зданої роботи</dt>
-                            <dd style={{ wordBreak: "break-all", fontFamily: "monospace" }}>{submission?.id}</dd>
+  return (
+    <div className="std-dash">
+      {/* Breadcrumbs */}
+      <nav className="learn-breadcrumbs" aria-label="breadcrumb">
+        <Link to="/student">Головна</Link>
+        <span>&gt;</span>
+        <Link to="/student/courses">Мої курси</Link>
+        <span>&gt;</span>
+        <Link to="/student/learning/1">LCA &amp; Еко-проєктування</Link>
+        <span>&gt;</span>
+        <span className="active">Практичне завдання №2</span>
+      </nav>
 
-                            <dt>Дата подання</dt>
-                            <dd>{submission?.createdAt ? new Date(submission.createdAt).toLocaleString("uk-UA") : "—"}</dd>
+      {/* Main Assignment Card */}
+      <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "40px", boxShadow: "0 4px 16px rgba(10, 45, 27, 0.04)" }}>
+        <span className="std-badge-tag">[ ПРАКТИЧНЕ ЗАВДАННЯ №2 ]</span>
+        <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "32px", fontWeight: 700, color: "var(--color-brand-dark)", margin: "8px 0 16px 0" }}>
+          Аналіз життєвого циклу продукту
+        </h1>
+        <p style={{ fontSize: "16px", color: "var(--color-brand-soft)", lineHeight: 1.6, marginBottom: "28px" }}>
+          Оберіть предмет повсякденного вжитку та оцініть його життєвий цикл від видобутку сировини до завершення експлуатації. Завантажте презентацію чи PDF-дослідження з обґрунтуванням циркулярного підходу.
+        </p>
 
-                            <dt>Оцінка ментора</dt>
-                            <dd>
-                                {isRated ? (
-                                    <strong style={{ fontSize: "18px", color: "#1b5e20" }}>
-                                        {submission?.rate} / 12 балів
-                                    </strong>
-                                ) : (
-                                    <span style={{ color: "#666" }}>Очікує перевірки викладачем</span>
-                                )}
-                            </dd>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px", marginBottom: "32px" }}>
+          {/* Instructions */}
+          <div style={{ background: "var(--color-bg-sand)", padding: "24px", borderRadius: "18px" }}>
+            <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-brand-dark)", marginBottom: "12px" }}>
+              Вимоги до завдання:
+            </h3>
+            <ul style={{ paddingLeft: "20px", fontSize: "14px", color: "#444", lineHeight: 1.6, margin: 0 }}>
+              <li>Визначте матеріальний склад обраного продукту (не менше 3 матеріалів).</li>
+              <li>Складіть схему життєвого циклу (сировина &rarr; виробництво &rarr; використання &rarr; переробка).</li>
+              <li>Запропонуйте мінімум 2 рішення для оптимізації екологічного сліду.</li>
+              <li>Формат: PDF, Figma або презентація до 50 МБ.</li>
+            </ul>
+          </div>
 
-                            {submission?.fileUrl && (
-                                <>
-                                    <dt>Файл роботи</dt>
-                                    <dd>
-                                        <a href={submission.fileUrl} target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>
-                                            Завантажити надісланий файл
-                                        </a>
-                                    </dd>
-                                </>
-                            )}
-                        </dl>
-                    )}
-                </Panel>
+          {/* Meta & Deadline */}
+          <div style={{ background: "#C4D3CB", padding: "24px", borderRadius: "18px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div>
+              <div style={{ fontSize: "12px", fontWeight: 600, color: "#385546", textTransform: "uppercase" }}>Дедлайн здачі</div>
+              <div style={{ fontFamily: "var(--font-heading)", fontSize: "24px", fontWeight: 700, color: "var(--color-brand-dark)", marginTop: "4px" }}>
+                14 серпня 2026, 23:59
+              </div>
             </div>
-        </>
-    );
+
+            <div style={{ marginTop: "16px" }}>
+              <div style={{ fontSize: "13px", color: "var(--color-brand-soft)" }}>Ментор курсу:</div>
+              <div style={{ fontSize: "15px", fontWeight: 600, color: "var(--color-brand-dark)" }}>Андрій Мазур</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Upload Zone or Status */}
+        {isSubmitted ? (
+          <div style={{ background: "#E8EFEA", border: "1px solid rgba(19, 73, 44, 0.2)", borderRadius: "18px", padding: "32px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+              <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--color-brand-primary)", color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>
+                ✓
+              </div>
+              <h3 style={{ fontSize: "20px", fontWeight: 700, margin: 0, color: "var(--color-brand-dark)" }}>
+                Роботу надіслано на перевірку
+              </h3>
+            </div>
+
+            <p style={{ fontSize: "14px", color: "var(--color-brand-soft)", marginBottom: "20px" }}>
+              Ваш файл успішно завантажено. Ментор перевірить роботу та залишить детальний зворотний зв’язок протягом 48 годин.
+            </p>
+
+            <div style={{ background: "#FFFFFF", borderRadius: "12px", padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <span style={{ fontSize: "13px", color: "#8C6D53" }}>Статус оцінювання: </span>
+                <strong style={{ color: isRated ? "var(--color-brand-primary)" : "#E65100" }}>
+                  {isRated ? `${submission?.rate} / 12 балів` : "Очікує оцінки викладачем"}
+                </strong>
+              </div>
+              {submission?.fileUrl && (
+                <a href={submission.fileUrl} target="_blank" rel="noreferrer" style={{ fontSize: "13px", color: "var(--color-brand-primary)", fontWeight: 600 }}>
+                  Завантажити файл &darr;
+                </a>
+              )}
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleUpload}>
+            <div
+              style={{
+                border: "2px dashed #B8C7BF",
+                borderRadius: "18px",
+                padding: "48px 32px",
+                textAlign: "center",
+                background: "#F8F7F5",
+                cursor: "pointer",
+                marginBottom: "24px"
+              }}
+              onClick={() => document.getElementById("file-upload")?.click()}
+            >
+              <input
+                id="file-upload"
+                type="file"
+                style={{ display: "none" }}
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+              />
+              <div style={{ fontSize: "36px", marginBottom: "12px" }}>📁</div>
+              <div style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-brand-dark)", marginBottom: "6px" }}>
+                {file ? file.name : "Перетягніть файл або натисніть для вибору"}
+              </div>
+              <div style={{ fontSize: "13px", color: "var(--color-brand-soft)" }}>
+                Підтримуються PDF, ZIP, PNG, MP4 до 50 MB
+              </div>
+            </div>
+
+            <div style={{ marginBottom: "24px" }}>
+              <label style={{ display: "block", fontSize: "14px", fontWeight: 600, marginBottom: "8px", color: "var(--color-brand-dark)" }}>
+                Коментар до роботи (необов'язково)
+              </label>
+              <textarea
+                className="contacts-input contacts-textarea"
+                placeholder="Вкажіть посилання на Figma чи напишіть короткий коментар для ментора..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                style={{ width: "100%", boxSizing: "border-box" }}
+              />
+            </div>
+
+            {error && <div className="nex-auth-error-box" style={{ marginBottom: "16px" }}>{error}</div>}
+
+            <button
+              type="submit"
+              className="std-continue-btn"
+              disabled={isUploading || !file}
+              style={{ padding: "14px 32px", fontSize: "15px" }}
+            >
+              <span>{isUploading ? "Завантаження..." : "Завантажити проєкт на перевірку"}</span>
+              <span>&rarr;</span>
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
 }

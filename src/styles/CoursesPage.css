@@ -1,0 +1,532 @@
+/* ==========================================================================
+   NEXYLVA — Courses Catalog Page Styles
+   Strict 1:1 reproduction of Figma 2-Courses & 2-01-розгорнута boards
+   ========================================================================== */
+
+.catalog-page-container {
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 32px 100px 90px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 1440px) {
+    .catalog-page-container {
+        padding: 28px 48px 70px;
+    }
+}
+
+@media (max-width: 768px) {
+    .catalog-page-container {
+        padding: 20px 16px 50px;
+    }
+}
+
+/* 1. Breadcrumbs */
+.catalog-breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #557061;
+    margin-bottom: 24px;
+}
+
+.breadcrumb-link {
+    color: #557061;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.breadcrumb-link:hover {
+    color: #0A2D1B;
+}
+
+.breadcrumb-sep {
+    font-size: 12px;
+    color: #557061;
+    opacity: 0.7;
+}
+
+.breadcrumb-current {
+    color: #0A2D1B;
+    font-weight: 500;
+}
+
+/* 2. Top Header Row */
+.catalog-top-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.catalog-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.catalog-main-title {
+    font-family: 'Montserrat Alternates', 'Montserrat', sans-serif;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 120%;
+    color: #0A2D1B;
+    margin: 0;
+}
+
+.catalog-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 150%;
+    color: #0A2D1B;
+    margin: 0;
+}
+
+.catalog-controls-group {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+/* Search Box */
+.catalog-search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 600px;
+    max-width: 100%;
+    height: 48px;
+    background: rgba(85, 112, 97, 0.1);
+    border: 1px solid #B6C2BC;
+    border-radius: 8px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.catalog-search-box:focus-within {
+    border-color: #0A2D1B;
+    background: rgba(85, 112, 97, 0.15);
+}
+
+.catalog-search-icon {
+    flex-shrink: 0;
+}
+
+.catalog-search-input {
+    border: none;
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 140%;
+    color: #0A2D1B;
+    outline: none;
+    width: 100%;
+}
+
+.catalog-search-input::placeholder {
+    color: #557061;
+}
+
+/* Sort Dropdown */
+.catalog-sort-select-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #0A2D1B;
+    position: relative;
+    cursor: pointer;
+}
+
+.catalog-sort-label {
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.catalog-sort-select {
+    border: none;
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #0A2D1B;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 20px;
+}
+
+.catalog-sort-arrow {
+    position: absolute;
+    right: 0;
+    pointer-events: none;
+    stroke: #0A2D1B;
+}
+
+/* 3. Category Filter Pills */
+.catalog-filter-pills-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.filter-pill-btn {
+    border: none;
+    background: #B29074;
+    color: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 140%;
+    padding: 4px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-pill-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.filter-pill-btn.active {
+    background: #0A2D1B;
+    color: #FFFFFF;
+    border: 1px solid rgba(10, 45, 27, 0.15);
+    box-shadow: 0px 4px 12px rgba(10, 45, 27, 0.08);
+}
+
+/* 4. 3-Column Courses Grid */
+.catalog-courses-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.catalog-card {
+    box-sizing: border-box;
+    background: #FFFFFF;
+    border: 1px solid rgba(13, 53, 32, 0.15);
+    box-shadow: 0px 4px 12px rgba(10, 45, 27, 0.1);
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.catalog-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0px 8px 24px rgba(10, 45, 27, 0.15);
+}
+
+.catalog-card-image-box {
+    position: relative;
+    width: 100%;
+    height: 432px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #E8E4DF;
+    display: block;
+}
+
+.catalog-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px;
+    transition: transform 0.35s ease;
+}
+
+.catalog-card:hover .catalog-card-img {
+    transform: scale(1.025);
+}
+
+/* Badges on Card Image */
+.badge-level {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: #FFFFFF;
+    border: 1px solid rgba(10, 45, 27, 0.15);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 140%;
+    color: #7F5D41;
+    z-index: 2;
+}
+
+.badge-duration {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: #FFFFFF;
+    border: 1px solid rgba(10, 45, 27, 0.15);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 140%;
+    color: #7F5D41;
+    z-index: 2;
+}
+
+/* Card Body */
+.catalog-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 10px 4px 4px;
+}
+
+.catalog-card-title {
+    font-family: 'Montserrat Alternates', 'Montserrat', sans-serif;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 130%;
+    color: #0A2D1B;
+    margin: 0 0 8px;
+}
+
+.catalog-card-title a {
+    color: #0A2D1B;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.catalog-card-title a:hover {
+    color: #13492C;
+}
+
+.catalog-card-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 140%;
+    color: #557061;
+    margin: 0 0 16px;
+    flex: 1;
+}
+
+.catalog-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(10, 45, 27, 0.08);
+    padding-top: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+}
+
+.catalog-card-modules {
+    color: #557061;
+    font-weight: 400;
+}
+
+.catalog-card-detail-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #0A2D1B;
+    text-decoration: none;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.catalog-card-detail-link:hover {
+    color: #13492C;
+    transform: translateX(3px);
+}
+
+/* 5. Load More / Collapse Row */
+.catalog-more-row {
+    border-top: 1px solid rgba(85, 112, 97, 0.2);
+    padding-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 56px;
+}
+
+.catalog-more-btn {
+    background: transparent;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0A2D1B;
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.catalog-more-btn:hover {
+    color: #13492C;
+    transform: translateX(4px);
+}
+
+/* 6. Curator Consultation Banner */
+.consultation-banner {
+    box-sizing: border-box;
+    background: url('/courses/banner-bg.webp') center / cover no-repeat, #0A2D1B;
+    border-radius: 72px 24px;
+    padding: 64px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    position: relative;
+    min-height: 219px;
+    box-shadow: 0px 4px 12px rgba(10, 45, 27, 0.1);
+}
+
+.consultation-left {
+    width: 1074px;
+    max-width: calc(100% - 480px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 1;
+}
+
+.consultation-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 120%;
+    color: #B29074;
+    margin: 0;
+}
+
+.consultation-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 150%;
+    color: #E8E4DF;
+    margin: 0;
+}
+
+.consultation-btn {
+    box-sizing: border-box;
+    background: #E8E4DF;
+    border: 1px solid rgba(13, 53, 32, 0.15);
+    box-shadow: 0px 4px 12px rgba(10, 45, 27, 0.1);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 140%;
+    color: #0A2D1B;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    z-index: 1;
+    margin: 0;
+}
+
+.consultation-btn:hover {
+    background: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0px 6px 16px rgba(10, 45, 27, 0.15);
+}
+
+.consultation-btn-arrow-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #B29074;
+    color: #FFFFFF;
+    font-size: 12px;
+}
+
+.consultation-character-box {
+    position: absolute;
+    right: 60px;
+    bottom: 0;
+    width: 210px;
+    height: 310px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.consultation-character-img {
+    width: 210px;
+    height: 310px;
+    object-fit: contain;
+    display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1280px) {
+    .catalog-courses-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .catalog-card-image-box {
+        height: 380px;
+    }
+    .catalog-search-box {
+        width: 400px;
+    }
+}
+
+@media (max-width: 992px) {
+    .consultation-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 40px 32px;
+        border-radius: 36px 16px;
+    }
+    .consultation-character-box {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .catalog-courses-grid {
+        grid-template-columns: 1fr;
+    }
+    .catalog-card-image-box {
+        height: 320px;
+    }
+    .catalog-top-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .catalog-controls-group {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .catalog-search-box {
+        width: 100%;
+    }
+}

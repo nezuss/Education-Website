@@ -3,128 +3,200 @@ import { Link } from "react-router-dom";
 import { getProfile, type UserProfile } from "../../services/profileService";
 import { getCourses } from "../../services/courseService";
 import type { Course } from "../../types/course";
-import { PageHeader, Panel, Stat } from "../shared/PageComponents";
-import "../PlatformPages.css";
+import "../../styles/MentorPortal.css";
+
+interface QueueWork {
+  id: string;
+  num: string;
+  studentName: string;
+  taskTitle: string;
+  courseName: string;
+  status: "new" | "in-review" | "reviewed" | "returned";
+  statusText: string;
+  date: string;
+}
 
 export default function MentorDashboardPage() {
-    const [profile, setProfile] = useState<UserProfile>();
-    const [courses, setCourses] = useState<Course[]>([]);
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [, setCourses] = useState<Course[]>([]);
+  const [, setLoading] = useState(true);
 
-    useEffect(() => {
-        Promise.all([
-            getProfile().catch((err: Error) => {
-                setError(err.message);
-                return undefined;
-            }),
-            getCourses().catch(() => [] as Course[]),
-        ])
-            .then(([prof, crs]) => {
-                if (prof) setProfile(prof);
-                if (crs) setCourses(crs);
-            })
-            .finally(() => setLoading(false));
-    }, []);
+  // Sample data faithfully aligned with Figma 13-Mentor Dashboard
+  const works: QueueWork[] = [
+    {
+      id: "1",
+      num: "02",
+      studentName: "Анна Коваль",
+      taskTitle: "Аналіз життєвого циклу продукту",
+      courseName: "LCA & Еко-проєктування • Модуль 4",
+      status: "new",
+      statusText: "Нова робота",
+      date: "10 серпня"
+    },
+    {
+      id: "2",
+      num: "01",
+      studentName: "Марія Іванова",
+      taskTitle: "Практичне завдання №1 • Надіслано 8 серпня",
+      courseName: "LCA & Еко-проєктування • Модуль 3",
+      status: "in-review",
+      statusText: "На перевірці",
+      date: "8 серпня"
+    },
+    {
+      id: "3",
+      num: "03",
+      studentName: "Олексій Бондар",
+      taskTitle: "Zero-Waste Packaging Concept",
+      courseName: "Zero-Waste Пакування • Модуль 5",
+      status: "in-review",
+      statusText: "На перевірці",
+      date: "8 серпня"
+    }
+  ];
 
-    const mentorCourses = courses.filter(
-        (c) => profile?.id && c.assignedTeacherId === profile.id
-    );
+  const deadlines = [
+    {
+      title: "LCA — Завдання №2",
+      sub: "5 студентів ще не здали",
+      date: "14 серпня"
+    },
+    {
+      title: "Brand Audit",
+      sub: "3 студенти ще не здали",
+      date: "18 серпня"
+    },
+    {
+      title: "Eco Materials Research",
+      sub: "7 студентів ще не здали",
+      date: "22 серпня"
+    }
+  ];
 
-    return (
-        <>
-            <PageHeader
-                title="Кабінет ментора"
-                description="Управління навчальним процесом, курсами та перевірка робіт студентів."
-                action={
-                    <div className="actions">
-                        <Link className="button-link" to="/mentor/submissions">
-                            Перевірка робіт
-                        </Link>
-                        <Link className="button-link" to="/courses">
-                            Каталог курсів
-                        </Link>
-                    </div>
-                }
-            />
+  useEffect(() => {
+    Promise.all([
+      getProfile().catch(() => null),
+      getCourses().catch(() => [] as Course[])
+    ])
+      .then(([prof, crs]) => {
+        if (prof) setProfile(prof);
+        if (crs) setCourses(crs);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
-            <section className="grid grid-3">
-                <Stat
-                    value={profile?.username ?? "Ментор"}
-                    label="Поточний акаунт"
-                />
-                <Stat
-                    value={String(mentorCourses.length > 0 ? mentorCourses.length : courses.length)}
-                    label={mentorCourses.length > 0 ? "Закріплені курси" : "Всього курсів на платформі"}
-                />
-                <Stat
-                    value="1 - 12"
-                    label="Шкала оцінювання робіт"
-                />
-            </section>
+  const mentorName = profile?.username || "Андрію";
 
-            <div className="two-column section">
-                <Panel>
-                    <h2>Профіль викладача</h2>
-                    {loading ? (
-                        <p>Завантаження даних...</p>
-                    ) : error ? (
-                        <p role="alert" style={{ color: "#d32f2f" }}>{error}</p>
-                    ) : (
-                        <dl className="profile-list">
-                            <dt>Користувач</dt>
-                            <dd>{profile?.username ?? "Не вказано"}</dd>
-                            <dt>Email</dt>
-                            <dd>{profile?.email ?? "—"}</dd>
-                            <dt>Статус доступу</dt>
-                            <dd>Роль Teacher (доступне оцінювання)</dd>
-                        </dl>
-                    )}
+  return (
+    <div className="mentor-container">
+      {/* Header */}
+      <header className="mentor-header">
+        <div>
+          <h1 className="mentor-header-title">
+            <span>👋</span>
+            <span>Добрий день, {mentorName}</span>
+          </h1>
+          <p className="mentor-header-sub">
+            Ось що потребує вашої уваги сьогодні.
+          </p>
+        </div>
+        <div className="mentor-date-badge">
+          10 серпня 2026
+        </div>
+      </header>
 
-                    <div style={{ marginTop: "24px" }}>
-                        <h3>Швидкі дії ментора</h3>
-                        <div className="actions" style={{ marginTop: "12px" }}>
-                            <Link className="button-link" to="/mentor/review/new">
-                                Оцінити роботу за ID
-                            </Link>
-                            <Link className="button-link" to="/mentor/submissions">
-                                Черга перевірки робіт
-                            </Link>
-                        </div>
-                    </div>
-                </Panel>
-
-                <Panel>
-                    <h2>Курси ментора</h2>
-                    {mentorCourses.length > 0 ? (
-                        <ul className="list">
-                            {mentorCourses.map((course) => (
-                                <li key={course.id}>
-                                    <strong>{course.title}</strong>
-                                    <p>{course.description}</p>
-                                    <Link to={`/courses/${course.id}`}>Переглянути сторінку курсу</Link>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <div>
-                            <p>У вас наразі немає персонально закріплених курсів через поле AssignedTeacherId.</p>
-                            <p className="meta" style={{ marginTop: "8px" }}>
-                                Викладачі закріплюються адміністратором через ендпоінт <code>POST /admin/assign/teacher-to-cource</code>.
-                            </p>
-                            <h3 style={{ marginTop: "18px" }}>Усі доступні курси:</h3>
-                            <ul className="list" style={{ marginTop: "8px" }}>
-                                {courses.slice(0, 5).map((c) => (
-                                    <li key={c.id}>
-                                        <Link to={`/courses/${c.id}`}><strong>{c.title}</strong></Link>
-                                        <span className="meta"> ({c.price} грн)</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-                </Panel>
+      {/* Hero Overview Card */}
+      <section className="mentor-hero-card">
+        <div className="mentor-hero-top">
+          <div className="mentor-hero-heading">
+            <h2>Огляд роботи ментора</h2>
+            <p>Перевірки, студенти та активність за поточний тиждень</p>
+          </div>
+          <div className="mentor-hero-ring">
+            <div className="mentor-hero-ring-inner">
+              72%
             </div>
-        </>
-    );
+          </div>
+        </div>
+
+        <div className="mentor-hero-metrics">
+          <div className="mentor-metric-card">
+            <div className="mentor-metric-value">3</div>
+            <div className="mentor-metric-label">роботи на перевірці</div>
+          </div>
+          <div className="mentor-metric-card">
+            <div className="mentor-metric-value">18</div>
+            <div className="mentor-metric-label">активних студентів</div>
+          </div>
+          <div className="mentor-metric-card">
+            <div className="mentor-metric-value">2</div>
+            <div className="mentor-metric-label">заняття сьогодні</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Grid: Works & Deadlines */}
+      <div className="mentor-grid-layout">
+        {/* Left Column: Works on Review */}
+        <section>
+          <div className="mentor-section-header">
+            <h2 className="mentor-section-title">На перевірці</h2>
+            <Link to="/mentor/submissions" className="mentor-section-link">
+              Усі роботи &rarr;
+            </Link>
+          </div>
+
+          <div className="mentor-works-panel">
+            <div className="mentor-works-panel-header">
+              <h3 className="mentor-works-panel-title">Нові роботи студентів</h3>
+              <span className="mentor-works-panel-badge">{works.length} роботи</span>
+            </div>
+
+            {works.map((work) => (
+              <div key={work.id} className="mentor-work-item">
+                <div className="mentor-work-num">{work.num}</div>
+                <div className="mentor-work-info">
+                  <div className="mentor-work-name">{work.studentName}</div>
+                  <div className="mentor-work-task">{work.taskTitle}</div>
+                  <div className="mentor-work-course">{work.courseName}</div>
+                </div>
+                <span className={`mentor-status-pill ${work.status}`}>
+                  {work.statusText}
+                </span>
+                <Link
+                  to={`/mentor/review/${work.id}`}
+                  className="mentor-action-btn"
+                >
+                  Перевірити &rarr;
+                </Link>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Right Column: Deadlines */}
+        <aside>
+          <div className="mentor-section-header">
+            <h2 className="mentor-section-title">Дедлайни</h2>
+          </div>
+
+          <div className="mentor-deadlines-panel">
+            <div className="mentor-deadlines-header">
+              <h3 className="mentor-deadlines-title">Найближчі дедлайни</h3>
+            </div>
+
+            {deadlines.map((dl, idx) => (
+              <div key={idx} className="mentor-deadline-item">
+                <div>
+                  <div className="mentor-deadline-title">{dl.title}</div>
+                  <div className="mentor-deadline-sub">{dl.sub}</div>
+                </div>
+                <div className="mentor-deadline-badge">{dl.date}</div>
+              </div>
+            ))}
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
 }

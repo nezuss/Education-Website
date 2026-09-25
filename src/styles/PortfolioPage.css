@@ -1,0 +1,762 @@
+/* Student Portfolio Page Styling - NEXYLVA Design System */
+
+.portfolio-page {
+  background-color: var(--color-bg-main, #E8E4DF);
+  color: var(--color-brand-dark, #0A2D1B);
+  font-family: var(--font-body, 'Inter', sans-serif);
+  padding: 40px 100px 100px 100px;
+  max-width: 1920px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1440px) {
+  .portfolio-page {
+    padding: 32px 48px 80px 48px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .portfolio-page {
+    padding: 24px 24px 60px 24px;
+  }
+}
+
+/* Breadcrumbs */
+.port-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-brand-soft, #557061);
+  margin-bottom: 24px;
+}
+
+.port-breadcrumbs a {
+  color: var(--color-brand-soft, #557061);
+  text-decoration: none;
+}
+
+.port-breadcrumbs span.active {
+  color: var(--color-brand-dark, #0A2D1B);
+  font-weight: 500;
+}
+
+.port-tag-badge {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #B29074;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: inline-block;
+}
+
+/* Section 1: Hero */
+.port-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  margin-bottom: 80px;
+}
+
+.port-hero-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.port-hero-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 0 0 20px 0;
+}
+
+.port-hero-desc {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-brand-soft, #557061);
+  margin-bottom: 36px;
+  max-width: 540px;
+}
+
+.port-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.port-stat-card {
+  background: var(--color-bg-sand, #E0D3C7);
+  padding: 18px 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(178, 144, 116, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.port-stat-num {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 32px;
+  font-weight: 700;
+  color: #8C6D53;
+}
+
+.port-stat-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-brand-dark, #0A2D1B);
+}
+
+.port-explore-btn {
+  background: var(--color-brand-primary, #13492C);
+  color: #FFFFFF;
+  border: none;
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.port-hero-art {
+  width: 100%;
+  background: transparent;
+}
+
+.port-hero-art img {
+  width: 100%;
+  display: block;
+}
+
+/* Section 2: Featured Student */
+.port-featured-student-section {
+  padding-top: 20px;
+  margin-bottom: 96px;
+}
+
+.port-featured-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.port-featured-media {
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.port-featured-media img {
+  width: 100%;
+  display: block;
+}
+
+.port-featured-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.port-pill-badge {
+  display: inline-block;
+  align-self: flex-start;
+  background: #FFFFFF;
+  color: #8C6D53;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 4px 14px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+.port-featured-name {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 0 0 16px 0;
+}
+
+.port-featured-desc {
+  font-size: 16px;
+  color: var(--color-brand-soft, #557061);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.port-featured-quote {
+  border-left: 3px solid #8C6D53;
+  padding-left: 20px;
+  margin-bottom: 28px;
+}
+
+.port-featured-quote blockquote {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #8C6D53;
+  margin: 0;
+}
+
+.port-featured-author {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.port-author-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.port-author-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.port-author-name {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+}
+
+.port-author-role {
+  font-size: 13px;
+  color: var(--color-brand-primary, #13492C);
+  font-weight: 600;
+}
+
+/* Section 3: Works Gallery */
+.port-works-section {
+  margin-bottom: 60px;
+}
+
+.port-works-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 28px;
+  gap: 32px;
+}
+
+.port-works-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 0;
+}
+
+.port-works-sub {
+  font-size: 15px;
+  color: var(--color-brand-soft, #557061);
+  max-width: 520px;
+  line-height: 1.5;
+}
+
+.port-filter-pills {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+}
+
+.port-pill-btn {
+  background: var(--color-bg-sand, #E0D3C7);
+  border: 1px solid rgba(178, 144, 116, 0.3);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--color-brand-dark, #0A2D1B);
+  transition: all 0.2s;
+}
+
+.port-pill-btn.active {
+  background: var(--color-brand-dark, #0A2D1B);
+  color: #FFFFFF;
+  border-color: var(--color-brand-dark, #0A2D1B);
+}
+
+/* Row 1: Masonry */
+.port-masonry-row {
+  display: grid;
+  grid-template-columns: 849px 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.port-work-card {
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #FFFFFF;
+  box-shadow: 0 4px 16px rgba(10, 45, 27, 0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.port-work-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(10, 45, 27, 0.08);
+}
+
+.port-work-img-wrap {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.port-work-card-large .port-work-img-wrap {
+  height: 520px;
+}
+
+.port-work-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.port-card-tag-pill {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #8C6D53;
+  letter-spacing: 0.06em;
+  z-index: 2;
+}
+
+.port-work-bottom {
+  padding: 20px 24px;
+  flex: 1;
+}
+
+.port-work-bottom.sage {
+  background: #9DB4A6;
+  color: #0A2D1B;
+}
+
+.port-work-bottom.beige {
+  background: #E0D3C7;
+  color: #0A2D1B;
+}
+
+.port-work-bottom h3 {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.port-masonry-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.port-masonry-sub-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.port-masonry-sub-row .port-work-img-wrap {
+  height: 190px;
+}
+
+.port-work-card-wide .port-work-img-wrap {
+  height: 200px;
+}
+
+/* Row 2: 3 Cards */
+.port-cards-row2 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.port-card-standard {
+  background: #E0D3C7;
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 16px rgba(10, 45, 27, 0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.port-card-standard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(10, 45, 27, 0.08);
+}
+
+.port-card-img-wrap {
+  position: relative;
+  height: 260px;
+  overflow: hidden;
+}
+
+.port-card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.port-card-standard-body {
+  padding: 24px;
+  background: #E0D3C7;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.port-card-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.port-card-meta {
+  font-size: 13px;
+  color: var(--color-brand-soft, #557061);
+  margin-top: auto;
+}
+
+.port-all-projects-link-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 40px;
+}
+
+.port-view-all-link {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-brand-dark, #0A2D1B);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s;
+}
+
+.port-view-all-link:hover {
+  transform: translateX(4px);
+}
+
+.port-section-divider {
+  border: none;
+  border-top: 1px solid rgba(178, 144, 116, 0.4);
+  margin: 0 0 80px 0;
+}
+
+/* Section 4: Student Story */
+.port-story-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  margin-bottom: 96px;
+}
+
+.port-story-media {
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.port-story-media img {
+  width: 100%;
+  display: block;
+}
+
+.port-story-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 0 0 16px 0;
+  line-height: 1.2;
+}
+
+.port-story-desc {
+  font-size: 16px;
+  color: var(--color-brand-soft, #557061);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.port-story-quote {
+  border-left: 3px solid #8C6D53;
+  padding-left: 20px;
+  margin-bottom: 28px;
+}
+
+.port-story-quote blockquote {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #8C6D53;
+  margin: 0;
+}
+
+.port-story-action-link {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-brand-primary, #13492C);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s;
+}
+
+.port-story-action-link:hover {
+  transform: translateX(4px);
+}
+
+/* Section 5: Process from Learning to Portfolio */
+.port-process-section {
+  margin-bottom: 96px;
+}
+
+.port-process-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 40px;
+  gap: 32px;
+}
+
+.port-process-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 0;
+}
+
+.port-process-sub {
+  font-size: 15px;
+  color: var(--color-brand-soft, #557061);
+  max-width: 500px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.port-process-steps-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.port-process-step-card {
+  flex: 1;
+  background: #ADC4B6;
+  border-radius: 24px;
+  padding: 32px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 16px rgba(10, 45, 27, 0.04);
+  min-height: 190px;
+}
+
+.port-step-num {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 44px;
+  font-weight: 700;
+  color: #8C6D53;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.port-step-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 0 0 8px 0;
+}
+
+.port-step-desc {
+  font-size: 13px;
+  color: #385546;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.port-process-arrow {
+  font-size: 28px;
+  color: #557061;
+  flex-shrink: 0;
+  font-weight: 300;
+}
+
+/* Section 6: Bottom CTA Banner */
+.port-cta-banner {
+  background: #C2AB98;
+  border-radius: 72px 24px;
+  padding: 0 0 0 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+  min-height: 320px;
+  position: relative;
+  overflow: visible;
+  margin-bottom: 40px;
+}
+
+.port-cta-content {
+  flex: 1;
+  padding: 40px 0;
+  z-index: 2;
+}
+
+.port-cta-badge {
+  display: inline-block;
+  background: #FFFFFF;
+  color: var(--color-brand-dark, #0A2D1B);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 4px 14px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+.port-cta-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 0 0 12px 0;
+}
+
+.port-cta-sub {
+  font-size: 16px;
+  color: #4B4036;
+  margin: 0;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+.port-cta-btn-wrap {
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.port-cta-btn {
+  background: #0A2D1B;
+  color: #FFFFFF;
+  padding: 16px 32px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.port-cta-btn:hover {
+  background: #13492C;
+  transform: translateY(-2px);
+}
+
+.port-cta-visual {
+  flex-shrink: 0;
+  height: 380px;
+  margin-top: -60px;
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+  z-index: 3;
+}
+
+.port-cta-character {
+  height: 100%;
+  width: auto;
+  display: block;
+}
+
+/* Responsive */
+@media (max-width: 1440px) {
+  .port-masonry-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .port-hero-grid,
+  .port-featured-grid,
+  .port-story-section,
+  .port-masonry-row {
+    grid-template-columns: 1fr;
+  }
+  .port-cards-row2 {
+    grid-template-columns: 1fr 1fr;
+  }
+  .port-process-steps-row {
+    flex-wrap: wrap;
+  }
+  .port-process-step-card {
+    min-width: 200px;
+  }
+  .port-process-arrow {
+    display: none;
+  }
+  .port-cta-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 40px 24px 0 24px;
+    border-radius: 40px 16px;
+    overflow: hidden;
+  }
+  .port-cta-visual {
+    margin-top: 0;
+    height: 280px;
+  }
+}
+
+@media (max-width: 640px) {
+  .port-cards-row2,
+  .port-masonry-sub-row {
+    grid-template-columns: 1fr;
+  }
+  .port-hero-stats {
+    grid-template-columns: 1fr;
+  }
+}

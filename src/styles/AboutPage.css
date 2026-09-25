@@ -1,0 +1,653 @@
+/* About Us Page Styling - NEXYLVA Design System */
+
+.about-page {
+  background-color: var(--color-bg-main, #E8E4DF);
+  color: var(--color-brand-dark, #0A2D1B);
+  font-family: var(--font-body, 'Inter', sans-serif);
+  max-width: 1920px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.about-pad-container {
+  padding: 40px 100px 100px 100px;
+}
+
+@media (max-width: 1440px) {
+  .about-pad-container {
+    padding: 32px 48px 80px 48px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .about-pad-container {
+    padding: 24px 24px 60px 24px;
+  }
+}
+
+/* Breadcrumbs */
+.about-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-brand-soft, #557061);
+  margin-bottom: 24px;
+}
+
+.about-breadcrumbs a {
+  color: var(--color-brand-soft, #557061);
+  text-decoration: none;
+}
+
+.about-breadcrumbs span.active {
+  color: var(--color-brand-dark, #0A2D1B);
+  font-weight: 500;
+}
+
+.about-tag-badge {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #B29074;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: inline-block;
+}
+
+/* Section 1: Hero */
+.about-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  margin-bottom: 80px;
+}
+
+.about-hero-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-hero-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 0 0 20px 0;
+}
+
+.about-hero-desc {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-brand-soft, #557061);
+  margin-bottom: 36px;
+  max-width: 540px;
+}
+
+.about-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+}
+
+.about-hero-btn {
+  background: var(--color-brand-primary, #13492C);
+  color: #FFFFFF;
+  border: none;
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+}
+
+.about-hero-btn:hover {
+  background: #0E3620;
+  transform: translateY(-2px);
+}
+
+.about-hero-stats {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.about-stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-stat-num {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 36px;
+  font-weight: 700;
+  color: #B29074;
+  line-height: 1;
+}
+
+.about-stat-label {
+  font-size: 13px;
+  color: var(--color-brand-dark, #0A2D1B);
+  font-weight: 500;
+}
+
+.about-hero-art {
+  width: 100%;
+  background: transparent;
+}
+
+.about-hero-art img {
+  width: 100%;
+  display: block;
+}
+
+/* Section 2: Mission (Dark Green) */
+.about-mission-section {
+  background: #0A2D1B;
+  color: #FFFFFF;
+  padding: 80px 100px;
+  margin-bottom: 96px;
+}
+
+.about-mission-inner {
+  max-width: 1720px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.about-tag-badge-light {
+  color: #B29074 !important;
+}
+
+.about-mission-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 40px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0 0 20px 0;
+}
+
+.about-mission-desc {
+  font-size: 16px;
+  color: #C4D3CB;
+  line-height: 1.6;
+}
+
+.about-mission-art-wrap {
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.about-mission-art-wrap img {
+  max-width: 100%;
+  display: block;
+  border-radius: 16px;
+}
+
+/* Section 3: Why NEXYLVA / Story */
+.about-story-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  margin-bottom: 96px;
+}
+
+.about-story-media {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.about-story-media img {
+  width: 100%;
+  display: block;
+}
+
+.about-story-content h2 {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 0 0 20px 0;
+}
+
+.about-story-content p {
+  font-size: 16px;
+  color: var(--color-brand-soft, #557061);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.about-story-quote {
+  border-left: 4px solid #B29074;
+  padding-left: 24px;
+  margin-top: 28px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.about-story-quote blockquote {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #8C6D53;
+  margin: 0;
+  flex: 1;
+}
+
+.about-quote-mark {
+  font-family: 'Georgia', serif;
+  font-size: 64px;
+  line-height: 0.8;
+  color: #B29074;
+  opacity: 0.6;
+  user-select: none;
+}
+
+/* Section 4: Our Approach */
+.about-approach-section {
+  margin-bottom: 96px;
+  padding-top: 20px;
+}
+
+.about-approach-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1.2fr;
+  gap: 32px;
+  align-items: center;
+}
+
+.about-approach-left h2 {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 0 0 16px 0;
+  line-height: 1.2;
+}
+
+.about-approach-left p {
+  font-size: 16px;
+  color: var(--color-brand-soft, #557061);
+  line-height: 1.5;
+  margin-bottom: 32px;
+}
+
+.about-approach-metrics {
+  display: flex;
+  gap: 28px;
+  margin-bottom: 16px;
+}
+
+.about-app-metric {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-app-metric .num {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 32px;
+  font-weight: 700;
+  color: #B29074;
+}
+
+.about-app-metric .label {
+  font-size: 13px;
+  color: var(--color-brand-soft, #557061);
+  font-weight: 500;
+}
+
+.about-approach-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.about-approach-girl-img {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  display: block;
+}
+
+.about-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.about-step-card {
+  background: #FFFFFF;
+  padding: 20px 24px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 4px 16px rgba(10, 45, 27, 0.04);
+}
+
+.about-step-card .num {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 24px;
+  font-weight: 700;
+  color: #8C6D53;
+  background: #E8DFD5;
+  min-width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.about-step-card h4 {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 0 0 4px 0;
+}
+
+.about-step-card p {
+  font-size: 13px;
+  color: var(--color-brand-soft, #557061);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Section 5: Team */
+.about-team-section {
+  margin-bottom: 80px;
+}
+
+.about-team-header {
+  margin-bottom: 32px;
+}
+
+.about-team-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 40px;
+}
+
+.about-team-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.about-team-sub {
+  font-size: 15px;
+  color: var(--color-brand-soft, #557061);
+  max-width: 600px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.about-team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.about-team-card {
+  background: #B4CCBF;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(10, 45, 27, 0.12);
+  box-shadow: 0 4px 16px rgba(10, 45, 27, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+.about-team-photo-wrap {
+  width: 100%;
+  height: 240px;
+  overflow: hidden;
+}
+
+.about-team-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.about-team-info {
+  padding: 24px;
+  background: #B4CCBF;
+  flex: 1;
+}
+
+.about-team-badge {
+  display: inline-block;
+  background: #FFFFFF;
+  color: #8C6D53;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.about-team-name {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-brand-dark, #0A2D1B);
+  margin-bottom: 6px;
+}
+
+.about-team-desc {
+  font-size: 13px;
+  color: #385546;
+  line-height: 1.4;
+}
+
+/* Section 6: Big Numbers Bar */
+.about-numbers-bar {
+  background: transparent;
+  border-top: 1px solid rgba(178, 144, 116, 0.5);
+  border-bottom: 1px solid rgba(178, 144, 116, 0.5);
+  padding: 40px 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-bottom: 80px;
+  text-align: center;
+}
+
+.about-bar-col {
+  border-right: 1px solid rgba(178, 144, 116, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 16px;
+}
+
+.about-bar-col:last-child {
+  border-right: none;
+}
+
+.about-bar-val {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 44px;
+  font-weight: 700;
+  color: #8C6D53;
+}
+
+.about-bar-label {
+  font-size: 14px;
+  color: var(--color-brand-dark, #0A2D1B);
+  font-weight: 500;
+}
+
+/* Section 7: Bottom CTA Banner */
+.about-cta-banner {
+  background: #3F6352;
+  border-radius: 72px 24px;
+  padding: 0 0 0 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+  color: #FFFFFF;
+  position: relative;
+  overflow: hidden;
+  min-height: 262px;
+}
+
+.about-cta-text {
+  flex: 1;
+  padding: 36px 0;
+  z-index: 2;
+}
+
+.about-cta-badge {
+  display: inline-block;
+  background: #FFFFFF;
+  color: #8C6D53;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 4px 14px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+.about-cta-title {
+  font-family: var(--font-heading, 'Montserrat Alternates', sans-serif);
+  font-size: 38px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0 0 12px 0;
+  white-space: nowrap;
+}
+
+.about-cta-sub {
+  font-size: 16px;
+  color: #C4D3CB;
+  margin: 0;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+.about-cta-btn-wrap {
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.about-cta-btn {
+  background: #C8B3A2;
+  color: #0A2D1B;
+  padding: 16px 32px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.about-cta-btn:hover {
+  background: #FFFFFF;
+  transform: translateY(-2px);
+}
+
+.about-cta-visual {
+  flex-shrink: 0;
+  height: 262px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.about-cta-character {
+  height: 100%;
+  width: auto;
+  display: block;
+}
+
+/* Responsive */
+@media (max-width: 1440px) {
+  .about-mission-section {
+    padding: 60px 48px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .about-approach-layout {
+    grid-template-columns: 1fr 1fr;
+  }
+  .about-approach-visual {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .about-mission-section {
+    padding: 48px 24px;
+  }
+  .about-hero-grid,
+  .about-mission-inner,
+  .about-story-section {
+    grid-template-columns: 1fr;
+  }
+  .about-team-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .about-team-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .about-numbers-bar {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  .about-bar-col {
+    border-right: none;
+  }
+  .about-cta-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 40px 24px 0 24px;
+    border-radius: 40px 16px;
+  }
+  .about-cta-visual {
+    height: 220px;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-team-grid,
+  .about-numbers-bar {
+    grid-template-columns: 1fr;
+  }
+  .about-hero-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+}
