@@ -4,33 +4,174 @@ import {
   getLessons,
   getMaterials,
   getModules,
+  submitTest,
   type Lesson,
   type Material,
   type Module,
 } from "../../services/learningService";
+import { getCourses } from "../../services/courseService";
+import { getCourseStats, getModuleStats, type CourseStats, type ModuleStats } from "../../services/courseStatsService";
+import type { Course } from "../../types/course";
 import "../../styles/CourseLearning.css";
 import "../../styles/StudentDashboard.css";
 
-const DEFAULT_COURSE_NAMES: Record<string, string> = {
-  "lca-eco-design": "LCA & Еко-проєктування",
-  "circular-economy": "Циркулярний дизайн та матеріали",
-  "eco-materials": "Біоматеріали та інновації",
-  "green-architecture": "Стала архітектура та біомімікрія"
-};
+function VideoPlayer({ url }: { url: string }) {
+  let embedUrl = url;
+  if (url.includes("watch?v=")) {
+    embedUrl = url.replace("watch?v=", "embed/");
+  } else if (url.includes("youtu.be/")) {
+    embedUrl = url.replace("youtu.be/", "www.youtube.com/embed/");
+  }
+  return (
+    <div className="learn-video-player-wrap">
+      <iframe
+        className="learn-video-iframe"
+        src={embedUrl}
+        title="Лекція"
+        allowFullScreen
+      />
+    </div>
+  );
+}
+
+function TestQuizWidget({ material }: { material: Material }) {
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSelect = (questionId: string, answerId: string) => {
+    if (submitted) return;
+    setSelectedAnswers((prev) => ({ ...prev, [questionId]: answerId }));
+  };
+
+  const handleSubmit = async () => {
+    if (!material.questions || material.questions.length === 0) return;
+    setLoading(true);
+    setError("");
+    try {
+      const answersPayload = Object.entries(selectedAnswers).map(([questionId, answerId]) => ({
+        questionId,
+        answerId,
+      }));
+      await submitTest(material.id, answersPayload);
+      setSubmitted(true);
+    } catch (err: unknown) {
+      setError((err as Error)?.message || "Не вдалося надіслати тест");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!material.questions || material.questions.length === 0) {
+    return null;
+  }
+
+  return (
+    <div style={{ marginTop: "20px", background: "#FFFFFF", borderRadius: "16px", padding: "24px", border: "1px solid rgba(10,45,27,0.08)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+        <h3 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}>📝 Тестування</h3>
+        {submitted && <span style={{ color: "#215A36", fontWeight: 600, fontSize: "14px" }}>✓ Тест надіслано</span>}
+      </div>
+      {material.questions.map((q, qIdx) => (
+        <div key={q.id} style={{ marginBottom: "16px" }}>
+          <div style={{ fontWeight: 600, fontSize: "15px", marginBottom: "8px" }}>
+            {qIdx + 1}. {q.text}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {q.answers.map((ans) => (
+              <label
+                key={ans.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  background: selectedAnswers[q.id] === ans.id ? "rgba(19,73,44,0.08)" : "var(--color-bg-sand)",
+                  cursor: submitted ? "default" : "pointer",
+                }}
+              >
+                <input
+                  type="radio"
+                  name={`q-${q.id}`}
+                  value={ans.id}
+                  checked={selectedAnswers[q.id] === ans.id}
+                  onChange={() => handleSelect(q.id, ans.id)}
+                  disabled={submitted}
+                />
+                <span style={{ fontSize: "14px" }}>{ans.text}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      ))}
+      {error && <div style={{ color: "#E53E3E", fontSize: "13px", marginBottom: "12px" }}>{error}</div>}
+      {!submitted && (
+        <button
+          type="button"
+          className="std-continue-btn"
+          onClick={handleSubmit}
+          disabled={loading || Object.keys(selectedAnswers).length < material.questions.length}
+          style={{ padding: "10px 24px", fontSize: "14px" }}
+        >
+          {loading ? "Надсилання..." : "Завершити тест"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function AssignmentWidget({ material, courseId, courseTitle }: { material: Material; courseId?: string; courseTitle?: string }) {
+  return (
+    <div style={{ marginTop: "20px", background: "var(--color-bg-card-alt)", borderRadius: "16px", padding: "20px", border: "1px solid rgba(10,45,27,0.08)" }}>
+      <div className="std-badge-tag">[ ПРАКТИЧНЕ ЗАВДАННЯ ]</div>
+      <h3 style={{ fontSize: "18px", fontWeight: 700, margin: "8px 0" }}>{material.title || "Завдання до уроку"}</h3>
+      <p style={{ fontSize: "14px", color: "var(--color-brand-soft)", marginBottom: "16px" }}>
+        {material.description || "Виконайте практичне завдання та завантажте файл на перевірку ментору."}
+      </p>
+      {material.deadline && (
+        <div style={{ fontSize: "13px", color: "#8C6D53", marginBottom: "16px" }}>
+          Дедлайн: {new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(new Date(material.deadline))}
+        </div>
+      )}
+      <Link
+        to={`/student/assignments/${material.id}`}
+        state={{ courseId, courseTitle, assignmentTitle: material.title, description: material.description, deadline: material.deadline }}
+        className="std-continue-btn"
+        style={{ display: "inline-flex", padding: "10px 20px", fontSize: "14px" }}
+      >
+        <span>Здати роботу &rarr;</span>
+      </Link>
+    </div>
+  );
+}
 
 export default function LearningPage() {
   const { courseId, lessonId: paramLessonId } = useParams<{ courseId: string; lessonId?: string }>();
+  const [courseData, setCourseData] = useState<Course | null>(null);
+  const [courseStats, setCourseStats] = useState<CourseStats | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
+  const [moduleStatsMap, setModuleStatsMap] = useState<Record<string, ModuleStats>>({});
   const [lessonsByModule, setLessonsByModule] = useState<Record<string, Lesson[]>>({});
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [activeMaterials, setActiveMaterials] = useState<Material[]>([]);
   const [openModuleId, setOpenModuleId] = useState<string | null>(null);
-  const [, setLoading] = useState(true);
-
-  const courseDisplayName = (courseId && DEFAULT_COURSE_NAMES[courseId]) ? DEFAULT_COURSE_NAMES[courseId] : "LCA & Еко-проєктування";
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!courseId) return;
+
+    getCourses()
+      .then((courses) => {
+        const found = courses.find((c) => c.id === courseId);
+        if (found) setCourseData(found);
+      })
+      .catch(() => {});
+
+    getCourseStats(courseId)
+      .then(setCourseStats)
+      .catch(() => {});
 
     getModules(courseId)
       .then(async (mods) => {
@@ -39,6 +180,10 @@ export default function LearningPage() {
           setOpenModuleId(mods[0].id);
           const map: Record<string, Lesson[]> = {};
           for (const m of mods) {
+            getModuleStats(m.id)
+              .then((ms) => setModuleStatsMap((prev) => ({ ...prev, [m.id]: ms })))
+              .catch(() => {});
+
             try {
               map[m.id] = await getLessons(m.id);
             } catch {
@@ -70,7 +215,7 @@ export default function LearningPage() {
       })
       .catch(() => {
         setModules([
-          { id: "mod-1", title: "Основи LCA та сталого проєктування", description: "Життєвий цикл продукту, системне мислення та базові принципи.", lessonsId: ["mock-1", "mock-2"] },
+          { id: "mod-1", title: "Основи LCA та сталого проєктування", description: "Життєвий цикл продукту, системне мислення та базові принципи.", lessonsId: [] },
           { id: "mod-2", title: "Матеріали нового покоління", description: "Біополімери, вторинні матеріали та їх властивості.", lessonsId: [] },
           { id: "mod-3", title: "Циркулярний дизайн пакування", description: "Розробка концепцій безвідходного життєвого циклу.", lessonsId: [] },
           { id: "mod-4", title: "Підбір еко-сировини та оцінка", description: "Практичний аналіз впливу матеріалів на довкілля.", lessonsId: [] },
@@ -84,6 +229,24 @@ export default function LearningPage() {
     setActiveLesson(lesson);
     getMaterials(lesson.id).then(setActiveMaterials).catch(() => setActiveMaterials([]));
   };
+
+  const courseDisplayName = courseData?.title || "LCA & Еко-проєктування";
+  const progressVal = Math.round(courseStats?.progressPercentage ?? 0);
+  const activeVideo = activeMaterials.find((m) => m.type === "Video" || m.videoUrl);
+  const activeAssignment = activeMaterials.find((m) => m.type === "Assignment");
+  const otherMaterials = activeMaterials.filter((m) => m.type !== "Video");
+
+  const currentModuleIndex = modules.findIndex((m) => m.id === openModuleId);
+  const currentModule = currentModuleIndex >= 0 ? modules[currentModuleIndex] : modules[0];
+
+  if (loading) {
+    return (
+      <div className="learn-page" style={{ padding: "60px 20px", textAlign: "center" }}>
+        <div style={{ fontSize: "36px", marginBottom: "16px" }}>⏳</div>
+        <h2 style={{ color: "var(--color-brand-dark)", fontSize: "20px" }}>Завантаження матеріалів курсу...</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="learn-page">
@@ -100,31 +263,44 @@ export default function LearningPage() {
           <span className="std-badge-tag">[ НАВЧАЛЬНИЙ КУРС ]</span>
           <h1 className="learn-hero-title">{courseDisplayName}</h1>
           <p className="learn-hero-desc">
-            Практичний курс зі сталого проєктування та оцінки життєвого циклу продукту.
+            {courseData?.description || "Практичний курс зі сталого проєктування та оцінки життєвого циклу продукту."}
           </p>
           <div className="learn-hero-badges">
             <span className="std-chip">PRO</span>
-            <span className="std-chip">10 модулів</span>
-            <span className="std-chip">28 уроків</span>
+            <span className="std-chip">
+              {courseStats?.totalModules ?? modules.length} модулів
+            </span>
+            <span className="std-chip">
+              {courseStats?.totalLessons ?? Object.values(lessonsByModule).reduce((sum, l) => sum + l.length, 0)} уроків
+            </span>
           </div>
         </div>
 
         <div className="learn-hero-col-center">
           <span className="learn-col-caption">Поточний етап</span>
-          <div className="learn-current-stage">Модуль 4 із 10</div>
-          <div className="learn-current-lesson">Урок 3 • Підбір еко-сировини</div>
+          <div className="learn-current-stage">
+            Модуль {(currentModuleIndex >= 0 ? currentModuleIndex + 1 : 1)} із {modules.length || 1}
+          </div>
+          <div className="learn-current-lesson">
+            {activeLesson ? activeLesson.title : (currentModule?.title || "Початок курсу")}
+          </div>
         </div>
 
         <div className="learn-hero-col-right">
           <div className="std-progress-label">
             <span>Ваш прогрес</span>
-            <span>42%</span>
+            <span>{progressVal}%</span>
           </div>
           <div className="std-progress-bar-bg">
-            <div className="std-progress-bar-fill" style={{ width: "42%" }}></div>
+            <div className="std-progress-bar-fill" style={{ width: `${progressVal}%` }}></div>
           </div>
-          <Link to="/student/assignments/1" className="std-continue-btn" style={{ justifyContent: "center" }}>
-            <span>Здати завдання &rarr;</span>
+          <Link
+            to={activeAssignment ? `/student/assignments/${activeAssignment.id}` : (courseId ? `/student/learning/${courseId}` : "/student/courses")}
+            state={{ courseId, courseTitle: courseDisplayName, assignmentTitle: activeAssignment?.title }}
+            className="std-continue-btn"
+            style={{ justifyContent: "center" }}
+          >
+            <span>{activeAssignment ? "Здати завдання →" : "Продовжити навчання →"}</span>
           </Link>
         </div>
       </div>
@@ -136,40 +312,98 @@ export default function LearningPage() {
             {activeLesson.title}
           </h2>
           <p style={{ fontSize: "15px", color: "var(--color-brand-soft)", margin: "0 0 20px 0" }}>
-            {activeLesson.description || "Перегляньте лекційний матеріал, вивчіть рекомендації та перейдіть до виконання практичного завдання."}
+            {activeLesson.description || "Перегляньте лекційний матеріал, вивчіть рекомендації та перейдіть до виконання завдань."}
           </p>
 
-          <div className="learn-video-player-wrap">
-            <iframe
-              className="learn-video-iframe"
-              src="https://www.youtube-nocookie.com/embed/LXb3EKWsInQ"
-              title="Лекція"
-              allowFullScreen
-            />
-          </div>
+          <VideoPlayer url={activeVideo?.videoUrl || "https://www.youtube-nocookie.com/embed/LXb3EKWsInQ"} />
 
-          {activeMaterials.length > 0 && (
+          {otherMaterials.length > 0 && (
             <div style={{ marginTop: "24px", paddingTop: "20px", borderTop: "1px solid rgba(10, 45, 27, 0.08)" }}>
               <h3 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "12px" }}>Матеріали уроку</h3>
-              <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                {activeMaterials.map((mat) => (
-                  <div
-                    key={mat.id}
-                    style={{
-                      background: "var(--color-bg-sand)",
-                      padding: "10px 16px",
-                      borderRadius: "10px",
-                      fontSize: "13px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px"
-                    }}
-                  >
-                    <span>📄</span>
-                    <span style={{ fontWeight: 600 }}>{mat.description || "Методичні матеріали (PDF)"}</span>
-                  </div>
-                ))}
+              
+              <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "16px" }}>
+                {otherMaterials.map((mat) => {
+                  if (mat.type === "File" && mat.fileUrl) {
+                    return (
+                      <a
+                        key={mat.id}
+                        href={mat.fileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        download
+                        style={{
+                          background: "var(--color-bg-sand)",
+                          padding: "10px 16px",
+                          borderRadius: "10px",
+                          fontSize: "13px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          color: "inherit",
+                          textDecoration: "none",
+                        }}
+                      >
+                        <span>📁</span>
+                        <span style={{ fontWeight: 600 }}>{mat.title || mat.description || "Завантажити файл"}</span>
+                        <span>⤓</span>
+                      </a>
+                    );
+                  }
+                  if (mat.type === "Link" && mat.url) {
+                    return (
+                      <a
+                        key={mat.id}
+                        href={mat.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          background: "var(--color-bg-sand)",
+                          padding: "10px 16px",
+                          borderRadius: "10px",
+                          fontSize: "13px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          color: "inherit",
+                          textDecoration: "none",
+                        }}
+                      >
+                        <span>🔗</span>
+                        <span style={{ fontWeight: 600 }}>{mat.title || mat.url}</span>
+                        <span>↗</span>
+                      </a>
+                    );
+                  }
+                  if (mat.type === "Text" && mat.content) {
+                    return (
+                      <div
+                        key={mat.id}
+                        style={{
+                          width: "100%",
+                          background: "#FFFFFF",
+                          padding: "16px",
+                          borderRadius: "12px",
+                          lineHeight: "1.6",
+                          fontSize: "14px",
+                          whiteSpace: "pre-line",
+                          border: "1px solid rgba(10,45,27,0.08)",
+                        }}
+                      >
+                        {mat.content}
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
               </div>
+
+              {otherMaterials.filter((m) => m.type === "Assignment").map((m) => (
+                <AssignmentWidget key={m.id} material={m} courseId={courseId} courseTitle={courseDisplayName} />
+              ))}
+
+              {otherMaterials.filter((m) => m.type === "Test").map((m) => (
+                <TestQuizWidget key={m.id} material={m} />
+              ))}
             </div>
           )}
         </div>
@@ -186,6 +420,8 @@ export default function LearningPage() {
             {modules.map((mod, idx) => {
               const isOpen = openModuleId === mod.id;
               const lessons = lessonsByModule[mod.id] || [];
+              const modStat = moduleStatsMap[mod.id];
+              const pctText = modStat ? `${Math.round(modStat.progressPercentage)}%` : (idx === 0 && progressVal > 0 ? `${progressVal}%` : "0%");
 
               return (
                 <div key={mod.id} className="learn-module-box">
@@ -203,10 +439,10 @@ export default function LearningPage() {
 
                     <div className="learn-module-right">
                       <div className="learn-module-pct">
-                        {idx === 0 ? "100%" : idx === 1 ? "60%" : "0%"}
+                        {pctText}
                       </div>
                       <div className="learn-module-counter">
-                        {lessons.length > 0 ? `${lessons.length} уроків` : "3 уроки"}
+                        {lessons.length > 0 ? `${lessons.length} уроків` : "Уроки готуються"}
                       </div>
                       <svg
                         width="18"
@@ -235,52 +471,23 @@ export default function LearningPage() {
                               <div className="learn-lesson-check done">✓</div>
                               <div className="learn-lesson-info">
                                 <span className="learn-lesson-name">{lesson.title}</span>
-                                <span className="learn-lesson-type">Відео • теорія</span>
+                                <span className="learn-lesson-type">
+                                  {lesson.description || "Урок курсу"}
+                                </span>
                               </div>
                             </div>
 
                             <div className="learn-lesson-meta-right">
-                              <span className="learn-lesson-duration">18 хв.</span>
-                              <span className="learn-status-pill">ЗАВЕРШЕНО</span>
+                              <span className="learn-status-pill">
+                                {activeLesson?.id === lesson.id ? "АКТИВНИЙ" : "ВІДКРИТИ"}
+                              </span>
                             </div>
                           </div>
                         ))
                       ) : (
-                        <>
-                          <div
-                            className="learn-lesson-row active"
-                            onClick={() => setActiveLesson({ id: "mock-1", title: "Що таке життєвий цикл продукту", description: "Вступ до методології LCA.", materialsId: [] })}
-                          >
-                            <div className="learn-lesson-meta-left">
-                              <div className="learn-lesson-check done">✓</div>
-                              <div className="learn-lesson-info">
-                                <span className="learn-lesson-name">Що таке життєвий цикл продукту</span>
-                                <span className="learn-lesson-type">Відео • теорія</span>
-                              </div>
-                            </div>
-                            <div className="learn-lesson-meta-right">
-                              <span className="learn-lesson-duration">18 хв.</span>
-                              <span className="learn-status-pill">ЗАВЕРШЕНО</span>
-                            </div>
-                          </div>
-
-                          <div
-                            className="learn-lesson-row"
-                            onClick={() => setActiveLesson({ id: "mock-2", title: "Етапи LCA-аналізу", description: "Детальний розбір стадій аналізу.", materialsId: [] })}
-                          >
-                            <div className="learn-lesson-meta-left">
-                              <div className="learn-lesson-check done">✓</div>
-                              <div className="learn-lesson-info">
-                                <span className="learn-lesson-name">Етапи LCA-аналізу</span>
-                                <span className="learn-lesson-type">Відео + PDF</span>
-                              </div>
-                            </div>
-                            <div className="learn-lesson-meta-right">
-                              <span className="learn-lesson-duration">24 хв.</span>
-                              <span className="learn-status-pill">ЗАВЕРШЕНО</span>
-                            </div>
-                          </div>
-                        </>
+                        <div style={{ padding: "16px 20px", color: "var(--color-brand-soft)", fontSize: "14px" }}>
+                          Уроки для цього модуля завантажуються або ще не додані.
+                        </div>
                       )}
                     </div>
                   )}
@@ -294,14 +501,22 @@ export default function LearningPage() {
           <span className="std-badge-tag" style={{ color: "#385546" }}>[ ДАЛІ ]</span>
           <h3 className="learn-next-step-title">Наступний крок</h3>
 
-          <div className="learn-next-lesson-name">Урок 3 • Підбір еко-сировини</div>
+          <div className="learn-next-lesson-name">
+            {activeLesson ? activeLesson.title : "Оберіть урок із програми"}
+          </div>
           <p className="learn-next-lesson-desc">
-            Порівняйте матеріали за походженням, впливом і потенціалом повторного використання.
+            {activeLesson?.description || "Вивчайте матеріали курсу послідовно та переходьте до виконання завдань."}
           </p>
 
-          <Link to="/student/assignments/1" className="learn-next-assignment-bar">
+          <Link
+            to={activeAssignment ? `/student/assignments/${activeAssignment.id}` : (courseId ? `/student/learning/${courseId}` : "/student/courses")}
+            state={{ courseId, courseTitle: courseDisplayName, assignmentTitle: activeAssignment?.title }}
+            className="learn-next-assignment-bar"
+          >
             <span>Після уроку:</span>
-            <span style={{ color: "var(--color-brand-primary)" }}>Завдання №2 &rarr;</span>
+            <span style={{ color: "var(--color-brand-primary)" }}>
+              {activeAssignment ? "Здати завдання →" : "Наступний урок →"}
+            </span>
           </Link>
         </aside>
       </div>

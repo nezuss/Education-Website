@@ -10,7 +10,7 @@ export default function StudentDashboardPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [profile, setProfile] = useState<UserProfile>();
   const [activeCourseStats, setActiveCourseStats] = useState<CourseStats>();
-  const [, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
@@ -32,7 +32,17 @@ export default function StudentDashboardPage() {
   }, []);
 
   const activeCourse = courses[0];
-  const progressVal = activeCourseStats?.progressPercentage ?? 42;
+  const progressVal = Math.round(activeCourseStats?.progressPercentage ?? 0);
+  const formattedDate = new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(new Date());
+
+  if (loading) {
+    return (
+      <div className="std-dash" style={{ padding: "60px 20px", textAlign: "center" }}>
+        <div style={{ fontSize: "36px", marginBottom: "16px" }}>⏳</div>
+        <h2 style={{ color: "var(--color-brand-dark)", fontSize: "20px" }}>Завантаження кабінету...</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="std-dash">
@@ -41,13 +51,13 @@ export default function StudentDashboardPage() {
         <div>
           <h1 className="std-greeting-title">
             <span>👋</span>
-            <span>Добрий день, {profile?.username || "Анно"}</span>
+            <span>Добрий день, {profile?.username || profile?.name || "Студенте"}</span>
           </h1>
           <p className="std-greeting-sub">
             Продовжуйте навчання та не пропустіть найближчі дедлайни.
           </p>
         </div>
-        <div className="std-date-badge">10 серпня 2026</div>
+        <div className="std-date-badge">{formattedDate}</div>
       </div>
 
       <div className="std-top-grid">
@@ -58,12 +68,20 @@ export default function StudentDashboardPage() {
               {activeCourse?.title || "LCA & Еко-проєктування"}
             </h2>
             <div className="std-active-course-module">
-              Модуль 4 — Підбір еко-сировини та оцінка життєвого циклу.
+              {activeCourseStats?.title || activeCourse?.description || "Курс у процесі вивчення"}
             </div>
 
             <div className="std-course-chips">
-              <span className="std-chip">4 / 10 модулів</span>
-              <span className="std-chip">12 уроків завершено</span>
+              <span className="std-chip">
+                {activeCourseStats
+                  ? `${activeCourseStats.completedModules} / ${activeCourseStats.totalModules} модулів`
+                  : `${activeCourse?.modules?.length || 0} модулів`}
+              </span>
+              <span className="std-chip">
+                {activeCourseStats
+                  ? `${activeCourseStats.completedLessons} / ${activeCourseStats.totalLessons} уроків завершено`
+                  : "0 уроків завершено"}
+              </span>
               <span className="std-chip">PRO</span>
             </div>
 
@@ -91,8 +109,8 @@ export default function StudentDashboardPage() {
 
           <div className="std-active-course-art">
             <img
-              src="/student/lca_card_art.webp"
-              alt="LCA Course Visual"
+              src={activeCourse?.bannerUrl || "/student/lca_card_art.webp"}
+              alt={activeCourse?.title || "Course Visual"}
             />
           </div>
         </div>
@@ -103,27 +121,27 @@ export default function StudentDashboardPage() {
 
           <div className="std-stats-2x2">
             <div className="std-stat-box">
-              <span className="std-stat-num">{courses.length > 0 ? courses.length : 2}</span>
+              <span className="std-stat-num">{courses.length}</span>
               <span className="std-stat-name">активні курси</span>
             </div>
             <div className="std-stat-box">
-              <span className="std-stat-num">1</span>
+              <span className="std-stat-num">{activeCourseStats && activeCourseStats.progressPercentage >= 100 ? 1 : 0}</span>
               <span className="std-stat-name">завершений курс</span>
             </div>
             <div className="std-stat-box">
-              <span className="std-stat-num">3</span>
-              <span className="std-stat-name">проєкти здано</span>
+              <span className="std-stat-num">{activeCourseStats?.completedSubmittableMaterials ?? activeCourse?.projectsReadyForPortfolio ?? 0}</span>
+              <span className="std-stat-name">робіт здано</span>
             </div>
             <div className="std-stat-box">
-              <span className="std-stat-num">1</span>
+              <span className="std-stat-num">{activeCourseStats && activeCourseStats.progressPercentage >= 100 ? 1 : 0}</span>
               <span className="std-stat-name">сертифікат</span>
             </div>
           </div>
 
           <div className="std-overview-deadline">
-            Наступний дедлайн: <strong>14 серпня</strong>
+            Наступний дедлайн: <strong>{activeCourse ? "Перевірте завдання" : "—"}</strong>
             <br />
-            Практичне завдання №2
+            {activeCourse ? activeCourse.title : "Немає активних дедлайнів"}
           </div>
         </div>
       </div>
@@ -132,16 +150,18 @@ export default function StudentDashboardPage() {
         <div className="std-assignment-card">
           <div>
             <span className="std-badge-tag">[ ЗАВДАННЯ ]</span>
-            <h3>Практичне завдання №2</h3>
+            <h3>{activeCourse ? `Практичне завдання` : "Немає активних завдань"}</h3>
             <p>
-              Аналіз життєвого циклу продукту. Завантажте короткий аналіз та схему життєвого циклу обраного продукту.
+              {activeCourse
+                ? `Виконайте практичне завдання курсу «${activeCourse.title}» та завантажте результат на перевірку.`
+                : "Оберіть курс у каталозі для початку."}
             </p>
           </div>
           <div className="std-assignment-footer">
             <span style={{ fontSize: "13px", color: "#8C6D53" }}>
-              Дедлайн: 14 серпня
+              Перевірте дедлайни у матеріалах курсу
             </span>
-            <Link to="/student/assignments/1" className="std-assignment-link">
+            <Link to={activeCourse ? `/student/learning/${activeCourse.id}` : "/student/courses"} className="std-assignment-link">
               Переглянути деталі &rarr;
             </Link>
           </div>
@@ -151,22 +171,22 @@ export default function StudentDashboardPage() {
           <div>
             <span className="std-badge-tag">[ МЕНТОР ]</span>
             <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "20px", fontWeight: 700, margin: "8px 0 0 0" }}>
-              Останній фідбек
+              Зворотний зв'язок
             </h3>
             <p className="std-feedback-quote">
-              “Добре пропрацьований вибір матеріалу. Додайте аргументацію щодо повторного використання.”
+              {activeCourseStats && activeCourseStats.completedSubmittableMaterials > 0
+                ? "Ваші роботи надіслано на перевірку. Очікуйте фідбек від ментора протягом 48 годин."
+                : "Виконуйте перше практичне завдання, щоб отримати зворотний зв'язок від ментора."}
             </p>
           </div>
 
           <div className="std-mentor-meta">
-            <img
-              src="/student/mentor_mazur.webp"
-              alt="Mentor Mazur"
-              className="std-mentor-avatar"
-            />
+            <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "rgba(19,73,44,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>
+              🧑‍🏫
+            </div>
             <div>
-              <div className="std-mentor-name">Андрій Мазур</div>
-              <div className="std-mentor-role">Senior Eco-Designer @ NEXYLVA</div>
+              <div className="std-mentor-name">{activeCourse?.mentor || "Ментор курсу"}</div>
+              <div className="std-mentor-role">NEXYLVA Platform</div>
             </div>
           </div>
         </div>
@@ -177,32 +197,47 @@ export default function StudentDashboardPage() {
           <span className="std-badge-tag">[ АКТИВНІСТЬ ]</span>
           <h3>Останні події</h3>
 
-          <div className="std-activity-item">
-            <div className="std-activity-icon">✓</div>
-            <div className="std-activity-info">
-              <div className="std-act-title">Урок завершено</div>
-              <div className="std-act-sub">Матеріали та їх вплив</div>
+          {activeCourseStats && activeCourseStats.completedLessons > 0 ? (
+            <div className="std-activity-item">
+              <div className="std-activity-icon">✓</div>
+              <div className="std-activity-info">
+                <div className="std-act-title">Уроків завершено: {activeCourseStats.completedLessons}</div>
+                <div className="std-act-sub">{activeCourse?.title || "Курс"}</div>
+              </div>
+              <span className="std-act-time">активно</span>
             </div>
-            <span className="std-act-time">сьогодні</span>
-          </div>
+          ) : (
+            <div className="std-activity-item">
+              <div className="std-activity-icon">📖</div>
+              <div className="std-activity-info">
+                <div className="std-act-title">Почніть навчання</div>
+                <div className="std-act-sub">Виконайте перший урок курсу</div>
+              </div>
+              <span className="std-act-time">зараз</span>
+            </div>
+          )}
 
-          <div className="std-activity-item">
-            <div className="std-activity-icon">💬</div>
-            <div className="std-activity-info">
-              <div className="std-act-title">Новий фідбек</div>
-              <div className="std-act-sub">Від Андрія Мазура</div>
+          {courses.length > 0 && (
+            <div className="std-activity-item">
+              <div className="std-activity-icon">🎓</div>
+              <div className="std-activity-info">
+                <div className="std-act-title">Активних курсів: {courses.length}</div>
+                <div className="std-act-sub">Продовжуйте навчання</div>
+              </div>
+              <span className="std-act-time">сьогодні</span>
             </div>
-            <span className="std-act-time">2 год</span>
-          </div>
+          )}
 
-          <div className="std-activity-item">
-            <div className="std-activity-icon">🔓</div>
-            <div className="std-activity-info">
-              <div className="std-act-title">Відкрито модуль 4</div>
-              <div className="std-act-sub">Підбір еко-сировини</div>
+          {activeCourseStats && activeCourseStats.completedSubmittableMaterials > 0 && (
+            <div className="std-activity-item">
+              <div className="std-activity-icon">📝</div>
+              <div className="std-activity-info">
+                <div className="std-act-title">Здано робіт: {activeCourseStats.completedSubmittableMaterials}</div>
+                <div className="std-act-sub">Очікують оцінки</div>
+              </div>
+              <span className="std-act-time">активно</span>
             </div>
-            <span className="std-act-time">вчора</span>
-          </div>
+          )}
         </div>
 
         <div className="std-community-invite-card">

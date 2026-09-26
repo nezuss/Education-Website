@@ -124,7 +124,7 @@ export default function MentorSubmissionsPage() {
           </p>
         </div>
         <div className="mentor-date-badge">
-          10 серпня 2026
+          {new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(new Date())}
         </div>
       </header>
 

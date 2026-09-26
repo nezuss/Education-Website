@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getProfile, type UserProfile } from "../../services/profileService";
-import { getCourses } from "../../services/courseService";
-import type { Course } from "../../types/course";
 import "../../styles/MentorPortal.css";
 
 interface QueueWork {
@@ -18,8 +16,7 @@ interface QueueWork {
 
 export default function MentorDashboardPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [, setCourses] = useState<Course[]>([]);
-  const [, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const works: QueueWork[] = [
     {
@@ -73,18 +70,23 @@ export default function MentorDashboardPage() {
   ];
 
   useEffect(() => {
-    Promise.all([
-      getProfile().catch(() => null),
-      getCourses().catch(() => [] as Course[])
-    ])
-      .then(([prof, crs]) => {
-        if (prof) setProfile(prof);
-        if (crs) setCourses(crs);
-      })
+    getProfile()
+      .then((prof) => { if (prof) setProfile(prof); })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
   const mentorName = profile?.username || "Андрію";
+  const formattedDate = new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(new Date());
+
+  if (loading) {
+    return (
+      <div className="mentor-container" style={{ padding: "60px 20px", textAlign: "center" }}>
+        <div style={{ fontSize: "36px", marginBottom: "16px" }}>⏳</div>
+        <h2 style={{ fontSize: "20px" }}>Завантаження панелі ментора...</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="mentor-container">
@@ -100,7 +102,7 @@ export default function MentorDashboardPage() {
           </p>
         </div>
         <div className="mentor-date-badge">
-          10 серпня 2026
+          {formattedDate}
         </div>
       </header>
 

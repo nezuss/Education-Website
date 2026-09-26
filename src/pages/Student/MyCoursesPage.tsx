@@ -1,56 +1,37 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getEnrolledCourses } from "../../services/courseService";
+import { getCourseStats, type CourseStats } from "../../services/courseStatsService";
 import type { Course } from "../../types/course";
 import "../../styles/StudentDashboard.css";
 
 export default function MyCoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [activeCourseStats, setActiveCourseStats] = useState<CourseStats>();
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
   const [search, setSearch] = useState("");
-  const [, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getEnrolledCourses()
-      .then((data) => setCourses(data))
+      .then(async (data) => {
+        setCourses(data);
+        if (data.length > 0) {
+          try {
+            const stats = await getCourseStats(data[0].id);
+            setActiveCourseStats(stats);
+          } catch {}
+        }
+      })
       .catch(() => setCourses([]))
       .finally(() => setLoading(false));
   }, []);
 
-  const displayCourses = courses.length > 0 ? courses : [
-    {
-      id: "1",
-      title: "LCA & Еко-проєктування",
-      description: "Оцінка життєвого циклу продукту, вибір еко-сировини та циркулярний дизайн.",
-      mentor: "Андрій Мазур",
-      totalLearningPeriodWeeks: 8,
-      category: "Design",
-      materials: [],
-      tags: ["PRO", "LCA"]
-    },
-    {
-      id: "2",
-      title: "Біоматеріали у сучасному пакуванні",
-      description: "Від водоростей і міцелію до промислових зразків біопластику.",
-      mentor: "Олена Бойко",
-      totalLearningPeriodWeeks: 6,
-      category: "Materials",
-      materials: [],
-      tags: ["Materials"]
-    },
-    {
-      id: "3",
-      title: "Креативний апсайклінг",
-      description: "Переосмислення вторинного текстилю, дерева та промислових залишків.",
-      mentor: "Ірина Шевченко",
-      totalLearningPeriodWeeks: 4,
-      category: "Upcycling",
-      materials: [],
-      tags: ["Upcycling"]
-    }
-  ];
+  const activeCourse = courses[0];
+  const progressVal = Math.round(activeCourseStats?.progressPercentage ?? 0);
+  const formattedDate = new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(new Date());
 
-  const filtered = displayCourses.filter((c) => {
+  const filtered = courses.filter((c) => {
     const matchesSearch = c.title.toLowerCase().includes(search.toLowerCase());
     return matchesSearch;
   });
@@ -71,7 +52,7 @@ export default function MyCoursesPage() {
             Продовжуйте активні курси, переглядайте завершені та слідкуйте за прогресом.
           </p>
         </div>
-        <div className="std-date-badge">10 серпня 2026</div>
+        <div className="std-date-badge">{formattedDate}</div>
       </div>
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
@@ -144,29 +125,37 @@ export default function MyCoursesPage() {
         <div className="std-active-course-card">
           <div className="std-active-course-left">
             <span className="std-badge-tag">[ ПРОДОВЖИТИ НАВЧАННЯ ]</span>
-            <h2 className="std-active-course-title">LCA &amp; Еко-проєктування</h2>
+            <h2 className="std-active-course-title">
+              {activeCourse?.title || "LCA & Еко-проєктування"}
+            </h2>
             <div className="std-active-course-module">
-              Останній відкритий курс: Модуль 4 • Урок 3 Підбір еко-сировини
+              {activeCourseStats?.title || activeCourse?.description || "Курс у процесі вивчення"}
             </div>
 
             <div className="std-progress-wrap">
               <div className="std-progress-label">
                 <span>Ваш прогрес</span>
-                <span>42%</span>
+                <span>{progressVal}%</span>
               </div>
               <div className="std-progress-bar-bg">
-                <div className="std-progress-bar-fill" style={{ width: "42%" }}></div>
+                <div className="std-progress-bar-fill" style={{ width: `${progressVal}%` }}></div>
               </div>
             </div>
 
-            <Link to="/student/learning/1" className="std-continue-btn">
-              <span>Продовжити навчання</span>
+            <Link
+              to={activeCourse ? `/student/learning/${activeCourse.id}` : "/courses"}
+              className="std-continue-btn"
+            >
+              <span>{activeCourse ? "Продовжити навчання" : "Перейти до каталогу"}</span>
               <span>&rarr;</span>
             </Link>
           </div>
 
           <div className="std-active-course-art">
-            <img src="/student/my_courses_hero.webp" alt="LCA Workspace" />
+            <img
+              src={activeCourse?.bannerUrl || "/student/my_courses_hero.webp"}
+              alt={activeCourse?.title || "Course Workspace"}
+            />
           </div>
         </div>
 
@@ -174,19 +163,18 @@ export default function MyCoursesPage() {
           <span className="std-badge-tag" style={{ color: "#385546" }}>[ НАСТУПНЕ ]</span>
           <h3 className="std-overview-title" style={{ fontSize: "24px" }}>Що далі?</h3>
           <p style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-brand-dark)", margin: "0 0 4px 0" }}>
-            Практичне завдання №2
+            {activeCourse ? activeCourse.title : "Оберіть курс для початку"}
           </p>
           <p style={{ fontSize: "14px", color: "var(--color-brand-soft)", margin: "0 0 20px 0" }}>
-            Аналіз життєвого циклу продукту.
+            {activeCourse ? "Перейдіть до програми курсу та виконуйте завдання." : "У нашому каталозі доступні практичні курси зі сталого дизайну."}
           </p>
 
-          <div style={{ background: "var(--color-bg-sand)", padding: "12px 18px", borderRadius: "12px", marginBottom: "20px", display: "flex", justifyContent: "space-between" }}>
-            <span style={{ fontSize: "13px", color: "#8C6D53" }}>Дедлайн</span>
-            <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-brand-dark)" }}>14 серпня</span>
-          </div>
-
-          <Link to="/student/learning/1" className="std-continue-btn" style={{ width: "100%", justifyContent: "center", boxSizing: "border-box" }}>
-            <span>Переглянути програму &rarr;</span>
+          <Link
+            to={activeCourse ? `/student/learning/${activeCourse.id}` : "/courses"}
+            className="std-continue-btn"
+            style={{ width: "100%", justifyContent: "center", boxSizing: "border-box" }}
+          >
+            <span>{activeCourse ? "Переглянути програму →" : "Обрати курс у каталозі →"}</span>
           </Link>
         </div>
       </div>
@@ -196,54 +184,65 @@ export default function MyCoursesPage() {
           Усі мої курси
         </h2>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }}>
-          {filtered.map((course, idx) => (
-            <div
-              key={course.id}
-              style={{
-                background: "#FFFFFF",
-                borderRadius: "20px",
-                overflow: "hidden",
-                boxShadow: "0 4px 16px rgba(10, 45, 27, 0.04)",
-                display: "flex",
-                flexDirection: "column"
-              }}
-            >
-              <img
-                src={idx === 0 ? "/student/my_courses_hero.webp" : idx === 1 ? "/courses/course_card_2.webp" : "/courses/course_card_3.webp"}
-                alt={course.title}
-                style={{ width: "100%", height: "200px", objectFit: "cover" }}
-              />
-              <div style={{ padding: "24px", display: "flex", flexDirection: "column", flex: 1 }}>
-                <span className="std-badge-tag">[ {(course as any).category || "DESIGN"} ]</span>
-                <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "18px", fontWeight: 700, color: "var(--color-brand-dark)", margin: "0 0 8px 0" }}>
-                  {course.title}
-                </h3>
-                <p style={{ fontSize: "13px", color: "var(--color-brand-soft)", margin: "0 0 16px 0", lineHeight: 1.4 }}>
-                  {course.description}
-                </p>
+        {filtered.length === 0 ? (
+          <div style={{ background: "#FFFFFF", borderRadius: "16px", padding: "40px", textAlign: "center" }}>
+            <h3 style={{ fontSize: "18px", color: "var(--color-brand-dark)", marginBottom: "8px" }}>
+              {loading ? "Завантаження курсів..." : "У вас поки немає активних курсів"}
+            </h3>
+            <p style={{ color: "var(--color-brand-soft)", fontSize: "14px", marginBottom: "20px" }}>
+              Перегляньте каталог та оберіть напрямок навчання.
+            </p>
+            <Link to="/courses" className="std-continue-btn" style={{ display: "inline-flex" }}>
+              <span>Переглянути каталог курсів →</span>
+            </Link>
+          </div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }}>
+            {filtered.map((course, idx) => (
+              <div
+                key={course.id}
+                style={{
+                  background: "#FFFFFF",
+                  borderRadius: "20px",
+                  overflow: "hidden",
+                  boxShadow: "0 4px 16px rgba(10, 45, 27, 0.04)",
+                  display: "flex",
+                  flexDirection: "column"
+                }}
+              >
+                <img
+                  src={course.bannerUrl || (idx === 0 ? "/student/my_courses_hero.webp" : idx === 1 ? "/courses/course_card_2.webp" : "/courses/course_card_3.webp")}
+                  alt={course.title}
+                  style={{ width: "100%", height: "200px", objectFit: "cover" }}
+                />
+                <div style={{ padding: "24px", display: "flex", flexDirection: "column", flex: 1 }}>
+                  <span className="std-badge-tag">[ {course.direction || "DESIGN"} ]</span>
+                  <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "18px", fontWeight: 700, color: "var(--color-brand-dark)", margin: "0 0 8px 0" }}>
+                    {course.title}
+                  </h3>
+                  <p style={{ fontSize: "13px", color: "var(--color-brand-soft)", margin: "0 0 16px 0", lineHeight: 1.4 }}>
+                    {course.description}
+                  </p>
 
-                <div style={{ marginTop: "auto" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", fontWeight: 600, marginBottom: "6px" }}>
-                    <span>Прогрес</span>
-                    <span>{idx === 0 ? "42%" : idx === 1 ? "18%" : "0%"}</span>
-                  </div>
-                  <div className="std-progress-bar-bg" style={{ marginBottom: "16px" }}>
-                    <div className="std-progress-bar-fill" style={{ width: idx === 0 ? "42%" : idx === 1 ? "18%" : "0%" }}></div>
-                  </div>
+                  <div style={{ marginTop: "auto" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", fontWeight: 600, marginBottom: "6px" }}>
+                      <span>Тривалість</span>
+                      <span>{course.totalLearningPeriodWeeks ? `${course.totalLearningPeriodWeeks} тижнів` : "8 тижнів"}</span>
+                    </div>
 
-                  <Link
-                    to={`/student/learning/${course.id}`}
-                    className="std-continue-btn"
-                    style={{ width: "100%", justifyContent: "center", boxSizing: "border-box" }}
-                  >
-                    <span>{idx === 0 ? "Продовжити" : "Почати навчання"} &rarr;</span>
-                  </Link>
+                    <Link
+                      to={`/student/learning/${course.id}`}
+                      className="std-continue-btn"
+                      style={{ width: "100%", justifyContent: "center", boxSizing: "border-box" }}
+                    >
+                      <span>Продовжити навчання &rarr;</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

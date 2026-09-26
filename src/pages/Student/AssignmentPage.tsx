@@ -1,10 +1,20 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 import { getSubmissionStatus, submitAssignment, type SubmissionStatus } from "../../services/learningService";
 import "../../styles/StudentDashboard.css";
 
+interface LocationState {
+  courseId?: string;
+  courseTitle?: string;
+  assignmentTitle?: string;
+  deadline?: string;
+  description?: string;
+}
+
 export default function AssignmentPage() {
   const { assignmentId } = useParams();
+  const location = useLocation();
+  const state = (location.state as LocationState) || {};
   const [status, setStatus] = useState<SubmissionStatus>();
   const [file, setFile] = useState<File | null>(null);
   const [comment, setComment] = useState("");
@@ -27,7 +37,7 @@ export default function AssignmentPage() {
     setError("");
 
     try {
-      await submitAssignment(assignmentId, file);
+      await submitAssignment(assignmentId, file, comment);
       setUploadSuccess(true);
       const updated = await getSubmissionStatus(assignmentId);
       setStatus(updated);
@@ -40,7 +50,12 @@ export default function AssignmentPage() {
 
   const isSubmitted = status?.isSubmitted || uploadSuccess;
   const submission = status?.submission;
-  const isRated = submission && submission.rate !== -1;
+  const isRated = Boolean(submission && submission.rate > 0);
+
+  const courseTitle = state.courseTitle || "LCA & Еко-проєктування";
+  const courseId = state.courseId || "1";
+  const assignmentTitle = state.assignmentTitle || "Аналіз життєвого циклу продукту";
+  const assignmentDesc = state.description || "Оберіть предмет повсякденного вжитку та оцініть його життєвий цикл від видобутку сировини до завершення експлуатації. Завантажте презентацію чи PDF-дослідження з обґрунтуванням циркулярного підходу.";
 
   return (
     <div className="std-dash">
@@ -49,18 +64,18 @@ export default function AssignmentPage() {
         <span>&gt;</span>
         <Link to="/student/courses">Мої курси</Link>
         <span>&gt;</span>
-        <Link to="/student/learning/1">LCA &amp; Еко-проєктування</Link>
+        <Link to={`/student/learning/${courseId}`}>{courseTitle}</Link>
         <span>&gt;</span>
-        <span className="active">Практичне завдання №2</span>
+        <span className="active">{assignmentTitle}</span>
       </nav>
 
       <div className="assignment-card-box">
-        <span className="std-badge-tag">[ ПРАКТИЧНЕ ЗАВДАННЯ №2 ]</span>
+        <span className="std-badge-tag">[ ПРАКТИЧНЕ ЗАВДАННЯ ]</span>
         <h1 className="assignment-title">
-          Аналіз життєвого циклу продукту
+          {assignmentTitle}
         </h1>
         <p className="assignment-desc">
-          Оберіть предмет повсякденного вжитку та оцініть його життєвий цикл від видобутку сировини до завершення експлуатації. Завантажте презентацію чи PDF-дослідження з обґрунтуванням циркулярного підходу.
+          {assignmentDesc}
         </p>
 
         <div className="assignment-grid-cols">
@@ -80,13 +95,15 @@ export default function AssignmentPage() {
             <div>
               <div className="assignment-deadline-caption">Дедлайн здачі</div>
               <div className="assignment-deadline-date">
-                14 серпня 2026, 23:59
+                {state.deadline
+                  ? new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(state.deadline))
+                  : "Дедлайн не вказано"}
               </div>
             </div>
 
             <div style={{ marginTop: "16px" }}>
               <div style={{ fontSize: "13px", color: "var(--color-brand-soft)" }}>Ментор курсу:</div>
-              <div style={{ fontSize: "15px", fontWeight: 600, color: "var(--color-brand-dark)" }}>Андрій Мазур</div>
+              <div style={{ fontSize: "15px", fontWeight: 600, color: "var(--color-brand-dark)" }}>Перевірте деталі курсу</div>
             </div>
           </div>
         </div>

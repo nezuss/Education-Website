@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useNavigate, useLocation, Link } from "react-router-dom";
 import { signOut } from "../../services/authService";
+import { getProfile, type UserProfile } from "../../services/profileService";
 import "./AppShell.css";
 
 export default function AppShell() {
@@ -9,10 +10,36 @@ export default function AppShell() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchVal, setSearchVal] = useState("");
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    getProfile()
+      .then(setProfile)
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   const isMentor = location.pathname.startsWith("/mentor");
   const isAdmin = location.pathname.startsWith("/admin");
   const isStudent = !isMentor && !isAdmin;
+
+  const userRole = profile?.role || "None";
+  const hasTeacherAccess = userRole === "Teacher" || userRole === "Admin";
+  const hasAdminAccess = userRole === "Admin";
 
   async function handleSignOut() {
     await signOut();
@@ -53,21 +80,9 @@ export default function AppShell() {
                 <span className="lms-nav-icon">📚</span>
                 <span>Мої курси</span>
               </NavLink>
-              <NavLink to="/student/assignments/1" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
+              <NavLink to="/student/courses" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon">📝</span>
                 <span>Завдання</span>
-              </NavLink>
-              <NavLink to="/student/progress" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
-                <span className="lms-nav-icon">📊</span>
-                <span>Прогрес</span>
-              </NavLink>
-              <NavLink to="/student/schedule" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
-                <span className="lms-nav-icon">📅</span>
-                <span>Розклад</span>
-              </NavLink>
-              <NavLink to="/student/reviews" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
-                <span className="lms-nav-icon">💬</span>
-                <span>Відгуки ментора</span>
               </NavLink>
               <NavLink to="/community" className="lms-nav-item" onClick={closeSidebar}>
                 <span className="lms-nav-icon">👥</span>
@@ -198,7 +213,7 @@ export default function AppShell() {
               <span className="lms-bell-dot"></span>
             </button>
 
-            <div className="lms-user-menu">
+            <div className="lms-user-menu" ref={dropdownRef}>
               <button
                 type="button"
                 className="lms-user-btn"
@@ -209,7 +224,7 @@ export default function AppShell() {
                   alt="User Avatar"
                   className="lms-user-avatar"
                 />
-                <span className="lms-user-name">Анна</span>
+                <span className="lms-user-name">{profile?.username || profile?.name || "Користувач"}</span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
@@ -220,12 +235,16 @@ export default function AppShell() {
                   <Link to="/student" className="lms-dropdown-item" onClick={() => setDropdownOpen(false)}>
                     🎓 Кабінет студента
                   </Link>
-                  <Link to="/mentor" className="lms-dropdown-item" onClick={() => setDropdownOpen(false)}>
-                    🧑‍🏫 Кабінет ментора
-                  </Link>
-                  <Link to="/admin" className="lms-dropdown-item" onClick={() => setDropdownOpen(false)}>
-                    🛡️ Адмін-панель
-                  </Link>
+                  {hasTeacherAccess && (
+                    <Link to="/mentor" className="lms-dropdown-item" onClick={() => setDropdownOpen(false)}>
+                      🧑‍🏫 Кабінет ментора
+                    </Link>
+                  )}
+                  {hasAdminAccess && (
+                    <Link to="/admin" className="lms-dropdown-item" onClick={() => setDropdownOpen(false)}>
+                      🛡️ Адмін-панель
+                    </Link>
+                  )}
                   <div className="lms-dropdown-divider"></div>
                   <Link to="/student/profile" className="lms-dropdown-item" onClick={() => setDropdownOpen(false)}>
                     👤 Налаштування профілю

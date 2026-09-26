@@ -21,6 +21,11 @@ export default function MentorReviewPage() {
   );
   const [submittedStatus, setSubmittedStatus] = useState<string | null>(null);
 
+  const calculateGrade12 = () => {
+    const sum = Object.values(scores).reduce((a, b) => a + b, 0);
+    return Math.min(12, Math.max(1, Math.round((sum / 20) * 12)));
+  };
+
   const calculateTotal = () => {
     const sum = Object.values(scores).reduce((a, b) => a + b, 0);
     return Math.round((sum / 20) * 100);
@@ -31,14 +36,15 @@ export default function MentorReviewPage() {
   };
 
   const handleApprove = async () => {
-    const total = calculateTotal();
+    const grade = calculateGrade12();
+    const pct = calculateTotal();
     try {
-      if (id && id.length > 10) {
-        await rateSubmission({ submissionId: id, rate: total });
+      if (id) {
+        await rateSubmission({ submissionId: id, rate: grade });
       }
-      setSubmittedStatus(`Схвалено! Оцінка (${total}/100) збережена та надіслана студенту.`);
+      setSubmittedStatus(`Схвалено! Оцінка ${grade}/12 балів (${pct}%) збережена на сервері та надіслана студенту.`);
     } catch {
-      setSubmittedStatus(`Схвалено! Оцінка (${total}/100) зафіксована.`);
+      setSubmittedStatus(`Схвалено! Оцінка ${grade}/12 балів (${pct}%) зафіксована.`);
     }
   };
 
@@ -303,7 +309,7 @@ export default function MentorReviewPage() {
               </div>
               <div className="review-status-stat-box">
                 <div className="review-status-stat-label">Макс. бал</div>
-                <div className="review-status-stat-val">100</div>
+                <div className="review-status-stat-val">12</div>
               </div>
             </div>
           </div>
@@ -389,7 +395,7 @@ export default function MentorReviewPage() {
                 Підсумкова оцінка:
               </span>
               <span className="review-total-score-val">
-                {calculateTotal()} / 100
+                {calculateGrade12()} / 12 балів ({calculateTotal()}%)
               </span>
             </div>
           </div>
