@@ -1,70 +1,38 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
-interface CourseItem {
-    id: string;
-    tag: string;
-    duration: string;
-    title: string;
-    description: string;
-    image: string;
-    modules: number;
-    hasCertificate: boolean;
-    rating: number;
-    reviewsCount: number;
-}
-
-const COURSES_DATA: CourseItem[] = [
-    {
-        id: "lca-eco-design",
-        tag: "LCA",
-        duration: "8 ТИЖНІВ",
-        title: "LCA & Еко-проєктування",
-        description: "Практичне проектування об'єктів із розрахунком вуглецевого сліду та вибором еко-матеріалів.",
-        image: "/landing/course-lca.webp",
-        modules: 10,
-        hasCertificate: true,
-        rating: 4.9,
-        reviewsCount: 500
-    },
-    {
-        id: "zero-waste-packaging",
-        tag: "PACKAGING",
-        duration: "6 ТИЖНІВ",
-        title: "Zero-Waste Пакування",
-        description: "Створення концептів пакування з біоматеріалів та розробка систем повторного використання.",
-        image: "/landing/course-packaging.webp",
-        modules: 8,
-        hasCertificate: true,
-        rating: 4.9,
-        reviewsCount: 185
-    },
-    {
-        id: "3d-parametrica-eco-print",
-        tag: "3D DESIGN",
-        duration: "12 ТИЖНІВ",
-        title: "3D-Параметрика & Еко-друк",
-        description: "Генеративне моделювання складних форм у Grasshopper для виробництва з вторинного пластику.",
-        image: "/landing/course-3d.webp",
-        modules: 14,
-        hasCertificate: true,
-        rating: 5.0,
-        reviewsCount: 375
-    },
-    {
-        id: "polymers-recycling",
-        tag: "MATERIALS",
-        duration: "8 ТИЖНІВ",
-        title: "Рециклінг полімерів",
-        description: "Лабораторія дослідження та підготовки вторинної пластикової сировини для великоформатного 3D-друку",
-        image: "/landing/course-materials.webp",
-        modules: 12,
-        hasCertificate: true,
-        rating: 4.8,
-        reviewsCount: 120
-    }
-];
+import { getCourses } from "../../services/courseService";
+import type { Course } from "../../types/course";
 
 export default function PopularCourses() {
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        getCourses()
+            .then((data) => setCourses(data.slice(0, 4)))
+            .catch(() => {})
+            .finally(() => setLoading(false));
+    }, []);
+
+    if (loading) {
+        return (
+            <section className="landing-section" id="courses">
+                <div className="section-header-row">
+                    <h2 className="section-title">Популярні курси</h2>
+                </div>
+                <div className="courses-cards-grid">
+                    {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="landing-course-card" style={{ minHeight: "320px", background: "rgba(19,73,44,0.04)", borderRadius: "16px", animation: "pulse 1.5s ease-in-out infinite" }} />
+                    ))}
+                </div>
+            </section>
+        );
+    }
+
+    if (courses.length === 0) {
+        return null;
+    }
+
     return (
         <section className="landing-section" id="courses">
             <div className="section-header-row">
@@ -72,19 +40,25 @@ export default function PopularCourses() {
             </div>
 
             <div className="courses-cards-grid">
-                {COURSES_DATA.map((course) => (
+                {courses.map((course) => (
                     <article key={course.id} className="landing-course-card">
                         <Link to={`/courses/${course.id}`} className="course-card-link">
                             
                             <div className="course-card-photo-box">
-                                <span className="course-card-tag">[ {course.tag} ]</span>
-                                <span className="course-card-duration">[ {course.duration} ]</span>
-                                <img 
-                                    src={course.image} 
-                                    alt={course.title} 
-                                    className="course-card-photo"
-                                    loading="lazy"
-                                />
+                                <span className="course-card-tag">[ {course.direction || "DESIGN"} ]</span>
+                                <span className="course-card-duration">[ {course.totalLearningPeriodWeeks ? `${course.totalLearningPeriodWeeks} ТИЖНІВ` : "ОНЛАЙН"} ]</span>
+                                {course.bannerUrl ? (
+                                    <img 
+                                        src={course.bannerUrl} 
+                                        alt={course.title} 
+                                        className="course-card-photo"
+                                        loading="lazy"
+                                    />
+                                ) : (
+                                    <div className="course-card-photo" style={{ background: "linear-gradient(135deg, #0A2D1B 0%, #13492C 100%)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "32px", fontWeight: 700, fontFamily: "var(--font-heading)" }}>
+                                        {course.title.charAt(0)}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="course-card-content">
@@ -93,21 +67,19 @@ export default function PopularCourses() {
 
                                 <div className="course-card-footer">
                                     <div className="course-card-meta">
-                                        <span>{course.modules} модулів</span>
-                                        {course.hasCertificate && (
+                                        <span>{course.modules?.length || 0} модулів</span>
+                                        {course.projectsReadyForPortfolio && course.projectsReadyForPortfolio > 0 && (
                                             <>
                                                 <span className="meta-bullet">•</span>
-                                                <span>Сертифікат</span>
+                                                <span>{course.projectsReadyForPortfolio} проєкти</span>
                                             </>
                                         )}
                                     </div>
 
                                     <div className="course-card-rating">
-                                        <svg className="star-icon" width="14" height="14" viewBox="0 0 24 24" fill="#0A2D1B" stroke="none">
-                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                                        </svg>
-                                        <span className="rating-val">{course.rating.toString().replace(".", ",")}</span>
-                                        <span className="rating-count">({course.reviewsCount})</span>
+                                        <span className="rating-val" style={{ fontSize: "13px", color: "var(--color-brand-soft)" }}>
+                                            {course.price > 0 ? `${course.price.toLocaleString("uk-UA")} грн` : "Безкоштовно"}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

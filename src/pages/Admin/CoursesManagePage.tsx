@@ -21,60 +21,6 @@ interface CourseManageItem {
   progressPercent: number;
 }
 
-const DEFAULT_COURSES: CourseManageItem[] = [
-  {
-    id: "1",
-    title: "LCA & Еко-проєктування",
-    category: "Sustainable & Circular Design",
-    status: "active",
-    statusText: "Активний",
-    modulesCount: 12,
-    lessonsCount: 48,
-    studentsCount: 286,
-    mentorName: "Максим Ковальчук",
-    mentorRole: "Ментор курсу",
-    mentorAvatar: "/about/team_3.webp",
-    completionRate: "82%",
-    rating: "4,9",
-    contentFullness: "92%",
-    progressPercent: 92
-  },
-  {
-    id: "2",
-    title: "Zero-Waste Пакування",
-    category: "Sustainable & Circular Design",
-    status: "active",
-    statusText: "Активний",
-    modulesCount: 9,
-    lessonsCount: 36,
-    studentsCount: 198,
-    mentorName: "Ганна Марченко",
-    mentorRole: "Ментор курсу",
-    mentorAvatar: "/about/team_2.webp",
-    completionRate: "68%",
-    rating: "4,7",
-    contentFullness: "88%",
-    progressPercent: 88
-  },
-  {
-    id: "3",
-    title: "Циркулярний брендинг",
-    category: "Eco-Management & Брендинг",
-    status: "active",
-    statusText: "Активний",
-    modulesCount: 10,
-    lessonsCount: 40,
-    studentsCount: 174,
-    mentorName: "Марко Литвин",
-    mentorRole: "Ментор курсу",
-    mentorAvatar: "/about/team_4.webp",
-    completionRate: "74%",
-    rating: "4,8",
-    contentFullness: "92%",
-    progressPercent: 92
-  }
-];
-
 export default function CoursesManagePage() {
   const [filter, setFilter] = useState<string>("all");
   const [search, setSearch] = useState<string>("");
@@ -92,10 +38,12 @@ export default function CoursesManagePage() {
   const [formPrice, setFormPrice] = useState("2 490 грн");
   const [formDuration, setFormDuration] = useState("12 тижнів");
 
-  const [courses, setCourses] = useState<CourseManageItem[]>(DEFAULT_COURSES);
+  const [courses, setCourses] = useState<CourseManageItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const loadCourses = async () => {
+    setLoading(true);
     try {
       const apiCourses = await getCourses();
       if (apiCourses && apiCourses.length > 0) {
@@ -105,22 +53,25 @@ export default function CoursesManagePage() {
           category: c.direction || "Sustainable & Circular Design",
           status: "active",
           statusText: "Активний",
-          modulesCount: c.modules?.length || 10,
-          lessonsCount: (c.modules?.length || 10) * 4,
-          studentsCount: 150 + i * 20,
-          mentorName: c.mentor || "Олексій Романенко",
+          modulesCount: c.modules?.length || 0,
+          lessonsCount: (c.modules?.length || 0) * 4,
+          studentsCount: 0,
+          mentorName: c.mentor || "Не призначено",
           mentorRole: "Ментор курсу",
           mentorAvatar: `/about/team_${(i % 4) + 1}.webp`,
-          completionRate: "78%",
-          rating: "4,9",
-          contentFullness: "90%",
-          progressPercent: 90
+          completionRate: "0%",
+          rating: "5,0",
+          contentFullness: "100%",
+          progressPercent: 100
         }));
-        const existingIds = new Set(mapped.map((m) => m.id));
-        const merged = [...mapped, ...DEFAULT_COURSES.filter((c) => !existingIds.has(c.id))];
-        setCourses(merged);
+        setCourses(mapped);
+      } else {
+        setCourses([]);
       }
     } catch {
+      setCourses([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -166,7 +117,7 @@ export default function CoursesManagePage() {
       const cleanPrice = parseInt(formPrice.replace(/\D/g, ""), 10) || 2490;
       const cleanWeeks = parseInt(formDuration.replace(/\D/g, ""), 10) || 12;
 
-      if (editingCourse && editingCourse.id.length > 10) {
+      if (editingCourse) {
         await updateCourse({
           id: editingCourse.id,
           title: formTitle,
@@ -228,9 +179,7 @@ export default function CoursesManagePage() {
   const handleDeleteCourse = async () => {
     if (!editingCourse) return;
     try {
-      if (editingCourse.id.length > 10) {
-        await deleteCourse(editingCourse.id);
-      }
+      await deleteCourse(editingCourse.id);
       setCourses((prev) => prev.filter((c) => c.id !== editingCourse.id));
       setEditorOpen(false);
       setShowDeleteConfirm(false);
@@ -287,32 +236,32 @@ export default function CoursesManagePage() {
         </div>
 
         <div className="admin-stat-card">
-          <div className="admin-stat-val">24</div>
+          <div className="admin-stat-val">{courses.filter((c) => c.status === "active").length}</div>
           <div className="admin-stat-label">Активні</div>
           <div className="admin-stat-change">Доступні студентам</div>
         </div>
 
         <div className="admin-stat-card">
-          <div className="admin-stat-val">4</div>
+          <div className="admin-stat-val">{courses.filter((c) => c.status === "draft").length}</div>
           <div className="admin-stat-label">Чернетки</div>
           <div className="admin-stat-change">Ще не опубліковані</div>
         </div>
 
         <div className="admin-stat-card">
-          <div className="admin-stat-val">2</div>
+          <div className="admin-stat-val">{courses.filter((c) => c.status === "moderation").length}</div>
           <div className="admin-stat-label">На модерації</div>
           <div className="admin-stat-change">Очікують перевірки</div>
         </div>
 
         <div className="admin-stat-card">
-          <div className="admin-stat-val">6</div>
+          <div className="admin-stat-val">{courses.filter((c) => c.status === "archive").length}</div>
           <div className="admin-stat-label">Архів</div>
           <div className="admin-stat-change">Неактивні програми</div>
         </div>
       </section>
 
       <div style={{ textAlign: "right", fontSize: "12px", color: "var(--text-secondary)", marginTop: "-16px", marginBottom: "32px" }}>
-        36 курсів у бібліотеці • 6 у роботі
+        {courses.length} {courses.length === 1 ? "курс" : courses.length >= 2 && courses.length <= 4 ? "курси" : "курсів"} у бібліотеці
       </div>
 
       <div className="admin-toolbar">
@@ -375,7 +324,19 @@ export default function CoursesManagePage() {
       </div>
 
       <div className="admin-courses-grid">
-        {filtered.map((course) => (
+        {filtered.length === 0 ? (
+          <div style={{ padding: "48px 24px", textAlign: "center", color: "var(--text-secondary)", gridColumn: "1 / -1" }}>
+            <p style={{ fontSize: "16px", marginBottom: "12px" }}>
+              {loading ? "Завантаження курсів..." : "Курсів не знайдено"}
+            </p>
+            {!loading && (
+              <button type="button" className="admin-btn-primary" onClick={() => openEditor()}>
+                + Створити перший курс
+              </button>
+            )}
+          </div>
+        ) : (
+          filtered.map((course) => (
           <div
             key={course.id}
             className="admin-course-manage-card"
@@ -437,7 +398,8 @@ export default function CoursesManagePage() {
               </div>
             </div>
           </div>
-        ))}
+        ))
+      )}
       </div>
 
       {editorOpen && (

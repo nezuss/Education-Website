@@ -121,63 +121,65 @@ export default function MyCoursesPage() {
         </div>
       </div>
 
-      <div className="std-top-grid">
-        <div className="std-active-course-card">
-          <div className="std-active-course-left">
-            <span className="std-badge-tag">[ ПРОДОВЖИТИ НАВЧАННЯ ]</span>
-            <h2 className="std-active-course-title">
-              {activeCourse?.title || "LCA & Еко-проєктування"}
-            </h2>
-            <div className="std-active-course-module">
-              {activeCourseStats?.title || activeCourse?.description || "Курс у процесі вивчення"}
+      {activeCourse && (
+        <div className="std-top-grid">
+          <div className="std-active-course-card">
+            <div className="std-active-course-left">
+              <span className="std-badge-tag">[ ПРОДОВЖИТИ НАВЧАННЯ ]</span>
+              <h2 className="std-active-course-title">
+                {activeCourse.title}
+              </h2>
+              <div className="std-active-course-module">
+                {activeCourseStats?.title || activeCourse.description || "Курс у процесі вивчення"}
+              </div>
+
+              <div className="std-progress-wrap">
+                <div className="std-progress-label">
+                  <span>Ваш прогрес</span>
+                  <span>{progressVal}%</span>
+                </div>
+                <div className="std-progress-bar-bg">
+                  <div className="std-progress-bar-fill" style={{ width: `${progressVal}%` }}></div>
+                </div>
+              </div>
+
+              <Link
+                to={`/student/learning/${activeCourse.id}`}
+                className="std-continue-btn"
+              >
+                <span>Продовжити навчання</span>
+                <span>&rarr;</span>
+              </Link>
             </div>
 
-            <div className="std-progress-wrap">
-              <div className="std-progress-label">
-                <span>Ваш прогрес</span>
-                <span>{progressVal}%</span>
-              </div>
-              <div className="std-progress-bar-bg">
-                <div className="std-progress-bar-fill" style={{ width: `${progressVal}%` }}></div>
-              </div>
+            <div className="std-active-course-art">
+              <img
+                src={activeCourse.bannerUrl || "/student/my_courses_hero.webp"}
+                alt={activeCourse.title}
+              />
             </div>
+          </div>
+
+          <div className="std-overview-card" style={{ background: "#C4D3CB" }}>
+            <span className="std-badge-tag" style={{ color: "#385546" }}>[ НАСТУПНЕ ]</span>
+            <h3 className="std-overview-title" style={{ fontSize: "24px" }}>Що далі?</h3>
+            <p style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-brand-dark)", margin: "0 0 4px 0" }}>
+              {activeCourse.title}
+            </p>
+            <p style={{ fontSize: "14px", color: "var(--color-brand-soft)", margin: "0 0 20px 0" }}>
+              Перейдіть до програми курсу та виконуйте завдання.
+            </p>
 
             <Link
-              to={activeCourse ? `/student/learning/${activeCourse.id}` : "/courses"}
+              to={`/student/learning/${activeCourse.id}`}
               className="std-continue-btn"
+              style={{ width: "100%", justifyContent: "center", boxSizing: "border-box" }}
             >
-              <span>{activeCourse ? "Продовжити навчання" : "Перейти до каталогу"}</span>
-              <span>&rarr;</span>
+              <span>Переглянути програму →</span>
             </Link>
           </div>
-
-          <div className="std-active-course-art">
-            <img
-              src={activeCourse?.bannerUrl || "/student/my_courses_hero.webp"}
-              alt={activeCourse?.title || "Course Workspace"}
-            />
-          </div>
         </div>
-
-        <div className="std-overview-card" style={{ background: "#C4D3CB" }}>
-          <span className="std-badge-tag" style={{ color: "#385546" }}>[ НАСТУПНЕ ]</span>
-          <h3 className="std-overview-title" style={{ fontSize: "24px" }}>Що далі?</h3>
-          <p style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-brand-dark)", margin: "0 0 4px 0" }}>
-            {activeCourse ? activeCourse.title : "Оберіть курс для початку"}
-          </p>
-          <p style={{ fontSize: "14px", color: "var(--color-brand-soft)", margin: "0 0 20px 0" }}>
-            {activeCourse ? "Перейдіть до програми курсу та виконуйте завдання." : "У нашому каталозі доступні практичні курси зі сталого дизайну."}
-          </p>
-
-          <Link
-            to={activeCourse ? `/student/learning/${activeCourse.id}` : "/courses"}
-            className="std-continue-btn"
-            style={{ width: "100%", justifyContent: "center", boxSizing: "border-box" }}
-          >
-            <span>{activeCourse ? "Переглянути програму →" : "Обрати курс у каталозі →"}</span>
-          </Link>
-        </div>
-      </div>
+      )}
 
       <div>
         <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "28px", fontWeight: 700, color: "var(--color-brand-dark)", marginBottom: "20px" }}>

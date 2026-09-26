@@ -25,12 +25,12 @@ export default function RegistrationPage() {
     setIsLoading(true);
 
     try {
-      await signUp({
+      const result = await signUp({
         username: String(formData.get("username")),
         email: String(formData.get("email")),
         password,
       });
-      navigate("/choose-role");
+      navigate("/confirm-email", { state: { email: result?.email || String(formData.get("email")) } });
     } catch (e) {
       setError((e as Error)?.message ?? "Не вдалося зареєструватися. Спробуйте інший email.");
     } finally {

@@ -48,7 +48,7 @@ export default function CheckoutPage() {
 
     const [selectedPlanKey, setSelectedPlanKey] = useState<string>(initialPlan);
     const [courseTitle, setCourseTitle] = useState<string>(
-        DEFAULT_COURSE_NAMES[courseId] || "LCA & Еко-проєктування"
+        DEFAULT_COURSE_NAMES[courseId] || "Курс"
     );
     const [promoInput, setPromoInput] = useState("");
     const [appliedDiscount, setAppliedDiscount] = useState<number>(0);

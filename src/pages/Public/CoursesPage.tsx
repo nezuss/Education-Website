@@ -7,198 +7,52 @@ export interface CatalogCourse {
     id: string;
     level: "JUNIOR" | "MIDDLE" | "ADVANCED";
     duration: string;
-    category: "Design" | "Branding";
+    category: string;
     title: string;
     description: string;
     modulesCount: number;
     image: string;
-    rating: number;
-    reviewsCount: number;
 }
 
-export const CATALOG_DATA: CatalogCourse[] = [
-    {
-        id: "lca-eco-design",
-        level: "JUNIOR",
-        duration: "8 ТИЖНІВ",
-        category: "Design",
-        title: "LCA & Еко-проєктування",
-        description: "Практичне проектування об'єктів із розрахунком вуглецевого сліду та вибором еко-матеріалів.",
-        modulesCount: 10,
-        image: "/courses/catalog-lca.webp",
-        rating: 4.9,
-        reviewsCount: 500
-    },
-    {
-        id: "zero-waste-packaging",
-        level: "MIDDLE",
-        duration: "6 ТИЖНІВ",
-        category: "Branding",
-        title: "Zero-Waste Пакування",
-        description: "Створення концептів пакування з біоматеріалів та розробка систем повторного використання.",
-        modulesCount: 8,
-        image: "/courses/catalog-packaging.webp",
-        rating: 4.9,
-        reviewsCount: 185
-    },
-    {
-        id: "3d-parametrica-eco-print",
-        level: "ADVANCED",
-        duration: "12 ТИЖНІВ",
-        category: "Design",
-        title: "3D-Параметрика & Еко-друк",
-        description: "Генеративне моделювання складних форм у Grasshopper для виробництва з вторинного пластику.",
-        modulesCount: 14,
-        image: "/courses/catalog-3d.webp",
-        rating: 5.0,
-        reviewsCount: 375
-    },
-    {
-        id: "biomaterials-in-product",
-        level: "JUNIOR",
-        duration: "4 ТИЖНЯ",
-        category: "Design",
-        title: "Біоматеріали у Продукті",
-        description: "Дослідження міцелію, комбучі та біопластику для створення нових текстур та об'єктів.",
-        modulesCount: 6,
-        image: "/courses/catalog-biomaterials.webp",
-        rating: 4.8,
-        reviewsCount: 140
-    },
-    {
-        id: "circular-branding",
-        level: "MIDDLE",
-        duration: "8 ТИЖНІВ",
-        category: "Branding",
-        title: "Циркулярний Брендінг",
-        description: "Стратегія та айдентика для брендів із закритим циклом виробництва та засадами сталості.",
-        modulesCount: 12,
-        image: "/courses/catalog-branding.webp",
-        rating: 4.9,
-        reviewsCount: 210
-    },
-    {
-        id: "algorithmic-architecture",
-        level: "ADVANCED",
-        duration: "10 ТИЖНІВ",
-        category: "Design",
-        title: "Алгоритмічна Архітектура",
-        description: "Проєктування енергоефективних об'єктів та адаптивних фасадів із застосуванням штучного інтелекту.",
-        modulesCount: 16,
-        image: "/courses/catalog-architecture.webp",
-        rating: 4.9,
-        reviewsCount: 310
-    },
-    {
-        id: "eco-textiles-fashion",
-        level: "JUNIOR",
-        duration: "6 ТИЖНІВ",
-        category: "Design",
-        title: "Еко-текстиль & Мода",
-        description: "Дослідження натуральних барвників, тканини з рецикльованих волокон та цифровий крій.",
-        modulesCount: 8,
-        image: "/courses/catalog-eco-textile.webp",
-        rating: 4.8,
-        reviewsCount: 120
-    },
-    {
-        id: "green-urbanism",
-        level: "MIDDLE",
-        duration: "10 ТИЖНІВ",
-        category: "Design",
-        title: "Зелена Урбаністика",
-        description: "Проєктування міських еко-систем, вертикальних садів та інтеграція біотопів у дизайн.",
-        modulesCount: 14,
-        image: "/courses/catalog-green-urbanism.webp",
-        rating: 4.9,
-        reviewsCount: 165
-    },
-    {
-        id: "generative-eco-art",
-        level: "ADVANCED",
-        duration: "8 ТИЖНІВ",
-        category: "Design",
-        title: "Генеративний Еко-арт",
-        description: "Створення процедурних 3D-артів та інсталяцій з візуалізацією даних про довкілля.",
-        modulesCount: 10,
-        image: "/courses/catalog-generative-art.webp",
-        rating: 4.9,
-        reviewsCount: 140
-    },
-    {
-        id: "energy-efficient-lighting",
-        level: "JUNIOR",
-        duration: "4 ТИЖНЯ",
-        category: "Design",
-        title: "Енергоефективне Освітлення",
-        description: "Проєктування світлових сценаріїв із мінімальним споживанням електроенергії.",
-        modulesCount: 6,
-        image: "/courses/catalog-lighting.webp",
-        rating: 4.7,
-        reviewsCount: 95
-    },
-    {
-        id: "sustainable-furniture",
-        level: "MIDDLE",
-        duration: "12 ТИЖНІВ",
-        category: "Design",
-        title: "Сталий Меблевий Дизайн",
-        description: "Конструювання меблів без клею та розбірних з'єднань для легкої переробки.",
-        modulesCount: 15,
-        image: "/courses/catalog-furniture.webp",
-        rating: 4.9,
-        reviewsCount: 190
-    },
-    {
-        id: "neural-networks-eco-design",
-        level: "ADVANCED",
-        duration: "6 ТИЖНІВ",
-        category: "Branding",
-        title: "Нейромережі в Еко-проєктуванні",
-        description: "Використання штучного інтелекту для генерації сталевої естетики та оптимізації форм.",
-        modulesCount: 9,
-        image: "/courses/catalog-neural-networks.webp",
-        rating: 4.8,
-        reviewsCount: 135
-    }
-];
-
-const CATEGORIES = ["Усі", "Design", "Branding"] as const;
-
 export default function CoursesPage() {
-    const [coursesList, setCoursesList] = useState<CatalogCourse[]>(CATALOG_DATA);
+    const [coursesList, setCoursesList] = useState<CatalogCourse[]>([]);
+    const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<string>("Усі");
-    const [sortBy, setSortBy] = useState<"default" | "popularity" | "modules" | "title">("default");
+    const [sortBy, setSortBy] = useState<"default" | "modules" | "title">("default");
     const [isExpanded, setIsExpanded] = useState(false);
     const [consultationModalOpen, setConsultationModalOpen] = useState(false);
     const [consultationEmail, setConsultationEmail] = useState("");
     const [consultationSent, setConsultationSent] = useState(false);
 
     useEffect(() => {
+        setLoading(true);
         getCourses()
             .then((backendCourses) => {
-                if (backendCourses && backendCourses.length > 0) {
-                    const mapped: CatalogCourse[] = backendCourses.map((c) => ({
-                        id: c.id,
-                        level: "MIDDLE",
-                        duration: `${c.totalLearningPeriodWeeks || 8} ТИЖНІВ`,
-                        category: "Design",
-                        title: c.title,
-                        description: c.description,
-                        modulesCount: c.modules?.length || 10,
-                        image: c.bannerUrl || "/courses/catalog-lca.webp",
-                        rating: 4.9,
-                        reviewsCount: 150
-                    }));
-                    const existingIds = new Set(mapped.map((m) => m.id));
-                    const merged = [...mapped, ...CATALOG_DATA.filter((c) => !existingIds.has(c.id))];
-                    setCoursesList(merged);
-                }
+                const mapped: CatalogCourse[] = (backendCourses ?? []).map((c) => ({
+                    id: c.id,
+                    level: "MIDDLE" as const,
+                    duration: c.totalLearningPeriodWeeks
+                        ? `${c.totalLearningPeriodWeeks} ТИЖНІВ`
+                        : "—",
+                    category: c.direction || "Design",
+                    title: c.title,
+                    description: c.description,
+                    modulesCount: c.modules?.length || 0,
+                    image: c.bannerUrl || "",
+                }));
+                setCoursesList(mapped);
             })
             .catch(() => {
-            });
+                setCoursesList([]);
+            })
+            .finally(() => setLoading(false));
     }, []);
+
+    const categories = useMemo(() => {
+        const cats = new Set(coursesList.map((c) => c.category));
+        return ["Усі", ...Array.from(cats)];
+    }, [coursesList]);
 
     const filteredCourses = useMemo(() => {
         let result = [...coursesList].filter((course) => {
@@ -209,16 +63,14 @@ export default function CoursesPage() {
             return matchesCategory && matchesQuery;
         });
 
-        if (sortBy === "popularity") {
-            result.sort((a, b) => b.rating * b.reviewsCount - a.rating * a.reviewsCount);
-        } else if (sortBy === "modules") {
+        if (sortBy === "modules") {
             result.sort((a, b) => b.modulesCount - a.modulesCount);
         } else if (sortBy === "title") {
             result.sort((a, b) => a.title.localeCompare(b.title));
         }
 
         return result;
-    }, [searchQuery, selectedCategory, sortBy]);
+    }, [coursesList, searchQuery, selectedCategory, sortBy]);
 
     const displayedCourses = useMemo(() => {
         if (isExpanded) {
@@ -276,7 +128,6 @@ export default function CoursesPage() {
                             onChange={(e) => setSortBy(e.target.value as any)}
                         >
                             <option value="default">за замовчуванням</option>
-                            <option value="popularity">за популярністю</option>
                             <option value="modules">за модулями</option>
                             <option value="title">за назвою</option>
                         </select>
@@ -288,7 +139,7 @@ export default function CoursesPage() {
             </div>
 
             <div className="catalog-filter-pills-row">
-                {CATEGORIES.map((cat) => (
+                {categories.map((cat) => (
                     <button
                         key={cat}
                         type="button"
@@ -300,55 +151,81 @@ export default function CoursesPage() {
                 ))}
             </div>
 
-            <div className="catalog-courses-grid">
-                {displayedCourses.map((course) => (
-                    <article key={course.id} className="catalog-card">
-                        <Link to={`/courses/${course.id}`} className="catalog-card-image-box">
-                            <span className="badge-level">[ {course.level} ]</span>
-                            <span className="badge-duration">[ {course.duration} ]</span>
-                            <img 
-                                src={course.image} 
-                                alt={course.title} 
-                                className="catalog-card-img"
-                                loading="lazy"
-                            />
-                        </Link>
-
-                        <div className="catalog-card-body">
-                            <h2 className="catalog-card-title">
-                                <Link to={`/courses/${course.id}`}>{course.title}</Link>
-                            </h2>
-                            <p className="catalog-card-desc">{course.description}</p>
-
-                            <div className="catalog-card-footer">
-                                <span className="catalog-card-modules">• {course.modulesCount} модулів</span>
-                                <Link to={`/courses/${course.id}`} className="catalog-card-detail-link">
-                                    <span>Читати детальніше</span>
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <line x1="5" y1="12" x2="19" y2="12"/>
-                                        <polyline points="12 5 19 12 12 19"/>
-                                    </svg>
-                                </Link>
+            {loading ? (
+                <div className="catalog-courses-grid">
+                    {[1, 2, 3].map((i) => (
+                        <article key={i} className="catalog-card catalog-card--skeleton">
+                            <div className="catalog-card-image-box" style={{ background: "var(--color-bg-card, #f1ebe0)", minHeight: 200 }} />
+                            <div className="catalog-card-body">
+                                <div style={{ height: 20, width: "70%", background: "rgba(0,0,0,0.08)", borderRadius: 6, marginBottom: 8 }} />
+                                <div style={{ height: 14, width: "100%", background: "rgba(0,0,0,0.05)", borderRadius: 4, marginBottom: 6 }} />
+                                <div style={{ height: 14, width: "60%", background: "rgba(0,0,0,0.05)", borderRadius: 4 }} />
                             </div>
-                        </div>
-                    </article>
-                ))}
-            </div>
-
-            {filteredCourses.length > 6 && (
-                <div className="catalog-more-row">
-                    <button 
-                        type="button" 
-                        className="catalog-more-btn"
-                        onClick={() => setIsExpanded(!isExpanded)}
-                    >
-                        <span>{isExpanded ? "Скрити додаткові курси" : "Показати ще курси"}</span>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                            <polyline points="12 5 19 12 12 19"/>
-                        </svg>
-                    </button>
+                        </article>
+                    ))}
                 </div>
+            ) : coursesList.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "64px 24px", color: "var(--color-brand-soft, #557061)" }}>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ marginBottom: 16, opacity: 0.5 }}>
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    <h3 style={{ fontSize: 20, marginBottom: 8 }}>Курси поки не додані</h3>
+                    <p>Адміністратор ще не створив жодного курсу.</p>
+                </div>
+            ) : (
+                <>
+                    <div className="catalog-courses-grid">
+                        {displayedCourses.map((course) => (
+                            <article key={course.id} className="catalog-card">
+                                <Link to={`/courses/${course.id}`} className="catalog-card-image-box">
+                                    <span className="badge-level">[ {course.level} ]</span>
+                                    <span className="badge-duration">[ {course.duration} ]</span>
+                                    <img 
+                                        src={course.image} 
+                                        alt={course.title} 
+                                        className="catalog-card-img"
+                                        loading="lazy"
+                                    />
+                                </Link>
+
+                                <div className="catalog-card-body">
+                                    <h2 className="catalog-card-title">
+                                        <Link to={`/courses/${course.id}`}>{course.title}</Link>
+                                    </h2>
+                                    <p className="catalog-card-desc">{course.description}</p>
+
+                                    <div className="catalog-card-footer">
+                                        <span className="catalog-card-modules">• {course.modulesCount} модулів</span>
+                                        <Link to={`/courses/${course.id}`} className="catalog-card-detail-link">
+                                            <span>Читати детальніше</span>
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                                <polyline points="12 5 19 12 12 19"/>
+                                            </svg>
+                                        </Link>
+                                    </div>
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+
+                    {filteredCourses.length > 6 && (
+                        <div className="catalog-more-row">
+                            <button 
+                                type="button" 
+                                className="catalog-more-btn"
+                                onClick={() => setIsExpanded(!isExpanded)}
+                            >
+                                <span>{isExpanded ? "Скрити додаткові курси" : "Показати ще курси"}</span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                    <polyline points="12 5 19 12 12 19"/>
+                                </svg>
+                            </button>
+                        </div>
+                    )}
+                </>
             )}
 
             <section className="consultation-banner">

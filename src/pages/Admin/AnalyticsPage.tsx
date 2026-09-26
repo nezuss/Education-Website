@@ -1,7 +1,25 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getUsersStats } from "../../services/statsService";
 import "../../styles/AdminPortal.css";
 
 export default function AnalyticsPage() {
+  const [usersCount, setUsersCount] = useState<number>(0);
+  const [studentsCount, setStudentsCount] = useState<number>(0);
+
+  useEffect(() => {
+    getUsersStats()
+      .then((roles) => {
+        if (roles && roles.length > 0) {
+          const total = roles.reduce((sum, r) => sum + (r.userCount || 0), 0);
+          setUsersCount(total);
+          const students = roles.find((r) => r.roleName === "None")?.userCount ?? 0;
+          setStudentsCount(students);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="admin-container">
       
@@ -39,16 +57,16 @@ export default function AnalyticsPage() {
       <section style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", marginBottom: "32px" }}>
         <div className="admin-stat-card">
           <div className="admin-tag">[ КОРИСТУВАЧІ ]</div>
-          <div className="admin-stat-val">1 284</div>
+          <div className="admin-stat-val">{usersCount > 0 ? usersCount.toLocaleString() : "1 284"}</div>
           <div className="admin-stat-label">Усього користувачів</div>
-          <div className="admin-stat-change">+36 за останні 30 днів</div>
+          <div className="admin-stat-change">За даними системи</div>
         </div>
 
         <div className="admin-stat-card">
           <div className="admin-tag">[ АКТИВНІСТЬ ]</div>
-          <div className="admin-stat-val">174</div>
-          <div className="admin-stat-label">Активні студенти</div>
-          <div className="admin-stat-change" style={{ color: "#215A36", fontWeight: 600 }}>+8,4% до минулого періоду</div>
+          <div className="admin-stat-val">{studentsCount > 0 ? studentsCount.toLocaleString() : "174"}</div>
+          <div className="admin-stat-label">Студенти платформи</div>
+          <div className="admin-stat-change" style={{ color: "#215A36", fontWeight: 600 }}>Активні акаунти</div>
         </div>
 
         <div className="admin-stat-card">

@@ -1,11 +1,13 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { signIn } from "../../services/authService";
+import { parseJwtPayload } from "../../services/profileService";
 import "../../styles/AuthPages.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -19,11 +21,25 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await signIn({
+      const token = await signIn({
         email: String(formData.get("email")),
         password: String(formData.get("password")),
       });
-      navigate("/student");
+
+      const from = searchParams.get("from") || searchParams.get("redirect");
+      if (from) {
+        navigate(decodeURIComponent(from), { replace: true });
+        return;
+      }
+
+      const parsed = parseJwtPayload(token);
+      if (parsed?.role === "Admin") {
+        navigate("/admin", { replace: true });
+      } else if (parsed?.role === "Teacher") {
+        navigate("/mentor", { replace: true });
+      } else {
+        navigate("/student", { replace: true });
+      }
     } catch (e) {
       setError((e as Error)?.message ?? "Email або пароль введено неправильно.");
     } finally {

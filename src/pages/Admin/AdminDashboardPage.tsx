@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getUsersStats } from "../../services/statsService";
+import { getUsersStats, type UsersByRole } from "../../services/statsService";
 import { getCourses } from "../../services/courseService";
 import "../../styles/AdminPortal.css";
 
 export default function AdminDashboardPage() {
-  const [usersCount, setUsersCount] = useState<number>(1284);
-  const [coursesCount, setCoursesCount] = useState<number>(24);
+  const [usersCount, setUsersCount] = useState<number>(0);
+  const [coursesCount, setCoursesCount] = useState<number>(0);
+  const [rolesBreakdown, setRolesBreakdown] = useState<UsersByRole[]>([]);
 
   useEffect(() => {
     getUsersStats()
       .then((roles) => {
         if (roles && roles.length > 0) {
+          setRolesBreakdown(roles);
           const total = roles.reduce((sum, r) => sum + (r.userCount || 0), 0);
-          if (total > 0) setUsersCount(total);
+          setUsersCount(total);
         }
       })
       .catch(() => {});
@@ -26,6 +28,11 @@ export default function AdminDashboardPage() {
       })
       .catch(() => {});
   }, []);
+
+  const formattedDate = new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(new Date());
+  const studentsCount = rolesBreakdown.find((r) => r.roleName === "None")?.userCount ?? 0;
+  const teachersCount = rolesBreakdown.find((r) => r.roleName === "Teacher")?.userCount ?? 0;
+  const adminsCount = rolesBreakdown.find((r) => r.roleName === "Admin")?.userCount ?? 0;
 
   return (
     <div className="admin-container">
@@ -46,7 +53,7 @@ export default function AdminDashboardPage() {
           </p>
         </div>
         <div className="admin-date-badge">
-          17 серпня 2026
+          {formattedDate}
         </div>
       </header>
 
@@ -55,14 +62,16 @@ export default function AdminDashboardPage() {
           <div className="admin-tag">[ ОГЛЯД ]</div>
           <h2 className="admin-overview-title">Стан NEXYLVA сьогодні</h2>
           <p className="admin-overview-sub">
-            Короткий огляд найважливіших показників платформи за поточний день.
+            {rolesBreakdown.length > 0
+              ? `Студентів: ${studentsCount} • Викладачів: ${teachersCount} • Адмінів: ${adminsCount}`
+              : "Огляд найважливіших показників платформи за поточний день."}
           </p>
         </div>
 
         <div className="admin-stat-card">
           <div className="admin-stat-val">{usersCount.toLocaleString()}</div>
           <div className="admin-stat-label">Користувачі</div>
-          <div className="admin-stat-change">+36 за останні 7 днів</div>
+          <div className="admin-stat-change">{studentsCount > 0 ? `${studentsCount} активних студентів` : "За даними системи"}</div>
         </div>
 
         <div className="admin-stat-card">

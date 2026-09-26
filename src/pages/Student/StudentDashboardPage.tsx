@@ -61,59 +61,74 @@ export default function StudentDashboardPage() {
       </div>
 
       <div className="std-top-grid">
-        <div className="std-active-course-card">
-          <div className="std-active-course-left">
-            <span className="std-badge-tag">[ ПРОДОВЖИТИ НАВЧАННЯ ]</span>
-            <h2 className="std-active-course-title">
-              {activeCourse?.title || "LCA & Еко-проєктування"}
+        {activeCourse ? (
+          <div className="std-active-course-card">
+            <div className="std-active-course-left">
+              <span className="std-badge-tag">[ ПРОДОВЖИТИ НАВЧАННЯ ]</span>
+              <h2 className="std-active-course-title">
+                {activeCourse.title}
+              </h2>
+              <div className="std-active-course-module">
+                {activeCourseStats?.title || activeCourse.description || "Курс у процесі вивчення"}
+              </div>
+
+              <div className="std-course-chips">
+                <span className="std-chip">
+                  {activeCourseStats
+                    ? `${activeCourseStats.completedModules} / ${activeCourseStats.totalModules} модулів`
+                    : `${activeCourse.modules?.length || 0} модулів`}
+                </span>
+                <span className="std-chip">
+                  {activeCourseStats
+                    ? `${activeCourseStats.completedLessons} / ${activeCourseStats.totalLessons} уроків завершено`
+                    : "0 уроків завершено"}
+                </span>
+              </div>
+
+              <div className="std-progress-wrap">
+                <div className="std-progress-label">
+                  <span>Ваш прогрес</span>
+                  <span>{progressVal}%</span>
+                </div>
+                <div className="std-progress-bar-bg">
+                  <div
+                    className="std-progress-bar-fill"
+                    style={{ width: `${progressVal}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <Link
+                to={`/student/learning/${activeCourse.id}`}
+                className="std-continue-btn"
+              >
+                <span>Продовжити навчання</span>
+                <span>&rarr;</span>
+              </Link>
+            </div>
+
+            <div className="std-active-course-art">
+              <img
+                src={activeCourse.bannerUrl || "/student/lca_card_art.webp"}
+                alt={activeCourse.title}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="std-active-course-card" style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "flex-start", padding: "40px 32px" }}>
+            <span className="std-badge-tag">[ ВІТАЄМО В NEXYLVA ]</span>
+            <h2 className="std-active-course-title" style={{ fontSize: "24px", marginBottom: "8px" }}>
+              У вас поки немає активних курсів
             </h2>
-            <div className="std-active-course-module">
-              {activeCourseStats?.title || activeCourse?.description || "Курс у процесі вивчення"}
-            </div>
-
-            <div className="std-course-chips">
-              <span className="std-chip">
-                {activeCourseStats
-                  ? `${activeCourseStats.completedModules} / ${activeCourseStats.totalModules} модулів`
-                  : `${activeCourse?.modules?.length || 0} модулів`}
-              </span>
-              <span className="std-chip">
-                {activeCourseStats
-                  ? `${activeCourseStats.completedLessons} / ${activeCourseStats.totalLessons} уроків завершено`
-                  : "0 уроків завершено"}
-              </span>
-              <span className="std-chip">PRO</span>
-            </div>
-
-            <div className="std-progress-wrap">
-              <div className="std-progress-label">
-                <span>Ваш прогрес</span>
-                <span>{progressVal}%</span>
-              </div>
-              <div className="std-progress-bar-bg">
-                <div
-                  className="std-progress-bar-fill"
-                  style={{ width: `${progressVal}%` }}
-                ></div>
-              </div>
-            </div>
-
-            <Link
-              to={activeCourse ? `/student/learning/${activeCourse.id}` : "/student/courses"}
-              className="std-continue-btn"
-            >
-              <span>Продовжити навчання</span>
+            <p style={{ color: "var(--color-brand-soft)", fontSize: "14px", margin: "0 0 24px 0", maxWidth: "480px" }}>
+              Оберіть курс у нашому каталозі, щоб розпочати навчання сталого дизайну та отримати практичні навички.
+            </p>
+            <Link to="/courses" className="std-continue-btn">
+              <span>Обрати курс у каталозі</span>
               <span>&rarr;</span>
             </Link>
           </div>
-
-          <div className="std-active-course-art">
-            <img
-              src={activeCourse?.bannerUrl || "/student/lca_card_art.webp"}
-              alt={activeCourse?.title || "Course Visual"}
-            />
-          </div>
-        </div>
+        )}
 
         <div className="std-overview-card">
           <span className="std-badge-tag" style={{ color: "#385546" }}>[ ОГЛЯД ]</span>

@@ -1,6 +1,6 @@
 import type { ApiError, ApiResponse } from "./types";
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000/api";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5056/api";
 
 export async function request<T>(path: string, options: RequestInit = {}) {
     const token = localStorage.getItem("token");

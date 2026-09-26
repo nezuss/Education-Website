@@ -2,60 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getCourses } from "../../services/courseService";
 import { getModules } from "../../services/learningService";
+import type { Course } from "../../types/course";
 import "../../styles/CourseDetailsPage.css";
-
-const MODULES_CURRICULUM = [
-    {
-        num: "01",
-        title: "Вступ до LCA та екологічних стандартів",
-        content: "Методологія Life Cycle Assessment, міжнародні стандарти ISO 14040/44, визначення меж системи та вибір функціональної одиниці."
-    },
-    {
-        num: "02",
-        title: "Матеріали та екологічний вплив",
-        content: "Аналіз вуглецевого сліду полімерів, металів, біокомпозитів та переробленої сировини. Розрахунок embodied energy."
-    },
-    {
-        num: "03",
-        title: "Циркулярні стратегії в дизайні",
-        content: "Design for Disassembly, модульність, відновлюваність матеріалів та замкнені цикли (Cradle-to-Cradle)."
-    },
-    {
-        num: "04",
-        title: "Підбір еко-сировини",
-        content: "Бази даних екологічних матеріалів, критерії сертифікації постачальників, підбір сталих альтернатив традиційним пластикам."
-    },
-    {
-        num: "05",
-        title: "Прототипування та тестування",
-        content: "Швидке макетування з вторинних матеріалів, лабораторні випробування міцності, біодеградації та зносостійкості."
-    },
-    {
-        num: "06",
-        title: "3D-моделювання та параметрика",
-        content: "Оптимізація геометрії у Rhino/Grasshopper для мінімізації витрати матеріалу без втрати несучої здатності."
-    },
-    {
-        num: "07",
-        title: "Розрахунок вуглецевого сліду виробу",
-        content: "Практична робота з програмним забезпеченням LCA: введення інвентарних даних, моделювання стадії використання та утилізації."
-    },
-    {
-        num: "08",
-        title: "Екологічна сертифікація та маркування",
-        content: "Підготовка екологічної декларації продукту (EPD), знаки маркування та правила комунікації сталості без грінвошингу."
-    },
-    {
-        num: "09",
-        title: "Підготовка фінального кейсу",
-        content: "Оформлення технічного паспорта виробу, візуалізація та розробка переконливої презентації для інвесторів чи клієнтів."
-    },
-    {
-        num: "10",
-        title: "Захист проєкту перед ментором",
-        content: "Презентація власного курсового проєкту, індивідуальний детальний фідбек від куратора та отримання верифікованого сертифіката."
-    }
-];
 
 const FAQS_DATA = [
     {
@@ -67,25 +15,25 @@ const FAQS_DATA = [
         a: "Кожне завдання перевіряє особистий ментор-експерт із письмовим або відео-розбором вашої моделі/розрахунків протягом 24 годин."
     },
     {
-        q: "Чи підійде курс, якщо я початківець у 3ds Max / CAD?",
-        a: "Так, на курсі є підготовчий ввідний модуль з базових інструментів моделювання та надаються готові параметричні шаблони."
+        q: "Чи підійде курс, якщо я початківець?",
+        a: "Так, на курсі є підготовчий ввідний модуль з базових інструментів та надаються готові шаблони."
     }
 ];
 
+type ModuleItem = { num: string; title: string; content: string };
+
 export default function CourseDetailsPage() {
-    const { courseId = "lca-eco-design" } = useParams();
+    const { courseId } = useParams();
+    const [loading, setLoading] = useState(true);
+    const [course, setCourse] = useState<Course | null>(null);
     const [openModuleIndex, setOpenModuleIndex] = useState<number | null>(0);
     const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
     const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
-
-    const [modulesList, setModulesList] = useState(MODULES_CURRICULUM);
-    const [courseTitle, setCourseTitle] = useState("LCA & Еко-проєктування");
-    const [courseDesc, setCourseDesc] = useState(
-        "Проєктний підхід до створення продуктів з мінімальним впливом на довкілля на всіх етапах життєвого циклу."
-    );
+    const [modulesList, setModulesList] = useState<ModuleItem[]>([]);
 
     useEffect(() => {
         if (!courseId) return;
+        setLoading(true);
 
         getCourses()
             .then((courses) => {
@@ -93,11 +41,11 @@ export default function CourseDetailsPage() {
                     (c) => c.id === courseId || c.title.toLowerCase().includes(courseId.toLowerCase())
                 );
                 if (found) {
-                    setCourseTitle(found.title);
-                    if (found.description) setCourseDesc(found.description);
+                    setCourse(found);
                 }
             })
-            .catch(() => {});
+            .catch(() => {})
+            .finally(() => setLoading(false));
 
         getModules(courseId)
             .then((mods) => {
@@ -121,6 +69,31 @@ export default function CourseDetailsPage() {
     function toggleFaq(idx: number) {
         setOpenFaqIndex(openFaqIndex === idx ? null : idx);
     }
+
+    if (loading) {
+        return (
+            <div className="course-details-container" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+                <div className="page-loader"><div className="page-loader-spinner" /></div>
+            </div>
+        );
+    }
+
+    if (!course) {
+        return (
+            <div className="course-details-container" style={{ textAlign: "center", padding: "80px 24px" }}>
+                <h2>Курс не знайдено</h2>
+                <p style={{ color: "var(--color-brand-soft, #557061)", margin: "12px 0 24px" }}>Можливо, курс було видалено або ID невірний.</p>
+                <Link to="/courses" style={{ color: "var(--color-accent, #13492C)", fontWeight: 600 }}>← Повернутися до каталогу</Link>
+            </div>
+        );
+    }
+
+    const courseTitle = course.title;
+    const courseDesc = course.description;
+    const bannerUrl = course.bannerUrl || "";
+    const mentorName = course.mentor || "Не призначено";
+    const weeksCount = course.totalLearningPeriodWeeks || 0;
+    const projectsCount = course.projectsReadyForPortfolio || 0;
 
     return (
         <div className="course-details-container">
@@ -164,126 +137,84 @@ export default function CourseDetailsPage() {
                     </div>
 
                     <div className="course-instructor-card">
-                        <img 
-                            src="/courses/instructor-andriy.webp" 
-                            alt="Андрій Мажура" 
-                            className="instructor-avatar"
-                        />
-                        <div className="instructor-info">
-                            <span className="instructor-name">Викладач: Андрій Мажура</span>
-                            <span className="instructor-role">Еко-дизайнер LCA експерт</span>
-                        </div>
-                        <a href="#about-instructor" className="instructor-more-link">
-                            <span>Детальніше</span>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <line x1="5" y1="12" x2="19" y2="12"/>
-                                <polyline points="12 5 19 12 12 19"/>
+                        <div className="instructor-avatar-placeholder">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
                             </svg>
-                        </a>
+                        </div>
+                        <div className="instructor-info">
+                            <span className="instructor-name">Викладач: {mentorName}</span>
+                            <span className="instructor-role">Ментор курсу</span>
+                        </div>
                     </div>
                 </div>
 
                 <div className="course-hero-visual-frame">
-                    <img 
-                        src="/courses/catalog-lca.webp" 
-                        alt="LCA крісло з перероблених матеріалів" 
-                        className="course-hero-img"
-                    />
-                    <div className="course-level-floating-badge">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="18" y1="20" x2="18" y2="10"/>
-                            <line x1="12" y1="20" x2="12" y2="4"/>
-                            <line x1="6" y1="20" x2="6" y2="14"/>
-                        </svg>
-                        <span className="level-badge-label">Рівень</span>
-                        <span className="level-badge-val">Intermediate</span>
-                    </div>
+                    {bannerUrl ? (
+                        <img 
+                            src={bannerUrl} 
+                            alt={courseTitle} 
+                            className="course-hero-img"
+                        />
+                    ) : (
+                        <div className="course-hero-img-placeholder">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ opacity: 0.3 }}>
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                        </div>
+                    )}
                 </div>
             </section>
 
             <section className="course-metrics-bar">
                 <div className="metric-col">
-                    <span className="metric-number">10</span>
+                    <span className="metric-number">{modulesList.length || course.modules.length}</span>
                     <span className="metric-title">модулів</span>
                     <span className="metric-subtitle">Практичні лекції та воркшопи</span>
                 </div>
+                {weeksCount > 0 && (
+                    <div className="metric-col">
+                        <span className="metric-number">{weeksCount}</span>
+                        <span className="metric-title">тижнів</span>
+                        <span className="metric-subtitle">Інтенсивного навчання</span>
+                    </div>
+                )}
+                {projectsCount > 0 && (
+                    <div className="metric-col">
+                        <span className="metric-number">{projectsCount}</span>
+                        <span className="metric-title">проєкти</span>
+                        <span className="metric-subtitle">Готові кейси у портфоліо</span>
+                    </div>
+                )}
                 <div className="metric-col">
-                    <span className="metric-number">8</span>
-                    <span className="metric-title">тижнів</span>
-                    <span className="metric-subtitle">Інтенсивного навчання</span>
-                </div>
-                <div className="metric-col">
-                    <span className="metric-number">2</span>
-                    <span className="metric-title">проєкти</span>
-                    <span className="metric-subtitle">Готові кейси у портфоліо</span>
-                </div>
-                <div className="metric-col">
-                    <span className="metric-number">Фідбек</span>
-                    <span className="metric-title">від ментора</span>
-                    <span className="metric-subtitle">Перевірка всіх домашніх завдань</span>
+                    <span className="metric-number">{course.price}</span>
+                    <span className="metric-title">грн</span>
+                    <span className="metric-subtitle">Вартість курсу</span>
                 </div>
             </section>
 
+            {modulesList.length > 0 && (
             <section className="learn-section">
                 <h2 className="learn-section-title">Чого навчають на курсі</h2>
                 <div className="learn-grid-layout">
                     <div className="learn-cards-2x2">
-                        <div className="learn-module-card">
-                            <div className="learn-card-header">
-                                <span className="learn-card-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                                    </svg>
-                                </span>
-                                <span className="learn-mod-pill">Модуль 01</span>
+                        {modulesList.slice(0, 4).map((mod) => (
+                            <div key={mod.num} className="learn-module-card">
+                                <div className="learn-card-header">
+                                    <span className="learn-card-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                        </svg>
+                                    </span>
+                                    <span className="learn-mod-pill">Модуль {mod.num}</span>
+                                </div>
+                                <h3 className="learn-card-title">{mod.title}</h3>
+                                <p className="learn-card-desc">{mod.content}</p>
                             </div>
-                            <h3 className="learn-card-title">Оцінка життєвого циклу (LCA)</h3>
-                            <p className="learn-card-desc">Проведення повного LCA-аналізу продукту від сировини до утилізації.</p>
-                        </div>
-
-                        <div className="learn-module-card">
-                            <div className="learn-card-header">
-                                <span className="learn-card-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                                    </svg>
-                                </span>
-                                <span className="learn-mod-pill">Модуль 02</span>
-                            </div>
-                            <h3 className="learn-card-title">Підбір еко-сировини</h3>
-                            <p className="learn-card-desc">Критерії вибору аналогічних матеріалів та постачальників.</p>
-                        </div>
-
-                        <div className="learn-module-card">
-                            <div className="learn-card-header">
-                                <span className="learn-card-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <line x1="2" y1="12" x2="22" y2="12"/>
-                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                                    </svg>
-                                </span>
-                                <span className="learn-mod-pill">Модуль 03</span>
-                            </div>
-                            <h3 className="learn-card-title">3D-моделювання для еко-дизайну</h3>
-                            <p className="learn-card-desc">Моделювання конструкцій з урахування екологічних процесів.</p>
-                        </div>
-
-                        <div className="learn-module-card">
-                            <div className="learn-card-header">
-                                <span className="learn-card-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                                        <line x1="18" y1="20" x2="18" y2="10"/>
-                                        <line x1="12" y1="20" x2="12" y2="4"/>
-                                        <line x1="6" y1="20" x2="6" y2="14"/>
-                                    </svg>
-                                </span>
-                                <span className="learn-mod-pill">Модуль 04</span>
-                            </div>
-                            <h3 className="learn-card-title">Презентація та візуалізація</h3>
-                            <p className="learn-card-desc">Професійна подача продуктів та результатів LCA-виробу у портфоліо.</p>
-                        </div>
+                        ))}
                     </div>
 
                     <div className="practice-banner-card">
@@ -318,12 +249,14 @@ export default function CourseDetailsPage() {
                     </div>
                 </div>
             </section>
+            )}
 
+            {modulesList.length > 0 && (
             <section className="curriculum-section">
                 <div className="curriculum-header-row">
                     <div>
                         <div className="curriculum-tag">[ ПРОГРАМА НАВЧАННЯ ]</div>
-                        <h2 className="curriculum-title">10 модулів для занурення в еко-дизайн</h2>
+                        <h2 className="curriculum-title">{modulesList.length} модулів курсу «{courseTitle}»</h2>
                     </div>
                     <button 
                         type="button" 
@@ -365,6 +298,7 @@ export default function CourseDetailsPage() {
                     ))}
                 </div>
             </section>
+            )}
 
             <section className="students-showcase-section">
                 <h2 className="learn-section-title">Роботи наших студентів</h2>
