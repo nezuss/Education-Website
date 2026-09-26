@@ -88,7 +88,7 @@ export default function CheckoutPage() {
         }
     }
 
-    async function handlePaySubmit(e: React.FormEvent) {
+    async function handlePaySubmit(e: React.SyntheticEvent) {
         e.preventDefault();
         setError("");
         setLoading(true);
@@ -100,12 +100,13 @@ export default function CheckoutPage() {
             } else {
                 navigate(`/success?course_id=${encodeURIComponent(courseId)}&plan=${selectedPlanKey}`);
             }
-        } catch (e: any) {
-            if (e?.status === 401) {
+        } catch (err: unknown) {
+            const apiErr = err as { status?: number; message?: string };
+            if (apiErr?.status === 401) {
                 navigate(`/login?redirect=/checkout/${courseId}?plan=${selectedPlanKey}`);
                 return;
             }
-            navigate(`/success?course_id=${encodeURIComponent(courseId)}&plan=${selectedPlanKey}&amount=${finalPrice}`);
+            setError(apiErr?.message || "Не вдалося оформити замовлення. Спробуйте ще раз або оберіть інший спосіб оплати.");
         } finally {
             setLoading(false);
         }
