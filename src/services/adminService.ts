@@ -122,9 +122,7 @@ export async function createMaterial(data: CreateMaterialPayload) {
     });
 }
 
-export async function deleteCourse(id: string) {
-    return request(`/api/cource/delete/${id}`, { method: "DELETE" });
-}
+export { deleteCourse } from "./courseService";
 
 export async function deleteModule(id: string) {
     return request(`/api/cource/module/delete/${id}`, { method: "DELETE" });

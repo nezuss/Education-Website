@@ -51,10 +51,13 @@ export const assignModuleToCourse = (courseId: string, moduleId: string) => requ
 export const assignLessonToModule = (moduleId: string, lessonId: string) => request("/admin/assign/lesson-to-module", { method: "POST", body: JSON.stringify({ moduleId, lessonId }) });
 export const assignMaterialToLesson = (lessonId: string, materialId: string) => request("/admin/assign/material-to-lesson", { method: "POST", body: JSON.stringify({ lessonId, materialId }) });
 
-export async function submitAssignment(assignmentId: string, file: File) {
+export async function submitAssignment(assignmentId: string, file: File, comment?: string) {
     const formData = new FormData();
     formData.append("assignmentId", assignmentId);
     formData.append("file", file);
+    if (comment?.trim()) {
+        formData.append("comment", comment.trim());
+    }
     await request("/api/cource/submit-material/assignment", { method: "POST", body: formData });
 }
 

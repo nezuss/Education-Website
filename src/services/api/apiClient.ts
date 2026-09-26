@@ -1,6 +1,6 @@
 import type { ApiError, ApiResponse } from "./types";
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5056/api";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000/api";
 
 export async function request<T>(path: string, options: RequestInit = {}) {
     const token = localStorage.getItem("token");
@@ -15,16 +15,19 @@ export async function request<T>(path: string, options: RequestInit = {}) {
     }
 
     const cleanBase = apiBaseUrl.replace(/\/+$/, "");
-    const cleanPath = path.startsWith("/") ? path : `/${path}`;
+    let cleanPath = path.startsWith("/") ? path : `/${path}`;
 
-    let url: string;
-    if (cleanBase.endsWith("/api") && cleanPath.startsWith("/api/")) {
-        url = `${cleanBase}${cleanPath.slice(4)}`;
-    } else if (!cleanBase.endsWith("/api") && !cleanPath.startsWith("/api/")) {
-        url = `${cleanBase}/api${cleanPath}`;
+    if (cleanBase.endsWith("/api")) {
+        if (cleanPath.startsWith("/api/")) {
+            cleanPath = cleanPath.slice(4);
+        }
     } else {
-        url = `${cleanBase}${cleanPath}`;
+        if (!cleanPath.startsWith("/api/")) {
+            cleanPath = `/api${cleanPath}`;
+        }
     }
+
+    const url = `${cleanBase}${cleanPath}`;
 
     const response = await fetch(url, { ...options, headers });
     const text = await response.text();
