@@ -19,7 +19,9 @@ namespace Backend.Services.Profile
 
         public async Task<ServiceResult<ProfileResponse>> GetProfile(string Id)
         {
-            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == Id);
+            var user = await db.Users
+                             .AsNoTracking()
+                             .FirstOrDefaultAsync(u => u.Id == Id);
 
             if (user == null)
             {
