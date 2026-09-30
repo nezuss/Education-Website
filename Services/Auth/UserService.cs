@@ -50,104 +50,7 @@ namespace Backend.Services.Auth
 
             var code = new Random().Next(100000, 1000000).ToString();
 
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("Nexylva", configuration["Smtp:From"]));
-            message.To.Add(new MailboxAddress("", dTO.Email));
-            message.Subject = "Email confirmation";
-
-            var bodyBuilder = new BodyBuilder
-            {
-                HtmlBody = $@"
-                    <!DOCTYPE html>
-                    <html lang=""ru"">
-                    <head>
-                        <meta charset=""UTF-8"">
-                        <title>Підтвердження пошти</title>
-                        <style>
-                            body {{
-                                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-                                background-color: #EFECE5;
-                                margin: 0;
-                                padding: 0;
-                                display: flex;
-                                justify-content: center;
-                                align-items: center;
-                                min-height: 100vh;
-                                color: #1A1A1A;
-                            }}
-                            .container {{
-                                background-color: #FFFFFF;
-                                padding: 40px;
-                                border-radius: 16px;
-                                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-                                text-align: center;
-                                max-width: 400px;
-                                width: 90%;
-                                margin: 40px auto;
-                            }}
-                            .logo {{
-                                font-size: 24px;
-                                font-weight: 700;
-                                color: #1B4332;
-                                margin-bottom: 24px;
-                                letter-spacing: 1px;
-                            }}
-                            h1 {{ font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #2D3748; }}
-                            p {{ font-size: 15px; line-height: 1.5; color: #4A5568; margin-bottom: 32px; }}
-                            .code-block {{
-                                background-color: #EFECE5;
-                                border-radius: 12px;
-                                padding: 24px;
-                                margin-bottom: 32px;
-                            }}
-                            .code {{
-                                font-size: 36px;
-                                font-weight: 700;
-                                letter-spacing: 8px;
-                                color: #1B4332;
-                                margin: 0;
-                            }}
-                            .footer {{ font-size: 13px; color: #A0AEC0; margin-top: 24px; }}
-                            .warning {{ font-size: 13px; color: #E53E3E; margin-top: 16px; }}
-                        </style>
-                    </head>
-                    <body>
-                        <div class=""container"">
-                            <div class=""logo"">NEXYLVA</div>
-                            <h1>Підтвердження пошти</h1>
-                            <p>Для завершення реєстрації або входу в обліковий запис, будь ласка, введіть наступний код підтвердження:</p>
-
-                            <div class=""code-block"">
-                                <p class=""code"">{code}</p>
-                            </div>
-
-                            <p class=""warning"">Нікому не повідомляйте цей код. Якщо ви не запитували код, просто проігноруйте цей лист.</p>
-
-                            <div class=""footer"">
-                                &copy; {DateTime.Now.Year} Nexylva Platform. Усі права захищені.
-                            </div>
-                        </div>
-                    </body>
-                    </html>"
-            };
-
-            message.Body = bodyBuilder.ToMessageBody();
-
-            using var client = new SmtpClient();
-
-            await client.ConnectAsync(
-                configuration["Smtp:Host"],
-                int.Parse(configuration["Smtp:Port"]),
-                SecureSocketOptions.Auto
-            );
-
-            await client.AuthenticateAsync(
-                configuration["Smtp:User"],
-                configuration["Smtp:Password"]
-            );
-
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
+            SendCode(code, dTO.Email);
 
             cache.Set(code, dTO.Email, TimeSpan.FromMinutes(30));
 
@@ -182,12 +85,34 @@ namespace Backend.Services.Auth
             if (existedUser == null)
                 return ServiceResult<string>.Fail("User not found", 404);
 
+            if (existedUser.IsEmailConfirmed)
+                return ServiceResult<string>.Fail("This email already confirmed", 403);
+
             existedUser.IsEmailConfirmed = true;
             await db.SaveChangesAsync();
 
             cache.Remove(code);
 
             return ServiceResult<string>.Ok("Email successfully confirmed", "Your account now activated");
+        }
+
+        public async Task<ServiceResult<string>> ResendVerefication(ResendVereficationDTO dTO)
+        {
+            var existedUser = await db.Users.FirstOrDefaultAsync(u => u.Email == dTO.Email);
+
+            if (existedUser == null)
+                return ServiceResult<string>.Fail("User not found", 404);
+
+            if (existedUser.IsEmailConfirmed)
+                return ServiceResult<string>.Fail("This email already confirmed", 403);
+
+            var code = new Random().Next(100000, 1000000).ToString();
+
+            SendCode(code, dTO.Email);
+
+            cache.Set(code, dTO.Email, TimeSpan.FromMinutes(30));
+
+            return ServiceResult<string>.Ok("Check your email", "Email verefication code sent successfully");
         }
 
         public async Task<ServiceResult<string>> SignIn(SignInDTO dTO) {
@@ -318,6 +243,108 @@ namespace Backend.Services.Auth
             saveUser.Salt = "";
 
             return saveUser;
+        }
+
+        private async void SendCode(string code,  string email)
+        {
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("Nexylva", configuration["Smtp:From"]));
+            message.To.Add(new MailboxAddress("", email));
+            message.Subject = "Email confirmation";
+
+            var bodyBuilder = new BodyBuilder
+            {
+                HtmlBody = $@"
+                    <!DOCTYPE html>
+                    <html lang=""ru"">
+                    <head>
+                        <meta charset=""UTF-8"">
+                        <title>Підтвердження пошти</title>
+                        <style>
+                            body {{
+                                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                                background-color: #EFECE5;
+                                margin: 0;
+                                padding: 0;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                min-height: 100vh;
+                                color: #1A1A1A;
+                            }}
+                            .container {{
+                                background-color: #FFFFFF;
+                                padding: 40px;
+                                border-radius: 16px;
+                                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+                                text-align: center;
+                                max-width: 400px;
+                                width: 90%;
+                                margin: 40px auto;
+                            }}
+                            .logo {{
+                                font-size: 24px;
+                                font-weight: 700;
+                                color: #1B4332;
+                                margin-bottom: 24px;
+                                letter-spacing: 1px;
+                            }}
+                            h1 {{ font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #2D3748; }}
+                            p {{ font-size: 15px; line-height: 1.5; color: #4A5568; margin-bottom: 32px; }}
+                            .code-block {{
+                                background-color: #EFECE5;
+                                border-radius: 12px;
+                                padding: 24px;
+                                margin-bottom: 32px;
+                            }}
+                            .code {{
+                                font-size: 36px;
+                                font-weight: 700;
+                                letter-spacing: 8px;
+                                color: #1B4332;
+                                margin: 0;
+                            }}
+                            .footer {{ font-size: 13px; color: #A0AEC0; margin-top: 24px; }}
+                            .warning {{ font-size: 13px; color: #E53E3E; margin-top: 16px; }}
+                        </style>
+                    </head>
+                    <body>
+                        <div class=""container"">
+                            <div class=""logo"">NEXYLVA</div>
+                            <h1>Підтвердження пошти</h1>
+                            <p>Для завершення реєстрації або входу в обліковий запис, будь ласка, введіть наступний код підтвердження:</p>
+
+                            <div class=""code-block"">
+                                <p class=""code"">{code}</p>
+                            </div>
+
+                            <p class=""warning"">Нікому не повідомляйте цей код. Якщо ви не запитували код, просто проігноруйте цей лист.</p>
+
+                            <div class=""footer"">
+                                &copy; {DateTime.Now.Year} Nexylva Platform. Усі права захищені.
+                            </div>
+                        </div>
+                    </body>
+                    </html>"
+            };
+
+            message.Body = bodyBuilder.ToMessageBody();
+
+            using var client = new SmtpClient();
+
+            await client.ConnectAsync(
+                configuration["Smtp:Host"],
+                int.Parse(configuration["Smtp:Port"]),
+                SecureSocketOptions.Auto
+            );
+
+            await client.AuthenticateAsync(
+                configuration["Smtp:User"],
+                configuration["Smtp:Password"]
+            );
+
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
         }
     }
 }

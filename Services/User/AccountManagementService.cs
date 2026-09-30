@@ -28,7 +28,7 @@ namespace Backend.Services.User
             configuration = _configuration;
         }
 
-        public async Task<ServiceResult<string>> ResetPassword(ResetPasswordDTO dTO)
+        public async Task<ServiceResult<string>> ForgotPassword(ForgotPasswordDTO dTO)
         {
             var user = await db.Users.FirstOrDefaultAsync(u => u.Email == dTO.Email);
 
@@ -144,7 +144,7 @@ namespace Backend.Services.User
             return ServiceResult<string>.Ok("Check your email", "Reset link successfully sent");
         }
 
-        public async Task<ServiceResult<string>> ChangePassword(ChangePasswordDTO dTO)
+        public async Task<ServiceResult<string>> ResetPassword(ResetPasswordDTO dTO)
         {
             if (!cache.TryGetValue(dTO.ResetToken, out string email))
                 return ServiceResult<string>.Fail("ResetToken is invalid or expired", 400);
@@ -167,6 +167,31 @@ namespace Backend.Services.User
             await db.SaveChangesAsync();
 
             return ServiceResult<string>.Ok("Now you can login with new password", "Password successfully changed");
+        }
+
+        public async Task<ServiceResult<string>> ChangePassword(ChangePasswordDTO dTO, string userId)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                return ServiceResult<string>
+                       .Fail("User not found with this id", 404);
+            }
+
+            dTO.OldPassword = BCrypt.Net.BCrypt.HashPassword(dTO.OldPassword, user.Salt);
+
+            if (dTO.OldPassword != user.Password)
+            { return ServiceResult<string>.Fail("Credentials are wrong", 401); }
+
+            string salt = BCrypt.Net.BCrypt.GenerateSalt(workFactor: 12);
+            user.Password = BCrypt.Net.BCrypt.HashPassword(dTO.NewPassword, salt);
+            user.Salt = salt;
+
+            db.Users.Update(user);
+            await db.SaveChangesAsync();
+
+            return ServiceResult<string>.Ok("Now you can login with new password", "Password changed successfully");
         }
     }
 }
