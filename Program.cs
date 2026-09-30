@@ -120,6 +120,7 @@ namespace Backend
             services.AddScoped<Backend.Services.Cource.SubmitMaterialAnswerService>();
             services.AddScoped<Backend.Services.Cource.SubmissionRateService>();
             services.AddScoped<Backend.Services.Cource.CourceStatsService>();
+            services.AddScoped<Backend.Services.User.AccountManagementService>();
             services.AddScoped<Backend.Services.User.AccountingService>();
             services.AddScoped<Backend.Services.Stats.UsersStatsService>();
             services.AddScoped<Backend.Services.Profile.PublicProfileService>();
