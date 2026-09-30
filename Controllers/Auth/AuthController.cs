@@ -83,6 +83,26 @@ namespace Backend.Controllers.Auth
             });
         }
 
+        [HttpPost("google-sign-in")]
+        public async Task<IActionResult> GoogleSignIn(GoogleSignInDTO dTO)
+        {
+            var result = await userService.GoogleSignIn(dTO);
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data
+            });
+        }
+
         [HttpPost("sign-out")]
         public async Task<IActionResult> SignOut()
         {

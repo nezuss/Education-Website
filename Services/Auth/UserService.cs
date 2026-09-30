@@ -9,6 +9,7 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
 using BCrypt.Net;
+using Google.Apis.Auth;
 
 namespace Backend.Services.Auth
 {
@@ -222,6 +223,71 @@ namespace Backend.Services.Auth
             await db.SaveChangesAsync();
 
             return ServiceResult<string>.Ok(token, "You successfully signed in");
+        }
+
+        public async Task<ServiceResult<string>> GoogleSignIn(GoogleSignInDTO dTO)
+        {
+            if (string.IsNullOrEmpty(dTO.IdToken))
+                return ServiceResult<string>.Fail("IdToken is required", 400);
+
+            GoogleJsonWebSignature.Payload payload;
+
+            try
+            {
+                var settings = new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = new[] { configuration["Google:ClientId"] }
+                };
+
+                payload = await GoogleJsonWebSignature.ValidateAsync(dTO.IdToken, settings);
+            }
+            catch (InvalidJwtException)
+            { return ServiceResult<string>.Fail("Invalid Google token", 401); }
+            catch (Exception ex)
+            { return ServiceResult<string>.Fail($"Google authentication failed: {ex.Message}", 400); }
+
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Email == payload.Email);
+
+            if (user == null)
+            {
+                string salt = BCrypt.Net.BCrypt.GenerateSalt(workFactor: 12);
+                string authorizedKeyId = Guid.NewGuid().ToString();
+
+                user = new UserModel
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Email = payload.Email,
+                    Username = payload.Name ?? payload.Email.Split('@')[0],
+                    Password = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString(), salt),
+                    Salt = salt,
+                    AuthorizedKeyId = authorizedKeyId,
+                    RoleId = "",
+                    IsEmailConfirmed = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                };
+
+                await db.Users.AddAsync(user);
+                await db.SaveChangesAsync();
+
+                string token = jWTService.GenerateToken(user, authorizedKeyId);
+
+                return ServiceResult<string>.Ok(token, "Successfully signed in via Google");
+            }
+            else
+            {
+                if (!user.IsEmailConfirmed) user.IsEmailConfirmed = true;
+
+                string authorizedKeyId = Guid.NewGuid().ToString();
+                string token = jWTService.GenerateToken(user, authorizedKeyId);
+
+                user.AuthorizedKeyId = authorizedKeyId;
+
+                db.Users.Update(user);
+                await db.SaveChangesAsync();
+
+                return ServiceResult<string>.Ok(token, "Successfully signed in via Google");
+            }
         }
 
         public async Task<ServiceResult<string>> SignOut(string id)
