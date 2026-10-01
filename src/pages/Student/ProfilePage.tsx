@@ -1,197 +1,114 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { getProfile, type UserProfile } from "../../services/profileService";
+import { getCourseStats, type CourseStats } from "../../services/courseStatsService";
 import { getEnrolledCourses } from "../../services/courseService";
+import { getProfile, type UserProfile } from "../../services/profileService";
 import type { Course } from "../../types/course";
 import "../../styles/StudentDashboard.css";
 
+type ProfileData = { profile?: UserProfile; courses: Course[]; stats: Record<string, CourseStats> };
+
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<UserProfile>();
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [activeTab, setActiveTab] = useState<"general" | "security" | "certs">("general");
+  const [data, setData] = useState<ProfileData>({ courses: [], stats: {} });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    Promise.all([
-      getProfile().catch(() => undefined),
-      getEnrolledCourses().catch(() => [] as Course[]),
-    ]).then(([prof, enrolled]) => {
-      if (prof) setProfile(prof);
-      if (enrolled) setCourses(enrolled);
-    });
+    let mounted = true;
+    async function loadProfile() {
+      try {
+        const [profile, courses] = await Promise.all([getProfile(), getEnrolledCourses()]);
+        const entries = await Promise.all(courses.map(async (course) => {
+          try { return [course.id, await getCourseStats(course.id)] as const; }
+          catch { return [course.id, undefined] as const; }
+        }));
+        if (mounted) setData({
+          profile,
+          courses,
+          stats: Object.fromEntries(entries.filter((entry): entry is readonly [string, CourseStats] => Boolean(entry[1]))),
+        });
+      } catch {
+        if (mounted) setError("Не вдалося завантажити дані профілю. Спробуйте оновити сторінку.");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    void loadProfile();
+    return () => { mounted = false; };
   }, []);
 
-  return (
-    <div className="std-dash">
-      
-      <div style={{ fontSize: "14px", color: "var(--color-brand-soft)", display: "flex", gap: "8px" }}>
-        <Link to="/student" style={{ color: "var(--color-brand-soft)", textDecoration: "none" }}>Головна</Link>
-        <span>&gt;</span>
-        <span style={{ color: "var(--color-brand-dark)", fontWeight: 500 }}>Профіль студента</span>
-      </div>
+  const summary = useMemo(() => {
+    const stats = Object.values(data.stats);
+    const activeCourses = stats.filter((item) => item.progressPercentage < 100).length;
+    const completedCourses = stats.filter((item) => item.progressPercentage >= 100).length;
+    const submittedWorks = stats.reduce((total, item) => total + item.completedSubmittableMaterials, 0);
+    const totalLessons = stats.reduce((total, item) => total + item.totalLessons, 0);
+    const completedLessons = stats.reduce((total, item) => total + item.completedLessons, 0);
+    const progress = totalLessons ? Math.round((completedLessons / totalLessons) * 100) : 0;
+    return { activeCourses, completedCourses, submittedWorks, progress, totalLessons };
+  }, [data.stats]);
 
-      <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "36px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "24px", boxShadow: "0 4px 16px rgba(10, 45, 27, 0.04)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
-          <img
-            src="/student/student_avatar.webp"
-            alt="Student Avatar"
-            style={{ width: "96px", height: "96px", borderRadius: "50%", objectFit: "cover", border: "4px solid var(--color-brand-primary)" }}
-          />
-          <div>
-            <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "6px" }}>
-              <span className="std-chip">PRO STUDENT</span>
-              <span style={{ fontSize: "12px", color: "var(--color-brand-soft)" }}>На платформі з 2026</span>
-            </div>
-            <h1 style={{ fontFamily: "var(--font-heading)", fontSize: "28px", fontWeight: 700, color: "var(--color-brand-dark)", margin: "0 0 6px 0" }}>
-              {profile?.username || profile?.name || "Анна Ковальчук"}
-            </h1>
-            <p style={{ fontSize: "14px", color: "var(--color-brand-soft)", margin: 0 }}>
-              {profile?.email || "anna.koval@gmail.com"} • Sustainable &amp; Circular Design
-            </p>
-          </div>
-        </div>
+  const name = data.profile?.username || data.profile?.name || "Користувач";
+  const email = data.profile?.email || "Не вказано";
 
-        <button
-          type="button"
-          className="std-continue-btn"
-          style={{ background: "var(--color-bg-sand)", color: "var(--color-brand-dark)" }}
-          onClick={() => alert("Зміни збережено!")}
-        >
-          <span>Редагувати профіль</span>
-        </button>
-      </div>
+  return <div className="std-dash student-profile-page">
+    <div className="std-breadcrumb"><Link to="/student">Головна</Link><span>›</span><span>Профіль</span></div>
+    <section className="student-profile-intro">
+      <div><span className="std-badge-tag">[ ПРОФІЛЬ СТУДЕНТА ]</span><h1>Профіль студента</h1><p>Відстежуйте свій навчальний шлях та прогрес у курсах.</p></div>
+      <span className="student-profile-api-note">Дані синхронізовано з акаунтом</span>
+    </section>
+    {error && <div className="student-profile-error" role="alert">{error}</div>}
 
-      <div style={{ display: "flex", gap: "12px" }}>
-        <button
-          type="button"
-          className={`std-chip ${activeTab === "general" ? "active" : ""}`}
-          style={{
-            cursor: "pointer",
-            border: "none",
-            padding: "10px 20px",
-            fontSize: "14px",
-            background: activeTab === "general" ? "var(--color-brand-dark)" : "#FFFFFF",
-            color: activeTab === "general" ? "#FFFFFF" : "var(--color-brand-dark)"
-          }}
-          onClick={() => setActiveTab("general")}
-        >
-          Особисті дані
-        </button>
-        <button
-          type="button"
-          className={`std-chip ${activeTab === "certs" ? "active" : ""}`}
-          style={{
-            cursor: "pointer",
-            border: "none",
-            padding: "10px 20px",
-            fontSize: "14px",
-            background: activeTab === "certs" ? "var(--color-brand-dark)" : "#FFFFFF",
-            color: activeTab === "certs" ? "#FFFFFF" : "var(--color-brand-dark)"
-          }}
-          onClick={() => setActiveTab("certs")}
-        >
-          Сертифікати та нагороди
-        </button>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1.2fr", gap: "24px" }}>
-        
-        <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "36px", boxShadow: "0 4px 16px rgba(10, 45, 27, 0.04)" }}>
-          <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "20px", fontWeight: 700, marginBottom: "20px" }}>
-            Інформація про користувача
-          </h2>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
-            <div>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "var(--color-brand-dark)", marginBottom: "6px" }}>
-                Ім’я та прізвище
-              </label>
-              <input
-                type="text"
-                className="contacts-input"
-                defaultValue={profile?.username || "Анна Ковальчук"}
-                style={{ width: "100%", boxSizing: "border-box" }}
-              />
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "var(--color-brand-dark)", marginBottom: "6px" }}>
-                Email адреса
-              </label>
-              <input
-                type="email"
-                className="contacts-input"
-                defaultValue={profile?.email || "anna.koval@gmail.com"}
-                style={{ width: "100%", boxSizing: "border-box" }}
-              />
-            </div>
-          </div>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "var(--color-brand-dark)", marginBottom: "6px" }}>
-              Номер телефону
-            </label>
-            <input
-              type="text"
-              className="contacts-input"
-              defaultValue="+380 97 123 45 67"
-              style={{ width: "100%", boxSizing: "border-box" }}
-            />
-          </div>
-
-          <div style={{ marginBottom: "24px" }}>
-            <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "var(--color-brand-dark)", marginBottom: "6px" }}>
-              Про себе / Напрям
-            </label>
-            <textarea
-              className="contacts-input contacts-textarea"
-              defaultValue="Досліджую циркулярні матеріали, LCA та біополімери у промисловому пакуванні. Працюю над дипломним проєктом для бренду косметики."
-              style={{ width: "100%", boxSizing: "border-box" }}
-            />
-          </div>
-
-          <button type="button" className="std-continue-btn" onClick={() => alert("Дані оновлено!")}>
-            <span>Зберегти зміни</span>
-          </button>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-          <div style={{ background: "var(--color-bg-sand)", borderRadius: "24px", padding: "32px" }}>
-            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "18px", fontWeight: 700, color: "var(--color-brand-dark)", marginBottom: "16px" }}>
-              Навчальні досягнення
-            </h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", paddingBottom: "8px", borderBottom: "1px solid rgba(140, 109, 83, 0.2)" }}>
-                <span>Активні курси</span>
-                <strong>{courses.length > 0 ? courses.length : 2}</strong>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", paddingBottom: "8px", borderBottom: "1px solid rgba(140, 109, 83, 0.2)" }}>
-                <span>Здані проєкти</span>
-                <strong>3</strong>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", paddingBottom: "8px", borderBottom: "1px solid rgba(140, 109, 83, 0.2)" }}>
-                <span>Сертифікати</span>
-                <strong>1</strong>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ background: "#FFFFFF", borderRadius: "24px", padding: "32px", boxShadow: "0 4px 16px rgba(10, 45, 27, 0.04)" }}>
-            <span className="std-badge-tag">[ ОФІЦІЙНИЙ СЕРТИФІКАТ ]</span>
-            <h4 style={{ fontFamily: "var(--font-heading)", fontSize: "18px", fontWeight: 700, margin: "6px 0 8px 0" }}>
-              Sustainable Design Fundamentals
-            </h4>
-            <p style={{ fontSize: "13px", color: "var(--color-brand-soft)", margin: "0 0 16px 0" }}>
-              Видано 14 липня 2026. Сертифікат засвідчує успішне проходження програми та захист курсової роботи.
-            </p>
-            <a
-              href="#download"
-              onClick={(e) => { e.preventDefault(); alert("Завантаження сертифікату PDF..."); }}
-              style={{ fontSize: "14px", fontWeight: 600, color: "var(--color-brand-primary)", textDecoration: "underline" }}
-            >
-              Завантажити PDF (A4) &darr;
-            </a>
+    <section className="student-profile-overview">
+      <div className="student-profile-main-card">
+        <img className="student-profile-avatar" src="/student/student_avatar.webp" alt="Аватар студента" />
+        <div className="student-profile-identity">
+          <span className="student-profile-label">[ STUDENT PROFILE / ПРОФІЛЬ ]</span>
+          <h2>{loading ? "Завантаження…" : name}</h2><p>Студентка / студент платформи NEXYLVA</p>
+          <div className="student-profile-numbers">
+            <ProfileNumber value={summary.activeCourses} label="активних курсів" /><ProfileNumber value={summary.submittedWorks} label="зданих завдань" />
+            <ProfileNumber value={`${summary.progress}%`} label="загальний прогрес" /><ProfileNumber value={summary.completedCourses} label="завершених курсів" />
           </div>
         </div>
       </div>
-    </div>
-  );
+      <aside className="student-profile-about">
+        <span className="std-badge-tag">[ ПРО МЕНЕ / ABOUT ME ]</span><h2>Мій профіль</h2>
+        <p className="student-profile-about-copy">Персональні дані надходять з облікового запису. Редагування стане доступним після підключення відповідного методу API.</p>
+        <div className="student-profile-detail"><span>Роль</span><strong>{data.profile?.role === "None" || !data.profile?.role ? "Студент" : data.profile.role}</strong></div>
+        <div className="student-profile-detail"><span>Курсів у навчанні</span><strong>{data.courses.length}</strong></div>
+        <div className="student-profile-detail"><span>Уроків пройдено</span><strong>{summary.totalLessons ? `${summary.progress}%` : "—"}</strong></div>
+      </aside>
+    </section>
+
+    <section className="student-profile-stat-grid" aria-label="Навчальна статистика">
+      <ProfileStat title="НАВЧАННЯ" value={summary.totalLessons} label="уроків у курсах" /><ProfileStat title="ПРОЄКТИ" value={summary.submittedWorks} label="завдань здано" />
+      <ProfileStat title="ПРОГРЕС" value={`${summary.progress}%`} label="за всіма курсами" /><ProfileStat title="СЕРТИФІКАТИ" value="—" label="дані ще не надані API" />
+    </section>
+
+    <section className="student-profile-lower-grid">
+      <div className="student-profile-courses">
+        <div className="student-profile-section-heading"><div><span className="std-badge-tag">[ НАВЧАННЯ ]</span><h2>Мої курси</h2></div><Link to="/student/courses">Усі курси →</Link></div>
+        {loading ? <p className="student-profile-empty">Завантажуємо курси…</p> : data.courses.length ? <div className="student-profile-course-list">
+          {data.courses.slice(0, 3).map((course) => {
+            const progress = data.stats[course.id]?.progressPercentage ?? 0;
+            return <Link className="student-profile-course" to={`/student/courses/${course.id}`} key={course.id}>
+              <div><h3>{course.title}</h3><p>{course.direction || "Навчальний курс"}</p></div>
+              <div className="student-profile-course-progress"><strong>{progress}%</strong><div><span style={{ width: `${progress}%` }} /></div></div>
+            </Link>;
+          })}
+        </div> : <p className="student-profile-empty">Ви ще не записалися на жоден курс.</p>}
+      </div>
+      <aside className="student-profile-certificates"><span className="std-badge-tag">[ СЕРТИФІКАТИ ]</span><h2>Сертифікати</h2><p>Сертифікати з’являться тут, коли сервер передаватиме дані про їх отримання.</p></aside>
+    </section>
+
+    <section className="student-profile-personal">
+      <div className="student-profile-section-heading"><div><span className="std-badge-tag">[ АКАУНТ ]</span><h2>Особиста інформація</h2></div></div>
+      <div className="student-profile-personal-grid"><ProfileField label="Ім’я" value={name} /><ProfileField label="Email" value={email} /><ProfileField label="Телефон" value="Не вказано" /><ProfileField label="Статус профілю" value="Видимий у системі" /></div>
+      <p className="student-profile-readonly">Поля доступні лише для перегляду: сервер поки не має методу оновлення профілю.</p>
+    </section>
+  </div>;
 }
+
+function ProfileNumber({ value, label }: { value: string | number; label: string }) { return <div><strong>{value}</strong><span>{label}</span></div>; }
+function ProfileStat({ title, value, label }: { title: string; value: string | number; label: string }) { return <div><span>{title}</span><strong>{value}</strong><p>{label}</p></div>; }
+function ProfileField({ label, value }: { label: string; value: string }) { return <div><span>{label}</span><strong>{value}</strong></div>; }
