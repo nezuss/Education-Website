@@ -223,6 +223,22 @@
   margin-bottom: 24px;
 }
 
+.nex-google-sign-in {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.nex-google-sign-in > div {
+  width: 100% !important;
+}
+
+.nex-google-sign-in iframe {
+  max-width: 100% !important;
+}
+
 .nex-auth-social-btn {
   background: #E8EFEA;
   border: 1px solid rgba(19, 73, 44, 0.1);

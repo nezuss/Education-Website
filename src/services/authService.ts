@@ -48,6 +48,16 @@ export async function signIn(data: SignInData) {
     return token;
 }
 
+export async function signInWithGoogle(idToken: string) {
+    const token = await request<string>("/auth/google-sign-in", {
+        method: "POST",
+        body: JSON.stringify({ idToken }),
+    });
+
+    localStorage.setItem("token", token);
+    return token;
+}
+
 export async function signUp(data: SignUpData): Promise<SignUpResult | undefined> {
     return request<SignUpResult>("/auth/sign-up", {
         method: "POST",
