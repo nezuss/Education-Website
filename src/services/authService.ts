@@ -65,6 +65,20 @@ export async function signUp(data: SignUpData): Promise<SignUpResult | undefined
     });
 }
 
+export async function requestPasswordReset(email: string) {
+    return request<string>("/account/management/reset-password", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+    });
+}
+
+export async function changePassword(resetToken: string, password: string) {
+    return request<string>("/account/management/change-password", {
+        method: "POST",
+        body: JSON.stringify({ resetToken, password }),
+    });
+}
+
 export async function confirmEmail(code: string) {
     await request(`/auth/confirm-email/${encodeURIComponent(code)}`, { method: "POST" });
 }

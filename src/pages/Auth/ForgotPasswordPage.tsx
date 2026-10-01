@@ -1,15 +1,28 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { requestPasswordReset } from '../../services/authService';
 import '../../styles/AuthPages.css';
 
 export const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    setSent(true);
+
+    setError('');
+    setIsLoading(true);
+    try {
+      await requestPasswordReset(email);
+      setSent(true);
+    } catch (reason) {
+      setError((reason as Error)?.message || 'Не вдалося надіслати лист. Спробуйте ще раз.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -19,6 +32,8 @@ export const ForgotPasswordPage: React.FC = () => {
         <p className="nex-auth-subtitle">
           Введіть адресу електронної пошти, на яку зареєстровано акаунт
         </p>
+
+        {error && <div className="nex-auth-error-box" role="alert">{error}</div>}
 
         {sent ? (
           <div style={{ textAlign: 'center', padding: '16px 0' }}>
@@ -46,8 +61,8 @@ export const ForgotPasswordPage: React.FC = () => {
               />
             </div>
 
-            <button type="submit" className="nex-auth-submit-btn">
-              Надіслати інструкцію
+            <button type="submit" className="nex-auth-submit-btn" disabled={isLoading}>
+              {isLoading ? 'Надсилання...' : 'Надіслати інструкцію'}
             </button>
           </form>
         )}

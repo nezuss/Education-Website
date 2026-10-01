@@ -25,6 +25,7 @@ const RegistrationPage = lazy(() => import("../../pages/Registration/Registratio
 const ConfirmationPage = lazy(() => import("../../pages/Confirmation/ConfirmationPage"));
 const ChooseRolePage = lazy(() => import("../../pages/Auth/ChooseRolePage"));
 const ForgotPasswordPage = lazy(() => import("../../pages/Auth/ForgotPasswordPage"));
+const ChangePasswordPage = lazy(() => import("../../pages/Auth/ChangePasswordPage"));
 
 /* ── Student ────────────────────────────────────────── */
 const StudentDashboardPage = lazy(() => import("../../pages/Student/StudentDashboardPage"));
@@ -101,6 +102,8 @@ export default function AppRouter() {
                         <Route path="/registration" element={<RegistrationPage />} />
                         <Route path="/choose-role" element={<ChooseRolePage />} />
                         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                        <Route path="/change-password" element={<ChangePasswordPage />} />
+                        <Route path="/reset-password" element={<ChangePasswordPage />} />
                     </Route>
 
                     <Route element={<AppShell />}>
