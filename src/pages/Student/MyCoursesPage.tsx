@@ -8,6 +8,7 @@ import "../../styles/StudentDashboard.css";
 export default function MyCoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [activeCourseStats, setActiveCourseStats] = useState<CourseStats>();
+  const [courseStats, setCourseStats] = useState<Record<string, CourseStats>>({});
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -16,11 +17,21 @@ export default function MyCoursesPage() {
     getEnrolledCourses()
       .then(async (data) => {
         setCourses(data);
-        if (data.length > 0) {
-          try {
-            const stats = await getCourseStats(data[0].id);
-            setActiveCourseStats(stats);
-          } catch {}
+        const stats = await Promise.all(
+          data.map(async (course) => {
+            try {
+              return [course.id, await getCourseStats(course.id)] as const;
+            } catch {
+              return null;
+            }
+          }),
+        );
+        const statsByCourse = Object.fromEntries(
+          stats.filter((entry): entry is readonly [string, CourseStats] => entry !== null),
+        );
+        setCourseStats(statsByCourse);
+        if (data[0]) {
+          setActiveCourseStats(statsByCourse[data[0].id]);
         }
       })
       .catch(() => setCourses([]))
@@ -33,7 +44,9 @@ export default function MyCoursesPage() {
 
   const filtered = courses.filter((c) => {
     const matchesSearch = c.title.toLowerCase().includes(search.toLowerCase());
-    return matchesSearch;
+    const progress = courseStats[c.id]?.progressPercentage ?? 0;
+    const matchesFilter = filter === "all" || (filter === "active" ? progress < 100 : progress >= 100);
+    return matchesSearch && matchesFilter;
   });
 
   return (
@@ -200,7 +213,13 @@ export default function MyCoursesPage() {
           </div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }}>
-            {filtered.map((course, idx) => (
+            {filtered.map((course, idx) => {
+              const stats = courseStats[course.id];
+              const progress = Math.round(stats?.progressPercentage ?? 0);
+              const isCompleted = progress >= 100;
+              const fallbackImages = ["/courses/catalog-packaging.webp", "/courses/catalog-materials.webp", "/courses/catalog-lighting.webp"];
+
+              return (
               <div
                 key={course.id}
                 style={{
@@ -213,7 +232,7 @@ export default function MyCoursesPage() {
                 }}
               >
                 <img
-                  src={course.bannerUrl || (idx === 0 ? "/student/my_courses_hero.webp" : idx === 1 ? "/courses/course_card_2.webp" : "/courses/course_card_3.webp")}
+                  src={course.bannerUrl || fallbackImages[idx % fallbackImages.length]}
                   alt={course.title}
                   style={{ width: "100%", height: "200px", objectFit: "cover" }}
                 />
@@ -228,8 +247,11 @@ export default function MyCoursesPage() {
 
                   <div style={{ marginTop: "auto" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", fontWeight: 600, marginBottom: "6px" }}>
-                      <span>Тривалість</span>
-                      <span>{course.totalLearningPeriodWeeks ? `${course.totalLearningPeriodWeeks} тижнів` : "8 тижнів"}</span>
+                      <span>{isCompleted ? "Прогрес завершено" : "Ваш прогрес"}</span>
+                      <span>{progress}%</span>
+                    </div>
+                    <div className="std-progress-bar-bg" style={{ marginBottom: "16px" }}>
+                      <div className="std-progress-bar-fill" style={{ width: `${progress}%` }} />
                     </div>
 
                     <Link
@@ -237,12 +259,13 @@ export default function MyCoursesPage() {
                       className="std-continue-btn"
                       style={{ width: "100%", justifyContent: "center", boxSizing: "border-box" }}
                     >
-                      <span>Продовжити навчання &rarr;</span>
+                      <span>{isCompleted ? "Переглянути курс" : "Продовжити навчання"} &rarr;</span>
                     </Link>
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

@@ -158,6 +158,7 @@ export default function LearningPage() {
   const [activeMaterials, setActiveMaterials] = useState<Material[]>([]);
   const [openModuleId, setOpenModuleId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!courseId) return;
@@ -213,14 +214,8 @@ export default function LearningPage() {
           }
         }
       })
-      .catch(() => {
-        setModules([
-          { id: "mod-1", title: "Основи LCA та сталого проєктування", description: "Життєвий цикл продукту, системне мислення та базові принципи.", lessonsId: [] },
-          { id: "mod-2", title: "Матеріали нового покоління", description: "Біополімери, вторинні матеріали та їх властивості.", lessonsId: [] },
-          { id: "mod-3", title: "Циркулярний дизайн пакування", description: "Розробка концепцій безвідходного життєвого циклу.", lessonsId: [] },
-          { id: "mod-4", title: "Підбір еко-сировини та оцінка", description: "Практичний аналіз впливу матеріалів на довкілля.", lessonsId: [] },
-        ]);
-        setOpenModuleId("mod-1");
+      .catch((reason: Error) => {
+        setError(reason.message || "Не вдалося завантажити програму курсу.");
       })
       .finally(() => setLoading(false));
   }, [courseId, paramLessonId]);
@@ -230,7 +225,7 @@ export default function LearningPage() {
     getMaterials(lesson.id).then(setActiveMaterials).catch(() => setActiveMaterials([]));
   };
 
-  const courseDisplayName = courseData?.title || "LCA & Еко-проєктування";
+  const courseDisplayName = courseData?.title || "Курс";
   const progressVal = Math.round(courseStats?.progressPercentage ?? 0);
   const activeVideo = activeMaterials.find((m) => m.type === "Video" || m.videoUrl);
   const activeAssignment = activeMaterials.find((m) => m.type === "Assignment");
@@ -262,9 +257,7 @@ export default function LearningPage() {
         <div className="learn-hero-info">
           <span className="std-badge-tag">[ НАВЧАЛЬНИЙ КУРС ]</span>
           <h1 className="learn-hero-title">{courseDisplayName}</h1>
-          <p className="learn-hero-desc">
-            {courseData?.description || "Практичний курс зі сталого проєктування та оцінки життєвого циклу продукту."}
-          </p>
+          {courseData?.description && <p className="learn-hero-desc">{courseData.description}</p>}
           <div className="learn-hero-badges">
             <span className="std-chip">PRO</span>
             <span className="std-chip">
@@ -315,7 +308,7 @@ export default function LearningPage() {
             {activeLesson.description || "Перегляньте лекційний матеріал, вивчіть рекомендації та перейдіть до виконання завдань."}
           </p>
 
-          <VideoPlayer url={activeVideo?.videoUrl || "https://www.youtube-nocookie.com/embed/LXb3EKWsInQ"} />
+          {activeVideo?.videoUrl && <VideoPlayer url={activeVideo.videoUrl} />}
 
           {otherMaterials.length > 0 && (
             <div style={{ marginTop: "24px", paddingTop: "20px", borderTop: "1px solid rgba(10, 45, 27, 0.08)" }}>
@@ -416,6 +409,7 @@ export default function LearningPage() {
             Відкривайте модулі послідовно та продовжуйте з поточного уроку.
           </div>
 
+          {error && <div className="nex-auth-error-box" role="alert">{error}</div>}
           <div className="learn-modules-list">
             {modules.map((mod, idx) => {
               const isOpen = openModuleId === mod.id;
