@@ -41,6 +41,24 @@ namespace Backend.Services.User
                        .Fail("Course not found with this id", 404);
             }
 
+            decimal discount = 0m;
+
+            if (!string.IsNullOrWhiteSpace(dTO.Promocode))
+            {
+                var promocode = await db.Promocodes.FirstOrDefaultAsync(p => p.Promocode == dTO.Promocode);
+
+                if (promocode == null)
+                {
+                    return ServiceResult<string>
+                           .Fail("There is no such promocode", 404);
+                }
+
+                discount = promocode.Discount ?? 0m;
+            }
+
+            decimal finalPrice = (decimal)course.Price * (1.0m - (discount / 100.0m));
+            long unitAmountInCents = (long)Math.Round(finalPrice * 100m, MidpointRounding.AwayFromZero);
+
             var options = new SessionCreateOptions
             {
                 PaymentMethodTypes = new List<string> { "card" },
@@ -50,7 +68,7 @@ namespace Backend.Services.User
                     {
                         PriceData = new SessionLineItemPriceDataOptions
                         {
-                            UnitAmount = (long)(course.Price * 100),
+                            UnitAmount = unitAmountInCents,
                             Currency = "uah",
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
