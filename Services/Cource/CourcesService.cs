@@ -30,6 +30,19 @@ namespace Backend.Services.Cource
             return ServiceResult<List<CourceModel>>.Ok(cources, "All cources get successfully");
         }
 
+        public async Task<ServiceResult<CourceModel>> GetCources(string Id)
+        {
+            var cource = await db.Cources.FirstOrDefaultAsync(u => u.Id == Id);
+
+            if (cource == null)
+            {
+                return ServiceResult<List<CourceModel>>
+                       .Fail("There are no cources yet", 404);
+            }
+
+            return ServiceResult<List<CourceModel>>.Ok(cource, "Cource get successfully");
+        }
+
         public async Task<ServiceResult<List<CourceModel>>> GetEnrolledCources(string Id)
         {
             var user = await db.Users.FirstOrDefaultAsync(u => u.Id == Id);
@@ -66,6 +79,9 @@ namespace Backend.Services.Cource
                 Title = dTO.Title,
                 Description = dTO.Description,
                 Price = dTO.Price,
+                Rating = 0.0,
+                Reviews = 0,
+                StudentsCount = 0,
                 ModulesId = dTO.ModulesId,
                 TotalLearningPeriodWeeks = dTO.TotalLearningPeriodWeeks,
                 ProjectsReadyForPortfolio = dTO.ProjectsReadyForPortfolio,
@@ -100,6 +116,9 @@ namespace Backend.Services.Cource
             cource.Title = dTO.Title ?? cource.Title;
             cource.Description = dTO.Description ?? cource.Description;
             cource.Price = dTO.Price ?? cource.Price;
+            Rating = cource.Rating;
+            Reviews = cource.Reviews;
+            StudentsCount = cource.StudentsCount;
             cource.ModulesId = dTO.ModulesId ?? cource.ModulesId;
             cource.TotalLearningPeriodWeeks = dTO.TotalLearningPeriodWeeks ?? cource.TotalLearningPeriodWeeks;
             cource.ProjectsReadyForPortfolio = dTO.ProjectsReadyForPortfolio ?? cource.ProjectsReadyForPortfolio;

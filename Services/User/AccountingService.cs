@@ -120,7 +120,12 @@ namespace Backend.Services.User
                        .Ok("Already enrolled", "You already enrolled into this cource");
             }
 
+            var cource = db.Cources.FirstOrDefaultAsync(c => c.Id == courseId);
+
+            cource.StudentsCount++;
+
             user.EnrolledCourcesId.Add(courseId);
+            db.Cources.Update(cource);
             db.Users.Update(user);
             await db.SaveChangesAsync();
 

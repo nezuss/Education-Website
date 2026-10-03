@@ -42,6 +42,28 @@ namespace Backend.Controllers.Cource
             });
         }
 
+        [HttpGet("get-by-id/{id}")]
+        public async Task<IActionResult> GetCources(string id)
+        {
+            var result = await courcesService.GetCource(id);
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data
+            });
+        }
+
         [HttpGet("get-enrolled")]
         [Authorize]
         public async Task<IActionResult> GetEnrolledCources()

@@ -20,6 +20,7 @@ namespace Backend.Models
         public DbSet<MaterialModel> Materials { get; set; }
         public DbSet<QuestionModel> Questions { get; set; }
         public DbSet<AnswerModel> Answers { get; set; }
+        public DbSet<PromocodeModel> Promocodes { get; set; }
         public DbSet<MaterialSubmissionModel> MaterialSubmissions { get; set; }
         public DbSet<TestQuestionAnswerModel> TestQuestionAnswers { get; set; }
 

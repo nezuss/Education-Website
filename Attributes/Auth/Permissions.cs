@@ -31,6 +31,10 @@ namespace Backend.Attributes.Auth
         public const string UnassignModuleFromCource = "admin.unassign.moduleFromCource";
         public const string UnassignLessonFromModule = "admin.unassign.lessonFromModule";
         public const string UnassignMaterialFromLesson = "admin.unassign.materialFromLesson";
+        public const string GetPromocodes = "admin.get.promocodes";
+        public const string CreatePromocode = "admin.create.promocode";
+        public const string UpdatePromocode = "admin.update.promocode";
+        public const string DeletePromocode = "admin.delete.promocode";
 
         // ? Dashboard
         public const string GetTotalUsers = "totalUsers.get";

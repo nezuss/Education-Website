@@ -72,6 +72,11 @@ namespace Backend.Attributes.Auth
                 case Permissions.UnassignModuleFromCource: hasPermission = role.CanUnassignModuleFromCource; break;
                 case Permissions.UnassignLessonFromModule: hasPermission = role.CanUnassignLessonFromModule; break;
                 case Permissions.UnassignMaterialFromLesson: hasPermission = role.CanUnassignMaterialFromLesson; break;
+                // * Promocode
+                case Permissions.GetPromocodes: hasPermission = role.CanGetPromocodes; break;
+                case Permissions.CreatePromocode: hasPermission = role.CanCreatePromocode; break;
+                case Permissions.UpdatePromocode: hasPermission = role.CanUpdatePromocode; break;
+                case Permissions.DeletePromocode: hasPermission = role.CanDeletePromocode; break;
 
                 // ? Dashboard
                 case Permissions.GetTotalUsers: hasPermission = role.CanGetTotalUsers; break;

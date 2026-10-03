@@ -34,6 +34,11 @@ namespace Backend.Models
         public bool CanUnassignModuleFromCource { get; set; }
         public bool CanUnassignLessonFromModule { get; set; }
         public bool CanUnassignMaterialFromLesson { get; set; }
+        // * Promocode
+        public bool CanGetPromocodes { get; set; }
+        public bool CanCreatePromocode { get; set; }
+        public bool CanUpdatePromocode { get; set; }
+        public bool CanDeletePromocode { get; set; }
 
         // ? Dashboard
         public bool CanGetTotalUsers { get; set; }

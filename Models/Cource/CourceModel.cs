@@ -7,6 +7,9 @@ namespace Backend.Models.Cource
         public string Title { get; set; }
         public string Description { get; set; }
         public Double Price { get; set; }
+        public Double Rating { get; set; }
+        public int Reviews { get; set; }
+        public int StudentsCount { get; set; }
         public int TotalLearningPeriodWeeks { get; set; }
         public int ProjectsReadyForPortfolio { get; set; }
         public string? AssignedTeacherId { get; set; }
