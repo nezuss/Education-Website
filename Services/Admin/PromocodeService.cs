@@ -41,6 +41,7 @@ namespace Backend.Services.Admin
             var promocode = new Promocode()
             {
                 Promocode = dTO.Promocode,
+                Discount = dTO.Discount,
                 WillExpireAt = dTO.WillExpireAt,
             };
 
@@ -63,6 +64,7 @@ namespace Backend.Services.Admin
 
             promocode.Promocode = promocode.Promocode;
             promocode.WillExpireAt = dTO.WillExpireAt;
+            promocode.Discount = dTO.Discount;
 
             db.Promocodes.Update(promocode);
             await db.SaveChangesAsync();
