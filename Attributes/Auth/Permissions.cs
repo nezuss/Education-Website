@@ -37,6 +37,7 @@ namespace Backend.Attributes.Auth
         public const string UpdatePromocode = "admin.update.promocode";
         public const string DeletePromocode = "admin.delete.promocode";
         // * User management
+        public const string GetUser = "admin.get.user";
         public const string GetAllUsers = "admin.getAll.user";
         public const string CreateUser = "admin.create.user";
         public const string UpdateUser = "admin.update.user";

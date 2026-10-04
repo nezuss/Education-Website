@@ -20,6 +20,29 @@ namespace Backend.Controllers.Admin
             userManagementService = _userManagementService;
         }
 
+        [HttpPost("get/{id}")]
+        [Permission(Permissions.GetUser)]
+        public async Task<IActionResult> GetUser(string id)
+        {
+            var result = await userManagementService.GetUser(id);
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data
+            });
+        }
+
         [HttpPost("get-all")]
         [Permission(Permissions.GetAllUsers)]
         public async Task<IActionResult> GetAllUsers()

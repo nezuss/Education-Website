@@ -78,6 +78,7 @@ namespace Backend.Attributes.Auth
                 case Permissions.UpdatePromocode: hasPermission = role.CanUpdatePromocode; break;
                 case Permissions.DeletePromocode: hasPermission = role.CanDeletePromocode; break;
                 // * User management
+                case Permissions.GetUser: hasPermission = role.CanGetUser; break;
                 case Permissions.GetAllUsers: hasPermission = role.CanGetAllUsers; break;
                 case Permissions.CreateUser: hasPermission = role.CanCreateUser; break;
                 case Permissions.UpdateUser: hasPermission = role.CanUpdateUser; break;

@@ -17,6 +17,18 @@ namespace Backend.Services.Admin
             db = _db;
         }
 
+        public async Task<ServiceResult<UserModel>> GetUser(string Id)
+        {
+            var user = await db.Users
+                             .AsNoTracking()
+                             .FirstOrDefaultAsync(u => u.Id == Id);
+
+            if (user == null)
+                return ServiceResult<UserModel>.Fail("There is no user with this id", 404);
+
+            return ServiceResult<UserModel>.Ok(user, "User get successfully");
+        }
+
         public async Task<ServiceResult<List<UserModel>>> GetAllUsers()
         {
             var users = await db.Users
