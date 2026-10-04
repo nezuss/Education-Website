@@ -39,6 +39,11 @@ namespace Backend.Models
         public bool CanCreatePromocode { get; set; }
         public bool CanUpdatePromocode { get; set; }
         public bool CanDeletePromocode { get; set; }
+        // * Promocode
+        public bool CanGetAllUsers { get; set; }
+        public bool CanCreateUser { get; set; }
+        public bool CanUpdateUser { get; set; }
+        public bool CanDeleteUser { get; set; }
 
         // ? Dashboard
         public bool CanGetTotalUsers { get; set; }
