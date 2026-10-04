@@ -1,11 +1,12 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { getCourses } from "../../services/courseService";
 import "../../styles/CoursesPage.css";
+import RequestError from "../shared/RequestError";
 
 export interface CatalogCourse {
     id: string;
-    level: "JUNIOR" | "MIDDLE" | "ADVANCED";
+    level: string;
     duration: string;
     category: string;
     title: string;
@@ -17,21 +18,22 @@ export interface CatalogCourse {
 export default function CoursesPage() {
     const [coursesList, setCoursesList] = useState<CatalogCourse[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [params] = useSearchParams();
+    const [searchQuery, setSearchQuery] = useState(params.get("q") || "");
     const [selectedCategory, setSelectedCategory] = useState<string>("Усі");
     const [sortBy, setSortBy] = useState<"default" | "modules" | "title">("default");
     const [isExpanded, setIsExpanded] = useState(false);
     const [consultationModalOpen, setConsultationModalOpen] = useState(false);
     const [consultationEmail, setConsultationEmail] = useState("");
-    const [consultationSent, setConsultationSent] = useState(false);
+    const consultationSent = false;
+    const [error, setError] = useState("");
 
     useEffect(() => {
-        setLoading(true);
         getCourses()
             .then((backendCourses) => {
                 const mapped: CatalogCourse[] = (backendCourses ?? []).map((c) => ({
                     id: c.id,
-                    level: "MIDDLE" as const,
+                    level: "—",
                     duration: c.totalLearningPeriodWeeks
                         ? `${c.totalLearningPeriodWeeks} ТИЖНІВ`
                         : "—",
@@ -43,7 +45,8 @@ export default function CoursesPage() {
                 }));
                 setCoursesList(mapped);
             })
-            .catch(() => {
+            .catch((reason: Error) => {
+                setError(reason.message);
                 setCoursesList([]);
             })
             .finally(() => setLoading(false));
@@ -55,7 +58,7 @@ export default function CoursesPage() {
     }, [coursesList]);
 
     const filteredCourses = useMemo(() => {
-        let result = [...coursesList].filter((course) => {
+        const result = [...coursesList].filter((course) => {
             const matchesCategory = selectedCategory === "Усі" || course.category === selectedCategory;
             const matchesQuery = 
                 course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -82,12 +85,13 @@ export default function CoursesPage() {
     function handleConsultationSubmit(e: React.FormEvent) {
         e.preventDefault();
         if (consultationEmail.trim()) {
-            setConsultationSent(true);
+            setError("Запис на консультацію поки недоступний. Спробуйте пізніше.");
         }
     }
 
     return (
         <div className="catalog-page-container">
+            {error && <RequestError message={error} />}
             
             <nav className="catalog-breadcrumbs" aria-label="Хлібні крихти">
                 <Link to="/" className="breadcrumb-link">Головна</Link>
@@ -125,7 +129,7 @@ export default function CoursesPage() {
                             id="course-sort"
                             className="catalog-sort-select"
                             value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value as any)}
+                            onChange={(e) => setSortBy(e.target.value as "default" | "modules" | "title")}
                         >
                             <option value="default">за замовчуванням</option>
                             <option value="modules">за модулями</option>
@@ -239,7 +243,7 @@ export default function CoursesPage() {
                 <button 
                     type="button" 
                     className="consultation-btn"
-                    onClick={() => setConsultationModalOpen(true)}
+                    disabled title="Запис на консультацію поки недоступний" onClick={() => setConsultationModalOpen(true)}
                 >
                     <span>Отримати консультацію</span>
                     <span className="consultation-btn-arrow-circle">

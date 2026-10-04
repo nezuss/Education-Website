@@ -6,24 +6,28 @@ import "../../styles/CheckoutPage.css";
 export default function SuccessPage() {
     const [searchParams] = useSearchParams();
     const sessionId = searchParams.get("session_id");
-    const courseId = searchParams.get("course_id") || "lca-eco-design";
+    const courseId = searchParams.get("course_id");
 
-    const [status, setStatus] = useState<"loading" | "success" | "error">(sessionId && courseId ? "loading" : "success");
-    const [message, setMessage] = useState("");
+    const [status, setStatus] = useState<"loading" | "success" | "error">(sessionId && courseId ? "loading" : "error");
+    const [message, setMessage] = useState(sessionId && courseId ? "" : "Немає даних для підтвердження платежу.");
+    const [attempt, setAttempt] = useState(0);
 
     useEffect(() => {
         if (!sessionId || !courseId) return;
 
+        let active = true;
         checkPaymentStatus({ sessionId, courceId: courseId })
             .then(() => {
+                if (!active) return;
                 setStatus("success");
             })
             .catch((err: Error) => {
-                console.warn("Status check warning:", err.message);
-                setMessage(err.message || "");
-                setStatus("success");
+                if (!active) return;
+                setMessage(err.message || "Не вдалося підтвердити платіж.");
+                setStatus("error");
             });
-    }, [sessionId, courseId]);
+        return () => { active = false; };
+    }, [sessionId, courseId, attempt]);
 
     return (
         <div className="checkout-page-root">
@@ -90,13 +94,8 @@ export default function SuccessPage() {
                             Помилка обробки оплати
                         </h2>
                         <p style={{ color: "#4b5f54", fontSize: "14px", marginBottom: "28px" }}>{message}</p>
-                        <Link 
-                            to={`/checkout/${courseId}`} 
-                            className="checkout-pay-btn"
-                            style={{ display: "inline-flex", padding: "12px 24px", textDecoration: "none" }}
-                        >
-                            Спробувати знову
-                        </Link>
+                        {sessionId && courseId && <button type="button" className="checkout-pay-btn" onClick={() => { setStatus("loading"); setMessage(""); setAttempt(attempt + 1); }}>Перевірити платіж ще раз</button>}
+                        <Link to="/student/courses" className="order-change-plan-btn">Мої курси</Link>
                     </div>
                 )}
             </div>
