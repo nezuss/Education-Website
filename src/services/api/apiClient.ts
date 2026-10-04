@@ -2,7 +2,7 @@ import type { ApiError, ApiResponse } from "./types";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "https://nexylva.pp.ua/api";
 
-export async function request<T>(path: string, options: RequestInit = {}) {
+export async function request<T>(path: string, options: RequestInit = {}, authenticated = true) {
     const token = localStorage.getItem("token");
     const headers = new Headers(options.headers);
 
@@ -10,10 +10,11 @@ export async function request<T>(path: string, options: RequestInit = {}) {
         headers.set("Content-Type", "application/json");
     }
 
-    if (token) {
+    if (token && authenticated) {
         headers.set("Authorization", `Bearer ${token}`);
     }
 
+    if (!authenticated) headers.delete("Authorization");
     const cleanBase = apiBaseUrl.replace(/\/+$/, "");
     let cleanPath = path.startsWith("/") ? path : `/${path}`;
 
@@ -21,13 +22,10 @@ export async function request<T>(path: string, options: RequestInit = {}) {
         if (cleanPath.startsWith("/api/")) {
             cleanPath = cleanPath.slice(4);
         }
-    } else {
-        if (!cleanPath.startsWith("/api/")) {
-            cleanPath = `/api${cleanPath}`;
-        }
     }
 
-    const url = `${cleanBase}${cleanPath}`;
+    const pathBase = (import.meta.env.VITE_API_PATH_BASE ?? "").replace(/\/+$/, "");
+    const url = `${cleanBase}${pathBase}${cleanPath}`;
 
     const response = await fetch(url, { ...options, headers });
     const text = await response.text();
@@ -43,7 +41,7 @@ export async function request<T>(path: string, options: RequestInit = {}) {
             localStorage.removeItem("token");
             if (typeof window !== "undefined") {
                 window.dispatchEvent(new Event("auth:unauthorized"));
-                const publicPaths = ["/login", "/registration", "/confirm-email", "/", "/courses", "/not-found"];
+                const publicPaths = ["/login", "/registration", "/confirm-email", "/", "/courses", "/not-found", "/about", "/journal", "/community", "/portfolio", "/contacts", "/faq", "/forgot-password", "/reset-password", "/change-password", "/cancel"];
                 const currentPath = window.location.pathname;
                 const isPublic = publicPaths.some((p) => (p === "/" ? currentPath === "/" : currentPath.startsWith(p)));
                 if (!isPublic && !currentPath.startsWith("/login")) {
@@ -57,9 +55,11 @@ export async function request<T>(path: string, options: RequestInit = {}) {
             body?.message ||
             (response.status === 401
                 ? "Необхідна авторизація для доступу (401 Unauthorized)"
-                : "Сталася помилка запиту");
+                : `Сталася помилка запиту (HTTP ${response.status})`);
         throw Object.assign(new Error(message), { status: response.status });
     }
 
-    return (body as ApiResponse<T>)?.data;
+    if (response.status === 204) return undefined as T;
+    if (!body || !("data" in body)) throw new Error("Сервер повернув відповідь у невідомому форматі");
+    return (body as ApiResponse<T>).data;
 }

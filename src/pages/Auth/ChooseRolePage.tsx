@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/AuthPages.css';
+import { getProfile } from '../../services/profileService';
 
 export const ChooseRolePage: React.FC = () => {
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState<'student' | 'mentor'>('student');
+  const [error, setError] = useState('');
 
-  const handleFinish = () => {
-    if (selectedRole === 'mentor') {
-      navigate('/mentor');
-    } else {
-      navigate('/student');
-    }
+  const handleFinish = async () => {
+    try {
+      const profile = await getProfile();
+      if (selectedRole === 'mentor' && profile.role !== 'Teacher' && profile.role !== 'Admin') {
+        setError('Доступ ментора призначає адміністратор. Вибір тут не змінює роль акаунта.');
+        return;
+      }
+      navigate(selectedRole === 'mentor' ? '/mentor' : '/student');
+    } catch (reason) { setError((reason as Error).message); }
   };
 
   return (
@@ -28,10 +33,11 @@ export const ChooseRolePage: React.FC = () => {
           Як ви плануєте використовувати NEXYLVA?
         </h1>
         <p className="nex-auth-subtitle">
-          Оберіть роль — її можна буде змінити пізніше в налаштуваннях
+          Оберіть кабінет. Доступ ментора призначає адміністратор.
         </p>
 
         <div className="nex-role-grid">
+          {error && <p className="nex-auth-error-box" role="alert">{error}</p>}
           <button
             type="button"
             className={`nex-role-card ${selectedRole === 'student' ? 'selected' : ''}`}

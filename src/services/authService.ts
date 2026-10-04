@@ -20,7 +20,7 @@ export function isTokenExpired(token: string): boolean {
     try {
         const parts = token.split(".");
         if (parts.length !== 3) return true;
-        const payload = JSON.parse(atob(parts[1]));
+        const payload = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0))));
         if (!payload.exp) return false;
         return Date.now() >= payload.exp * 1000;
     } catch {
@@ -42,7 +42,7 @@ export async function signIn(data: SignInData) {
     const token = await request<string>("/auth/sign-in", {
         method: "POST",
         body: JSON.stringify(data),
-    });
+    }, false);
 
     localStorage.setItem("token", token);
     return token;
@@ -52,7 +52,7 @@ export async function signInWithGoogle(idToken: string) {
     const token = await request<string>("/auth/google-sign-in", {
         method: "POST",
         body: JSON.stringify({ idToken }),
-    });
+    }, false);
 
     localStorage.setItem("token", token);
     return token;
@@ -66,14 +66,14 @@ export async function signUp(data: SignUpData): Promise<SignUpResult | undefined
 }
 
 export async function requestPasswordReset(email: string) {
-    return request<string>("/account/management/reset-password", {
+    return request<string>("/account/management/forgot-password", {
         method: "POST",
         body: JSON.stringify({ email }),
     });
 }
 
 export async function changePassword(resetToken: string, password: string) {
-    return request<string>("/account/management/change-password", {
+    return request<string>("/account/management/reset-password", {
         method: "POST",
         body: JSON.stringify({ resetToken, password }),
     });

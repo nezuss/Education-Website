@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import GoogleSignInButton from "../../components/auth/GoogleSignInButton";
 import { signIn, signInWithGoogle } from "../../services/authService";
-import { parseJwtPayload } from "../../services/profileService";
+import { getProfile } from "../../services/profileService";
 import "../../styles/AuthPages.css";
 
 export default function LoginPage() {
@@ -22,7 +22,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const token = await signIn({
+      await signIn({
         email: String(formData.get("email")),
         password: String(formData.get("password")),
       });
@@ -33,7 +33,7 @@ export default function LoginPage() {
         return;
       }
 
-      const parsed = parseJwtPayload(token);
+      const parsed = await getProfile();
       if (parsed?.role === "Admin") {
         navigate("/admin", { replace: true });
       } else if (parsed?.role === "Teacher") {
@@ -53,14 +53,14 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const token = await signInWithGoogle(idToken);
+      await signInWithGoogle(idToken);
       const from = searchParams.get("from") || searchParams.get("redirect");
       if (from) {
         navigate(decodeURIComponent(from), { replace: true });
         return;
       }
 
-      const parsed = parseJwtPayload(token);
+      const parsed = await getProfile();
       navigate(parsed?.role === "Admin" ? "/admin" : parsed?.role === "Teacher" ? "/mentor" : "/student", { replace: true });
     } finally {
       setIsLoading(false);

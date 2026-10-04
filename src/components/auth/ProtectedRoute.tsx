@@ -59,7 +59,7 @@ export default function ProtectedRoute({ allowedRoles, children }: ProtectedRout
 
     if (allowedRoles && allowedRoles.length > 0) {
         const userRole = profile?.role ?? "None";
-        const hasAccess = true; // DEMO HACK: allowedRoles.includes(userRole);
+        const hasAccess = allowedRoles.includes(userRole);
 
         if (!hasAccess) {
             return (

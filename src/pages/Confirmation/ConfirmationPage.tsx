@@ -9,7 +9,7 @@ export default function ConfirmationPage() {
   const registeredEmail = (location.state as { email?: string } | undefined)?.email;
 
   const [code, setCode] = useState(routeCode ?? "");
-  const [state, setState] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [state, setState] = useState<"idle" | "loading" | "success" | "error">(routeCode ? "loading" : "idle");
   const [error, setError] = useState("");
 
   const handleConfirm = useCallback(async (codeToVerify?: string) => {
@@ -29,10 +29,11 @@ export default function ConfirmationPage() {
   }, [code]);
 
   useEffect(() => {
-    if (routeCode && routeCode.trim().length >= 4) {
-      handleConfirm(routeCode.trim());
-    }
-  }, [routeCode, handleConfirm]);
+    if (!routeCode || routeCode.trim().length < 4) return;
+    let active = true;
+    confirmEmail(routeCode.trim()).then(() => { if (active) setState("success"); }).catch((reason: Error) => { if (active) { setError(reason.message); setState("error"); } });
+    return () => { active = false; };
+  }, [routeCode]);
 
   return (
     <div className="nex-auth-wrapper">
