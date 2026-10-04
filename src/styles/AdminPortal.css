@@ -851,3 +851,130 @@
   box-sizing: border-box;
   font-family: inherit;
 }
+
+
+.lms-layout.admin-layout .admin-container { padding: 0; max-width: none; }
+.admin-layout .lms-brand-logo { filter: none; }
+.admin-layout .lms-content { min-width: 0; }
+.admin-layout .admin-header-title { font-size: clamp(28px, 2.084vw, 40px); }
+.admin-layout .admin-header-sub { line-height: 1.6; }
+.admin-layout .admin-overview-card { background: #B4CCBF; border: 1px solid #A6C1B2; box-shadow: 0 3px 5px #0A2D1B12; }
+.admin-layout .admin-stats-row { grid-template-columns: 1.8fr repeat(4, 1fr); gap: 24px; align-items: start; }
+.admin-layout .admin-stat-card { min-width: 0; min-height: 154px; box-sizing: border-box; box-shadow: 0 3px 5px #0A2D1B12; }
+.admin-layout .admin-stat-val, .admin-layout .admin-course-stat-mini-val { color: #B29074; }
+.admin-layout .admin-overview-card { min-height: 220px; box-sizing: border-box; }
+.admin-layout .admin-events-card .admin-tag { color: #B4CCBF; }
+.admin-layout .admin-events-title { color: #D7B79D; }
+.admin-breadcrumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 36px; font-size: 13px; color: #557061; }
+.admin-breadcrumbs a, .admin-breadcrumbs button { color: inherit; text-decoration: none; border: 0; background: none; padding: 0; font: inherit; cursor: pointer; }
+.admin-layout .admin-toolbar { align-items: flex-start; }
+.admin-layout .admin-filter-pills { flex-wrap: wrap; }
+.admin-layout .admin-pill { background: #B29074; color: #fff; padding: 7px 12px; }
+.admin-layout .admin-pill.active { background: #13492C; }
+.admin-layout .admin-controls-group { flex-wrap: wrap; }
+.admin-layout .admin-courses-grid { gap: 32px 24px; }
+.admin-layout .admin-course-header-banner { position: relative; isolation: isolate; min-height: 180px; padding: 84px 24px 24px; box-sizing: border-box; background: #13492C; overflow: hidden; }
+.admin-layout .admin-course-header-banner::before { content: ""; position: absolute; inset: 0; z-index: -1; border-top-left-radius: 200px; background: #B4CCBF; }
+.admin-layout .admin-course-cat { color: #557061; margin-bottom: 12px; }
+.admin-layout .admin-course-name { color: #0A2D1B; font-size: clamp(22px, 1.667vw, 32px); overflow-wrap: anywhere; }
+.admin-layout .admin-course-status-pill { top: 24px; right: 24px; color: #557061; background: #F0E9E3; }
+.admin-layout .admin-course-body { padding: 24px; }
+.admin-layout .admin-course-meta-row { gap: 12px; flex-wrap: wrap; font-size: 12px; border: 0; padding: 0; }
+.admin-layout .admin-course-mentor-row { font-size: 14px; }
+.admin-layout .admin-course-mentor-row p { color: #557061; margin-top: 6px; }
+.admin-mentor-initial { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; background: #B4CCBF; color: #13492C; }
+.admin-layout .admin-course-stat-mini { background: #E7DED5; border: 1px solid #D5CDC5; box-shadow: 0 3px 4px #0A2D1B12; }
+.admin-layout .admin-course-stat-mini-val { font-size: 30px; }
+.admin-layout .admin-course-stat-mini-lbl { font-size: 13px; font-weight: 600; }
+.admin-course-readiness { display: flex; justify-content: space-between; gap: 12px; margin: 4px 0 24px; color: #557061; font-size: 13px; }
+.admin-course-readiness span { font-weight: 600; }
+.admin-course-open { justify-content: space-between; width: 100%; margin-top: auto; }
+.admin-course-empty { grid-column: 1 / -1; text-align: center; padding: 48px 24px; }
+.admin-course-empty h2 { margin-bottom: 20px; }
+.admin-course-support { margin-top: 32px; }
+.admin-course-editor .admin-header { align-items: center; }
+.admin-course-editor .admin-header > .curriculum-actions { justify-content: flex-end; }
+.admin-course-editor .admin-modal-form-grid { grid-template-columns: minmax(0, 1.52fr) minmax(0, 1fr); gap: 32px; }
+.admin-course-editor h2 { font: 700 clamp(24px, 1.875vw, 36px)/1.3 var(--font-heading); margin: 24px 0; }
+.admin-course-editor .admin-box-basic { background: #557061; }
+.admin-course-editor .admin-box-basic h2 { color: #D7B79D; }
+.admin-course-editor .admin-box-basic .admin-tag { color: #F0E9E3; }
+.admin-course-editor .admin-box-modules { background: #B4CCBF; }
+.admin-course-editor .admin-box-params { background: #CAD5CF; }
+.admin-course-editor .admin-box-cover { background: #CDBEB2; text-align: left; }
+.admin-course-editor .admin-box-cover img { display: block; width: 100%; height: 220px; border-radius: 16px; object-fit: cover; margin: 24px 0; }
+.admin-course-editor .admin-box-cover label, .admin-editor-fields label { display: grid; gap: 8px; font-size: 13px; }
+.admin-course-editor .admin-box-cover p, .admin-editor-fields p { font-size: 13px; line-height: 1.6; margin: 12px 0; }
+.admin-editor-fields { border: 0; padding: 0; margin: 0; display: grid; gap: 20px; min-width: 0; }
+.admin-editor-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.admin-course-editor .admin-modal-input, .admin-course-editor .admin-modal-textarea, .admin-course-editor .admin-modal-select { background: #E7DED5; color: #0A2D1B; font-family: inherit; }
+.admin-editor-param { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid #B2907470; margin-bottom: 20px; }
+.admin-course-access { margin-top: 24px; }
+.admin-course-delete { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+.admin-course-delete p { width: 100%; }
+.admin-course-delete button { padding: 10px 16px; color: #9D3025; border: 1px solid #9D302570; border-radius: 8px; background: #F0E9E3; }
+.curriculum-row-header { display: flex; gap: 16px; align-items: flex-start; }
+.curriculum-row-header > div { min-width: 0; }
+.curriculum-number { display: grid; place-items: center; width: 56px; height: 56px; flex-shrink: 0; font: 700 24px var(--font-heading); border-radius: 50%; background: #E7DED5; color: #B29074; }
+.admin-course-editor .course-module-row { background: #FFFFFF40; border: 1px solid #55706140; box-shadow: none; }
+.curriculum-row-header strong { font-family: var(--font-heading); font-size: 20px; overflow-wrap: anywhere; }
+.curriculum-row-header p { font-size: 13px; line-height: 1.6; margin: 8px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.curriculum-row-header small { color: #557061; }
+.curriculum-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.curriculum-actions button, .curriculum-form button, .curriculum-confirm button { border-radius: 8px; border: 1px solid #55706170; padding: 9px 12px; background: #F0E9E3; color: #13492C; cursor: pointer; }
+.curriculum-actions .admin-btn-primary { color: white; background: #13492C; }
+.curriculum-form { display: grid; gap: 16px; padding: 20px; border-radius: 12px; background: #E7DED5; }
+.curriculum-form > fieldset { border: 0; padding: 0; display: grid; gap: 16px; min-width: 0; }
+.curriculum-form h4 { font: 700 22px var(--font-heading); margin: 0; }
+.curriculum-notice { padding: 16px 20px; border: 1px solid #55706170; border-radius: 12px; background: #B4CCBF; margin-bottom: 16px; }
+.curriculum-nested { padding-top: 12px; border-top: 1px solid #55706140; min-width: 0; }
+.curriculum-quiz { display: grid; gap: 20px; }
+.curriculum-question { display: grid; gap: 12px; padding: 16px; border: 1px solid #55706170; border-radius: 12px; min-width: 0; }
+.curriculum-answer { display: flex; gap: 8px; align-items: center; }
+.curriculum-answer .admin-modal-input { min-width: 0; }
+.curriculum-text-preview { max-height: 120px; overflow: auto; }
+@media (max-width: 1400px) {
+  .admin-layout .admin-stats-row { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .admin-layout .admin-overview-card { grid-column: 1 / -1; min-height: 0; }
+  .admin-layout .admin-stat-card { min-height: 130px; padding: 20px; }
+}
+@media (max-width: 1100px) {
+  .admin-course-editor .admin-modal-form-grid { grid-template-columns: 1fr; }
+  .admin-course-editor .admin-header { flex-wrap: wrap; }
+}
+@media (max-width: 768px) {
+  .admin-layout .admin-header { flex-direction: column; }
+  .admin-layout .admin-stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-layout .admin-filter-pills { width: 100%; }
+  .admin-layout .admin-controls-group { width: 100%; }
+  .admin-layout .admin-controls-group input, .admin-layout .admin-controls-group select { width: 100%; min-width: 0; }
+  .admin-editor-pair { grid-template-columns: 1fr; }
+  .admin-course-editor .admin-box-basic, .admin-course-editor .admin-box-modules, .admin-course-editor .admin-box-params, .admin-course-editor .admin-box-cover { padding: 20px; }
+  .curriculum-answer { flex-wrap: wrap; }
+  .curriculum-answer .admin-modal-input { width: calc(100% - 32px); }
+  .curriculum-form { padding: 12px; }
+  .course-module-row { padding: 12px; }
+  .curriculum-number { width: 40px; height: 40px; font-size: 20px; }
+  .admin-layout .admin-table-wrap { overflow-x: auto; }
+  .admin-layout .admin-table-header, .admin-layout .admin-table-row { min-width: 1000px; }
+}
+.admin-layout .admin-controls-group .mentor-search-input, .admin-layout .admin-controls-group .mentor-select { border: 1px solid #55706170; border-radius: 8px; padding: 12px 16px; background: #DADFD9; color: #13492C; font: 14px var(--font-body); }
+.admin-layout .admin-controls-group .mentor-search-input { width: 340px; }
+.admin-layout .lms-search-box { background: #EDF1EF; border-radius: 8px; width: clamp(220px, 18vw, 350px); }
+.admin-layout .lms-user-btn { border: 1px solid #557061; border-radius: 8px; background: #fff; padding: 8px 16px; }
+.admin-layout .lms-topbar-breadcrumb { color: #0A2D1B; }
+.admin-layout .admin-course-header-banner { padding-top: 76px; min-height: 220px; }
+.admin-layout .admin-course-name { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+@media (max-width: 768px) { .admin-layout .admin-controls-group .mentor-search-input { width: 100%; } .admin-layout .lms-user-btn { padding: 4px 8px; } .admin-layout .lms-lang-toggle { display: none; } }
+.admin-layout .lms-sidebar-promo-card { background: transparent; border: 1px solid #B4CCBF; border-radius: 24px; }
+.admin-layout .lms-promo-icon { font-size: 11px; letter-spacing: .05em; color: #B4CCBF; }
+.admin-layout .lms-promo-link { padding: 12px; border: 1px solid #B4CCBF; border-radius: 8px; }
+.admin-layout .admin-course-header-banner::before { border-top-left-radius: 160px; }
+.admin-course-access h2 { color: #D7B79D; }
+
+.admin-users-modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 1000; }
+.admin-users-dialog { width: min(640px,100%); padding: 28px; max-height: 90vh; overflow-y: auto; background: var(--surface-primary, #f5efeb); }
+.admin-users-dialog form, .admin-users-dialog label { display: grid; gap: 12px; }
+.admin-users-dialog form { margin-bottom: 16px; }
+.admin-users-dialog input { padding: 12px; border: 1px solid var(--accent-border); border-radius: 8px; }
+.admin-users-dialog > button { margin: 12px 12px 0 0; }
