@@ -1,3 +1,4 @@
+import DataUnavailable from "../../pages/shared/DataUnavailable";
 import { Link } from "react-router-dom";
 
 export default function CommunitySection() {
@@ -13,15 +14,15 @@ export default function CommunitySection() {
 
                         <div className="comm-metrics-grid">
                             <div className="comm-metric-item">
-                                <span className="metric-val">120+</span>
+                                <span className="metric-val">—</span>
                                 <span className="metric-lbl">експертів</span>
                             </div>
                             <div className="comm-metric-item">
-                                <span className="metric-val">5000+</span>
+                                <span className="metric-val">—</span>
                                 <span className="metric-lbl">студентів</span>
                             </div>
                             <div className="comm-metric-item">
-                                <span className="metric-val">35</span>
+                                <span className="metric-val">—</span>
                                 <span className="metric-lbl">Країн</span>
                             </div>
                         </div>
@@ -70,7 +71,7 @@ export default function CommunitySection() {
                 <div className="eco-journal-card" id="journal">
                     <div className="journal-header-row">
                         <h3 className="journal-title">Еко-журнал</h3>
-                        <a href="#journal" className="journal-all-link">
+                        <a href="/journal" className="journal-all-link">
                             <span>Всі статті</span>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="5" y1="12" x2="19" y2="12"/>
@@ -79,46 +80,7 @@ export default function CommunitySection() {
                         </a>
                     </div>
 
-                    <div className="journal-articles-list">
-                        
-                        <article className="journal-article-item">
-                            <div className="article-photo-box">
-                                <img 
-                                    src="/landing/article-biomaterials.webp" 
-                                    alt="Біоматеріали: революція в дизайні" 
-                                    className="article-photo"
-                                    loading="lazy"
-                                />
-                            </div>
-                            <h4 className="article-title">Біоматеріали: революція в дизайні</h4>
-                            <a href="#journal" className="article-read-link">
-                                <span>Читати статтю</span>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <line x1="5" y1="12" x2="19" y2="12"/>
-                                    <polyline points="12 5 19 12 12 19"/>
-                                </svg>
-                            </a>
-                        </article>
-
-                        <article className="journal-article-item">
-                            <div className="article-photo-box">
-                                <img 
-                                    src="/landing/article-trends.webp" 
-                                    alt="Тренди сталого дизайну 2026" 
-                                    className="article-photo"
-                                    loading="lazy"
-                                />
-                            </div>
-                            <h4 className="article-title">Тренди сталого дизайну 2026</h4>
-                            <a href="#journal" className="article-read-link">
-                                <span>Читати статтю</span>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <line x1="5" y1="12" x2="19" y2="12"/>
-                                    <polyline points="12 5 19 12 12 19"/>
-                                </svg>
-                            </a>
-                        </article>
-                    </div>
+                    <div className="journal-articles-list"><DataUnavailable title="Статті поки недоступні" /></div>
                 </div>
             </div>
         </section>

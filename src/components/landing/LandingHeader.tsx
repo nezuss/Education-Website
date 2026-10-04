@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 export default function LandingHeader() {
     const navigate = useNavigate();
     const hasToken = Boolean(localStorage.getItem("token"));
-    const [lang, setLang] = useState<"UA" | "EN">("UA");
+    const lang = "UA";
     const [coursesMenuOpen, setCoursesMenuOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -50,8 +50,8 @@ export default function LandingHeader() {
                     <button 
                         type="button" 
                         className="lang-switcher-btn"
-                        onClick={() => setLang(lang === "UA" ? "EN" : "UA")}
-                        title="Змінити мову"
+                        disabled
+                        title="Англійська версія поки недоступна"
                     >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="12" cy="12" r="10"/>
@@ -118,7 +118,8 @@ export default function LandingHeader() {
                             <button 
                                 type="button" 
                                 className="lang-switcher-btn"
-                                onClick={() => setLang(lang === "UA" ? "EN" : "UA")}
+                                disabled
+                                title="Переклад англійською поки недоступний"
                             >
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                                     <circle cx="12" cy="12" r="10"/>

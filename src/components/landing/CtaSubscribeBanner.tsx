@@ -3,18 +3,19 @@ import { Link } from "react-router-dom";
 
 export default function CtaSubscribeBanner() {
     const [email, setEmail] = useState("");
-    const [subscribed, setSubscribed] = useState(false);
+    const subscribed = false;
+    const [error, setError] = useState("");
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         if (email.trim()) {
-            setSubscribed(true);
-            setEmail("");
+            setError("Підписка поки недоступна. Спробуйте пізніше.");
         }
     }
 
     return (
         <section className="landing-cta-banner-wrapper">
+            {error && <p role="alert" className="data-unavailable">{error}</p>}
             <div className="landing-cta-banner">
                 
                 <div className="cta-nature-photo-box">
@@ -47,7 +48,7 @@ export default function CtaSubscribeBanner() {
                                 alt="Студенти" 
                                 className="cta-avatars-img"
                             />
-                            <span className="cta-students-count">+5 к студентів з нами</span>
+                            <span className="cta-students-count">NEXYLVA</span>
                         </div>
                     </div>
                 </div>
@@ -61,6 +62,8 @@ export default function CtaSubscribeBanner() {
                             ✓ Дякуємо за підписку!
                         </div>
                     ) : (
+                        <>
+                        <p>Підписка поки недоступна.</p>
                         <form className="newsletter-form" onSubmit={handleSubmit}>
                             <input 
                                 type="email" 
@@ -70,13 +73,14 @@ export default function CtaSubscribeBanner() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
-                            <button type="submit" className="newsletter-submit-btn" aria-label="Підписатися">
+                            <button disabled title="Підписка поки недоступна" type="submit" className="newsletter-submit-btn" aria-label="Підписатися">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                     <line x1="5" y1="12" x2="19" y2="12"/>
                                     <polyline points="12 5 19 12 12 19"/>
                                 </svg>
                             </button>
                         </form>
+                        </>
                     )}
                 </div>
             </div>

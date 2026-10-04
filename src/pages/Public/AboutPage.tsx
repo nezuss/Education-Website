@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../../styles/AboutPage.css';
+import DataUnavailable from '../shared/DataUnavailable';
 
 interface TeamMember {
   id: string;
@@ -10,36 +11,7 @@ interface TeamMember {
   photo: string;
 }
 
-const TEAM: TeamMember[] = [
-  {
-    id: '1',
-    badge: 'CREATIVE DIRECTOR',
-    name: 'Ірина Шевченко',
-    desc: 'Дизайн-системи та креативна методологія.',
-    photo: '/about/team_1.webp'
-  },
-  {
-    id: '2',
-    badge: 'EDUCATION LEAD',
-    name: 'Марія Коваль',
-    desc: 'Навчальні програми та розвиток курсів.',
-    photo: '/about/team_2.webp'
-  },
-  {
-    id: '3',
-    badge: 'MATERIALS RESEARCH',
-    name: 'Олена Бойко',
-    desc: 'Матеріали, біокомпозити та експерименти.',
-    photo: '/about/team_3.webp'
-  },
-  {
-    id: '4',
-    badge: 'COMMUNITY LEAD',
-    name: 'Андрій Левченко',
-    desc: 'Спільнота, ментори та студентські проєкти.',
-    photo: '/about/team_4.webp'
-  },
-];
+const TEAM: TeamMember[] = [];
 
 export const AboutPage: React.FC = () => {
   return (
@@ -69,15 +41,15 @@ export const AboutPage: React.FC = () => {
 
               <div className="about-hero-stats">
                 <div className="about-stat-item">
-                  <span className="about-stat-num">3</span>
+                  <span className="about-stat-num">—</span>
                   <span className="about-stat-label">напрями навчання</span>
                 </div>
                 <div className="about-stat-item">
-                  <span className="about-stat-num">186+</span>
+                  <span className="about-stat-num">—</span>
                   <span className="about-stat-label">студентів</span>
                 </div>
                 <div className="about-stat-item">
-                  <span className="about-stat-num">24</span>
+                  <span className="about-stat-num">—</span>
                   <span className="about-stat-label">ментори</span>
                 </div>
               </div>
@@ -150,15 +122,15 @@ export const AboutPage: React.FC = () => {
 
               <div className="about-approach-metrics">
                 <div className="about-app-metric">
-                  <span className="num">70%</span>
+                  <span className="num">—</span>
                   <span className="label">практики</span>
                 </div>
                 <div className="about-app-metric">
-                  <span className="num">4</span>
+                  <span className="num">—</span>
                   <span className="label">етапи</span>
                 </div>
                 <div className="about-app-metric">
-                  <span className="num">1:1</span>
+                  <span className="num">—</span>
                   <span className="label">фідбек</span>
                 </div>
               </div>
@@ -220,6 +192,7 @@ export const AboutPage: React.FC = () => {
           </div>
 
           <div className="about-team-grid">
+            <DataUnavailable title="Інформація про команду поки недоступна" />
             {TEAM.map((member) => (
               <div key={member.id} className="about-team-card">
                 <div className="about-team-photo-wrap">
@@ -237,19 +210,19 @@ export const AboutPage: React.FC = () => {
 
         <section className="about-numbers-bar">
           <div className="about-bar-col">
-            <span className="about-bar-val">186+</span>
+            <span className="about-bar-val">—</span>
             <span className="about-bar-label">активних студентів</span>
           </div>
           <div className="about-bar-col">
-            <span className="about-bar-val">428</span>
+            <span className="about-bar-val">—</span>
             <span className="about-bar-label">студентських проєктів</span>
           </div>
           <div className="about-bar-col">
-            <span className="about-bar-val">24</span>
+            <span className="about-bar-val">—</span>
             <span className="about-bar-label">ментори та експерти</span>
           </div>
           <div className="about-bar-col">
-            <span className="about-bar-val">12</span>
+            <span className="about-bar-val">—</span>
             <span className="about-bar-label">партнерських ініціатив</span>
           </div>
         </section>

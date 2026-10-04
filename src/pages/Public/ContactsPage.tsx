@@ -21,21 +21,18 @@ export const ContactsPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [privacyAgreed, setPrivacyAgreed] = useState(true);
-  const [submitted, setSubmitted] = useState(false);
+  const submitted = false;
+  const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim()) return;
-    setSubmitted(true);
-    setTimeout(() => {
-      setName('');
-      setEmail('');
-      setMessage('');
-    }, 2500);
+    setError("Надсилання повідомлень поки недоступне. Спробуйте пізніше.");
   };
 
   return (
     <div className="contacts-page">
+      {error && <div role="alert" className="data-unavailable">{error}</div>}
       <nav className="contacts-breadcrumbs" aria-label="breadcrumb">
         <Link to="/">Головна</Link>
         <span>&gt;</span>
@@ -156,8 +153,8 @@ export const ContactsPage: React.FC = () => {
                     Погоджуюсь з умовами та політикою конфіденційності
                   </label>
 
-                  <button type="submit" className="contacts-submit-btn">
-                    <span>Надіслати повідомлення</span>
+                  <button disabled title="Надсилання повідомлень поки недоступне" type="submit" className="contacts-submit-btn">
+                    <span>Надсилання поки недоступне</span>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="5" y1="12" x2="19" y2="12"></line>
                       <polyline points="12 5 19 12 12 19"></polyline>

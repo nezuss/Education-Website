@@ -81,7 +81,7 @@ export default function LandingHero() {
                         <button 
                             type="button" 
                             className="hero-btn-trailer" 
-                            onClick={() => setIsVideoModalOpen(true)}
+                            disabled title="Відео платформи поки недоступне"
                         >
                             <span className="btn-play-icon">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -90,7 +90,7 @@ export default function LandingHero() {
                             </span>
                             <span className="trailer-text">
                                 <strong>Дивитись трейлер</strong>
-                                <small>1:25 хв.</small>
+                                <small>Поки недоступно</small>
                             </span>
                         </button>
                     </div>
