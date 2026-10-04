@@ -43,7 +43,7 @@ namespace Backend.Controllers.Cource
         }
 
         [HttpGet("get-by-id/{id}")]
-        public async Task<IActionResult> GetCources(string id)
+        public async Task<IActionResult> GetCource(string id)
         {
             var result = await courcesService.GetCource(id);
 

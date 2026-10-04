@@ -140,8 +140,9 @@ namespace Backend.Services.Auth
             if (dTO.Password != user.Password)
             { return ServiceResult<string>.Fail("Credentials are wrong", 401); }
 
+            string RoleName = await GetRoleName(user.RoleId);
             string AuthorizedKeyId = Guid.NewGuid().ToString();
-            string token = jWTService.GenerateToken(user, AuthorizedKeyId);
+            string token = jWTService.GenerateToken(user, AuthorizedKeyId, RoleName);
             user.AuthorizedKeyId = AuthorizedKeyId;
 
             db.Users.Update(user);
@@ -192,10 +193,12 @@ namespace Backend.Services.Auth
                     UpdatedAt = DateTime.UtcNow,
                 };
 
+                string RoleName = await GetRoleName(user.RoleId);
+
                 await db.Users.AddAsync(user);
                 await db.SaveChangesAsync();
 
-                string token = jWTService.GenerateToken(user, authorizedKeyId);
+                string token = jWTService.GenerateToken(user, authorizedKeyId, RoleName);
 
                 return ServiceResult<string>.Ok(token, "Successfully signed in via Google");
             }
@@ -203,8 +206,9 @@ namespace Backend.Services.Auth
             {
                 if (!user.IsEmailConfirmed) user.IsEmailConfirmed = true;
 
+                string RoleName = await GetRoleName(user.RoleId);
                 string authorizedKeyId = Guid.NewGuid().ToString();
-                string token = jWTService.GenerateToken(user, authorizedKeyId);
+                string token = jWTService.GenerateToken(user, authorizedKeyId, RoleName);
 
                 user.AuthorizedKeyId = authorizedKeyId;
 
@@ -245,7 +249,7 @@ namespace Backend.Services.Auth
             return saveUser;
         }
 
-        private async void SendCode(string code,  string email)
+        private async void SendCode(string code, string email)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Nexylva", configuration["Smtp:From"]));
@@ -345,6 +349,19 @@ namespace Backend.Services.Auth
 
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
+        }
+
+        public async Task<string> GetRoleName(string RoleId)
+        {
+            if (string.IsNullOrEmpty(RoleId)) return "User";
+
+            var role = await db.Roles
+                             .AsNoTracking()
+                             .FirstOrDefaultAsync(r => r.Id == RoleId);
+
+            if (role == null) return "User";
+
+            return role.Name;
         }
     }
 }

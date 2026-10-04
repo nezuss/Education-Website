@@ -1,4 +1,4 @@
-namespace Backend.DTO.Cource
+namespace Backend.DTO.Cource.Promocode
 {
     public class DeletePromocodeDTO
     {

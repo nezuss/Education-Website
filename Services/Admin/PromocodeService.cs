@@ -1,5 +1,5 @@
 using Backend.Models;
-using Backend.DTO.Admin;
+using Backend.DTO.Cource.Promocode;
 using Backend.Utils;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,14 +17,14 @@ namespace Backend.Services.Admin
             db = _db;
         }
 
-        public async Task<ServiceResult<List<Promocode>>> GetAllPromocodes()
+        public async Task<ServiceResult<List<PromocodeModel>>> GetAllPromocodes()
         {
             var promocodes = await db.Promocodes.ToListAsync();
 
             if (promocodes == null)
-                return ServiceResult<List<Promocode>>.Fail("There is no promocodes yet", 404);
+                return ServiceResult<List<PromocodeModel>>.Fail("There is no promocodes yet", 404);
 
-            return ServiceResult<List<Promocode>>.Ok(promocodes,
+            return ServiceResult<List<PromocodeModel>>.Ok(promocodes,
                                                      "Promocodes get successfully");
         }
 
@@ -38,7 +38,7 @@ namespace Backend.Services.Admin
             if (existedPromocode != null)
                 return ServiceResult<string>.Fail("This promocode already exists", 400);
 
-            var promocode = new Promocode()
+            var promocode = new PromocodeModel()
             {
                 Promocode = dTO.Promocode,
                 Discount = dTO.Discount,
@@ -83,7 +83,7 @@ namespace Backend.Services.Admin
             if (promocode == null)
                 return ServiceResult<string>.Fail("This promocode does not exists", 404);
 
-            db.Promocodes.Delete(promocode);
+            db.Promocodes.Remove(promocode);
             await db.SaveChangesAsync();
 
             return ServiceResult<string>.Ok("Promo deleted",

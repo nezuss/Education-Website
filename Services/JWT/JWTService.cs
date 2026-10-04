@@ -19,14 +19,14 @@ namespace Backend.Services.JWT
             _issuer = _iConfiguration["JWT:Issuer"];
         }
 
-        public string GenerateToken(UserModel user, string KeyId)
+        public string GenerateToken(UserModel user, string KeyId, string RoleName)
         {
-            var accessToken = GenerateAccessToken(user, KeyId);
+            var accessToken = GenerateAccessToken(user, KeyId, RoleName);
 
             return accessToken;
         }
 
-        private string GenerateAccessToken(UserModel user, string KeyId)
+        private string GenerateAccessToken(UserModel user, string KeyId, string RoleName)
         {
             var now = DateTime.UtcNow;
 
@@ -36,6 +36,7 @@ namespace Backend.Services.JWT
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim("email", user.Email),
                 new Claim("kid", KeyId),
+                new Claim("roleName", RoleName),
                 new Claim(JwtRegisteredClaimNames.Iat, EpochTime.GetIntDate(now).ToString(CultureInfo.InvariantCulture), ClaimValueTypes.Integer64)
             };
 

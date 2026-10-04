@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Backend.Services.Admin;
-using Backend.DTO.Admin;
+using Backend.DTO.Cource.Promocode;
 using Backend.Attributes.Auth;
 using Backend.Models;
 
@@ -47,7 +47,7 @@ namespace Backend.Controllers.Admin
         [Permission(Permissions.CreatePromocode)]
         public async Task<IActionResult> CreatePromocode(CreatePromocodeDTO dTO)
         {
-            var result = await promocodeService.CreatePromocodeDTO(dTO);
+            var result = await promocodeService.CreatePromocode(dTO);
 
             if (!result.Success)
             {
@@ -93,7 +93,7 @@ namespace Backend.Controllers.Admin
         [Permission(Permissions.DeletePromocode)]
         public async Task<IActionResult> DeletePromocode(DeletePromocodeDTO dTO)
         {
-            var result = await promocodeService.UpdatePromocodeDTO(dTO);
+            var result = await promocodeService.DeletePromocode(dTO);
 
             if (!result.Success)
             {

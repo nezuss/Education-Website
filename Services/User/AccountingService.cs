@@ -138,7 +138,13 @@ namespace Backend.Services.User
                        .Ok("Already enrolled", "You already enrolled into this cource");
             }
 
-            var cource = db.Cources.FirstOrDefaultAsync(c => c.Id == courseId);
+            var cource = await db.Cources.FirstOrDefaultAsync(c => c.Id == courseId);
+
+            if (cource == null)
+            {
+                return ServiceResult<string>
+                       .Fail("There is no cource with this id", 404);
+            }
 
             cource.StudentsCount++;
 
