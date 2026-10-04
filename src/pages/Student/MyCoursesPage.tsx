@@ -4,6 +4,7 @@ import { getEnrolledCourses } from "../../services/courseService";
 import { getCourseStats, type CourseStats } from "../../services/courseStatsService";
 import type { Course } from "../../types/course";
 import "../../styles/StudentDashboard.css";
+import RequestError from "../shared/RequestError";
 
 export default function MyCoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -12,6 +13,7 @@ export default function MyCoursesPage() {
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     getEnrolledCourses()
@@ -21,7 +23,8 @@ export default function MyCoursesPage() {
           data.map(async (course) => {
             try {
               return [course.id, await getCourseStats(course.id)] as const;
-            } catch {
+            } catch (reason) {
+              setError((reason as Error).message);
               return null;
             }
           }),
@@ -34,7 +37,7 @@ export default function MyCoursesPage() {
           setActiveCourseStats(statsByCourse[data[0].id]);
         }
       })
-      .catch(() => setCourses([]))
+      .catch((reason: Error) => setError(reason.message))
       .finally(() => setLoading(false));
   }, []);
 
@@ -51,6 +54,7 @@ export default function MyCoursesPage() {
 
   return (
     <div className="std-dash">
+      {error && <RequestError message={error} />}
       
       <div style={{ fontSize: "14px", color: "var(--color-brand-soft)", display: "flex", gap: "8px" }}>
         <Link to="/student" style={{ color: "var(--color-brand-soft)", textDecoration: "none" }}>Головна</Link>
@@ -213,11 +217,10 @@ export default function MyCoursesPage() {
           </div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }}>
-            {filtered.map((course, idx) => {
+            {filtered.map((course) => {
               const stats = courseStats[course.id];
               const progress = Math.round(stats?.progressPercentage ?? 0);
               const isCompleted = progress >= 100;
-              const fallbackImages = ["/courses/catalog-packaging.webp", "/courses/catalog-materials.webp", "/courses/catalog-lighting.webp"];
 
               return (
               <div
@@ -232,7 +235,7 @@ export default function MyCoursesPage() {
                 }}
               >
                 <img
-                  src={course.bannerUrl || fallbackImages[idx % fallbackImages.length]}
+                  src={course.bannerUrl || "/course-placeholder.svg"}
                   alt={course.title}
                   style={{ width: "100%", height: "200px", objectFit: "cover" }}
                 />

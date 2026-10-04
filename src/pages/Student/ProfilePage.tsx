@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCourseStats, type CourseStats } from "../../services/courseStatsService";
 import { getEnrolledCourses } from "../../services/courseService";
-import { getProfile, type UserProfile } from "../../services/profileService";
+import { getProfile, getProfileStats, type UserProfile } from "../../services/profileService";
 import type { Course } from "../../types/course";
 import "../../styles/StudentDashboard.css";
+import RequestError from "../shared/RequestError";
 
 type ProfileData = { profile?: UserProfile; courses: Course[]; stats: Record<string, CourseStats> };
 
@@ -12,6 +13,7 @@ export default function ProfilePage() {
   const [data, setData] = useState<ProfileData>({ courses: [], stats: {} });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [submissionCount, setSubmissionCount] = useState<number>();
 
   useEffect(() => {
     let mounted = true;
@@ -20,7 +22,7 @@ export default function ProfilePage() {
         const [profile, courses] = await Promise.all([getProfile(), getEnrolledCourses()]);
         const entries = await Promise.all(courses.map(async (course) => {
           try { return [course.id, await getCourseStats(course.id)] as const; }
-          catch { return [course.id, undefined] as const; }
+          catch (reason) { if (mounted) setError((reason as Error).message); return [course.id, undefined] as const; }
         }));
         if (mounted) setData({
           profile,
@@ -34,6 +36,7 @@ export default function ProfilePage() {
       }
     }
     void loadProfile();
+    getProfileStats().then(stats => { if (mounted) setSubmissionCount(stats.submissions.length); }).catch((reason: Error) => { if (mounted) setError(reason.message); });
     return () => { mounted = false; };
   }, []);
 
@@ -41,12 +44,12 @@ export default function ProfilePage() {
     const stats = Object.values(data.stats);
     const activeCourses = stats.filter((item) => item.progressPercentage < 100).length;
     const completedCourses = stats.filter((item) => item.progressPercentage >= 100).length;
-    const submittedWorks = stats.reduce((total, item) => total + item.completedSubmittableMaterials, 0);
+    const submittedWorks = submissionCount ?? "—";
     const totalLessons = stats.reduce((total, item) => total + item.totalLessons, 0);
     const completedLessons = stats.reduce((total, item) => total + item.completedLessons, 0);
     const progress = totalLessons ? Math.round((completedLessons / totalLessons) * 100) : 0;
     return { activeCourses, completedCourses, submittedWorks, progress, totalLessons };
-  }, [data.stats]);
+  }, [data.stats, submissionCount]);
 
   const name = data.profile?.username || data.profile?.name || "Користувач";
   const email = data.profile?.email || "Не вказано";
@@ -57,11 +60,11 @@ export default function ProfilePage() {
       <div><span className="std-badge-tag">[ ПРОФІЛЬ СТУДЕНТА ]</span><h1>Профіль студента</h1><p>Відстежуйте свій навчальний шлях та прогрес у курсах.</p></div>
       <span className="student-profile-api-note">Дані синхронізовано з акаунтом</span>
     </section>
-    {error && <div className="student-profile-error" role="alert">{error}</div>}
+    {error && <RequestError message={error} />}
 
     <section className="student-profile-overview">
       <div className="student-profile-main-card">
-        <img className="student-profile-avatar" src="/student/student_avatar.webp" alt="Аватар студента" />
+        <span className="profile-initial-avatar">{name.charAt(0)}</span>
         <div className="student-profile-identity">
           <span className="student-profile-label">[ STUDENT PROFILE / ПРОФІЛЬ ]</span>
           <h2>{loading ? "Завантаження…" : name}</h2><p>Студентка / студент платформи NEXYLVA</p>
@@ -91,7 +94,7 @@ export default function ProfilePage() {
         {loading ? <p className="student-profile-empty">Завантажуємо курси…</p> : data.courses.length ? <div className="student-profile-course-list">
           {data.courses.slice(0, 3).map((course) => {
             const progress = data.stats[course.id]?.progressPercentage ?? 0;
-            return <Link className="student-profile-course" to={`/student/courses/${course.id}`} key={course.id}>
+            return <Link className="student-profile-course" to={`/student/learning/${course.id}`} key={course.id}>
               <div><h3>{course.title}</h3><p>{course.direction || "Навчальний курс"}</p></div>
               <div className="student-profile-course-progress"><strong>{progress}%</strong><div><span style={{ width: `${progress}%` }} /></div></div>
             </Link>;

@@ -530,7 +530,7 @@
   border-color: #0A2D1B;
 }
 
-/* Student profile */
+
 .student-profile-page { gap: 28px; }
 .std-breadcrumb { display: flex; align-items: center; gap: 10px; color: var(--color-brand-soft); font-size: 14px; }
 .std-breadcrumb a { color: inherit; text-decoration: none; }

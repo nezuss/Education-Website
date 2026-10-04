@@ -9,11 +9,12 @@ import {
   type Material,
   type Module,
 } from "../../services/learningService";
-import { getCourses } from "../../services/courseService";
+import { getCourse } from "../../services/courseService";
 import { getCourseStats, getModuleStats, type CourseStats, type ModuleStats } from "../../services/courseStatsService";
 import type { Course } from "../../types/course";
 import "../../styles/CourseLearning.css";
 import "../../styles/StudentDashboard.css";
+import RequestError from "../shared/RequestError";
 
 function VideoPlayer({ url }: { url: string }) {
   let embedUrl = url;
@@ -163,16 +164,11 @@ export default function LearningPage() {
   useEffect(() => {
     if (!courseId) return;
 
-    getCourses()
-      .then((courses) => {
-        const found = courses.find((c) => c.id === courseId);
-        if (found) setCourseData(found);
-      })
-      .catch(() => {});
+    getCourse(courseId).then(setCourseData).catch((reason: Error) => setError(reason.message));
 
     getCourseStats(courseId)
       .then(setCourseStats)
-      .catch(() => {});
+      .catch((reason: Error) => setError(reason.message));
 
     getModules(courseId)
       .then(async (mods) => {
@@ -187,7 +183,8 @@ export default function LearningPage() {
 
             try {
               map[m.id] = await getLessons(m.id);
-            } catch {
+            } catch (reason) {
+              setError((reason as Error).message);
               map[m.id] = [];
             }
           }
@@ -210,7 +207,7 @@ export default function LearningPage() {
 
           if (targetLesson) {
             setActiveLesson(targetLesson);
-            getMaterials(targetLesson.id).then(setActiveMaterials).catch(() => setActiveMaterials([]));
+            getMaterials(targetLesson.id).then(setActiveMaterials).catch((reason: Error) => setError(reason.message));
           }
         }
       })
@@ -222,7 +219,8 @@ export default function LearningPage() {
 
   const handleSelectLesson = (lesson: Lesson) => {
     setActiveLesson(lesson);
-    getMaterials(lesson.id).then(setActiveMaterials).catch(() => setActiveMaterials([]));
+    setActiveMaterials([]);
+    getMaterials(lesson.id).then(setActiveMaterials).catch((reason: Error) => setError(reason.message));
   };
 
   const courseDisplayName = courseData?.title || "Курс";
@@ -245,6 +243,7 @@ export default function LearningPage() {
 
   return (
     <div className="learn-page">
+      {error && <RequestError message={error} />}
       <nav className="learn-breadcrumbs" aria-label="breadcrumb">
         <Link to="/student">Головна</Link>
         <span>&gt;</span>

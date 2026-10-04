@@ -5,29 +5,33 @@ import { getProfile, type UserProfile } from "../../services/profileService";
 import { getCourseStats, type CourseStats } from "../../services/courseStatsService";
 import type { Course } from "../../types/course";
 import "../../styles/StudentDashboard.css";
+import RequestError from "../shared/RequestError";
 
 export default function StudentDashboardPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [profile, setProfile] = useState<UserProfile>();
   const [activeCourseStats, setActiveCourseStats] = useState<CourseStats>();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [allStats, setAllStats] = useState<CourseStats[]>([]);
 
   useEffect(() => {
     Promise.all([
-      getEnrolledCourses().catch(() => [] as Course[]),
-      getProfile().catch(() => undefined),
+      getEnrolledCourses(),
+      getProfile(),
     ])
       .then(async ([enrolled, prof]) => {
         setCourses(enrolled);
         if (prof) setProfile(prof);
-        if (enrolled.length > 0) {
-          try {
-            const stats = await getCourseStats(enrolled[0].id);
-            setActiveCourseStats(stats);
-          } catch {
-          }
-        }
+        const results = await Promise.allSettled(enrolled.map(course => getCourseStats(course.id)));
+        const loaded: CourseStats[] = [];
+        results.forEach((result, index) => {
+          if (result.status === "fulfilled") { loaded.push(result.value); if (index === 0) setActiveCourseStats(result.value); }
+          else setError("Не вдалося завантажити частину статистики.");
+        });
+        setAllStats(loaded);
       })
+      .catch((reason: Error) => setError(reason.message))
       .finally(() => setLoading(false));
   }, []);
 
@@ -46,6 +50,7 @@ export default function StudentDashboardPage() {
 
   return (
     <div className="std-dash">
+      {error && <RequestError message={error} />}
       
       <div className="std-greeting-row">
         <div>
@@ -136,20 +141,20 @@ export default function StudentDashboardPage() {
 
           <div className="std-stats-2x2">
             <div className="std-stat-box">
-              <span className="std-stat-num">{courses.length}</span>
+              <span className="std-stat-num">{allStats.length === courses.length ? allStats.filter(item => item.progressPercentage < 100).length : "—"}</span>
               <span className="std-stat-name">активні курси</span>
             </div>
             <div className="std-stat-box">
-              <span className="std-stat-num">{activeCourseStats && activeCourseStats.progressPercentage >= 100 ? 1 : 0}</span>
+              <span className="std-stat-num">{allStats.length === courses.length ? allStats.filter(item => item.progressPercentage >= 100).length : "—"}</span>
               <span className="std-stat-name">завершений курс</span>
             </div>
             <div className="std-stat-box">
-              <span className="std-stat-num">{activeCourseStats?.completedSubmittableMaterials ?? activeCourse?.projectsReadyForPortfolio ?? 0}</span>
+              <span className="std-stat-num">{allStats.length === courses.length ? allStats.reduce((sum, item) => sum + item.completedSubmittableMaterials, 0) : "—"}</span>
               <span className="std-stat-name">робіт здано</span>
             </div>
             <div className="std-stat-box">
-              <span className="std-stat-num">{activeCourseStats && activeCourseStats.progressPercentage >= 100 ? 1 : 0}</span>
-              <span className="std-stat-name">сертифікат</span>
+              <span className="std-stat-num" title="Дані сертифікатів поки недоступні">—</span>
+              <span className="std-stat-name">сертифікати</span>
             </div>
           </div>
 
@@ -190,7 +195,7 @@ export default function StudentDashboardPage() {
             </h3>
             <p className="std-feedback-quote">
               {activeCourseStats && activeCourseStats.completedSubmittableMaterials > 0
-                ? "Ваші роботи надіслано на перевірку. Очікуйте фідбек від ментора протягом 48 годин."
+                ? "Інформація про відгуки ментора поки недоступна."
                 : "Виконуйте перше практичне завдання, щоб отримати зворотний зв'язок від ментора."}
             </p>
           </div>
@@ -239,7 +244,7 @@ export default function StudentDashboardPage() {
                 <div className="std-act-title">Активних курсів: {courses.length}</div>
                 <div className="std-act-sub">Продовжуйте навчання</div>
               </div>
-              <span className="std-act-time">сьогодні</span>
+              <span className="std-act-time">—</span>
             </div>
           )}
 
@@ -248,7 +253,7 @@ export default function StudentDashboardPage() {
               <div className="std-activity-icon">📝</div>
               <div className="std-activity-info">
                 <div className="std-act-title">Здано робіт: {activeCourseStats.completedSubmittableMaterials}</div>
-                <div className="std-act-sub">Очікують оцінки</div>
+                <div className="std-act-sub">Виконані завдання</div>
               </div>
               <span className="std-act-time">активно</span>
             </div>
