@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate, useLocation, Link } from "react-router-do
 import { signOut } from "../../services/authService";
 import { getProfile, type UserProfile } from "../../services/profileService";
 import "./AppShell.css";
+import AdminNavIcon from "./AdminNavIcon";
 
 export default function AppShell() {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ export default function AppShell() {
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className="lms-layout">
+    <div className={`lms-layout${isAdmin ? " admin-layout" : ""}`}>
       {sidebarOpen && (
         <div className="lms-sidebar-backdrop" onClick={closeSidebar} />
       )}
@@ -57,7 +58,7 @@ export default function AppShell() {
       <aside className={`lms-sidebar ${sidebarOpen ? "open" : ""}`}>
         <div className="lms-sidebar-top-row">
           <Link to="/" className="lms-brand-link" onClick={closeSidebar}>
-            <img src="/logo.svg" alt="NEXYLVA" className="lms-brand-logo" />
+            <img src={isAdmin ? "/logo-on-dark.svg" : "/logo.svg"} alt="NEXYLVA" className="lms-brand-logo" />
           </Link>
           <button
             type="button"
@@ -122,41 +123,41 @@ export default function AppShell() {
           {isAdmin && (
             <>
               <NavLink to="/admin" end className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
-                <span className="lms-nav-icon">⚙️</span>
-                <span>Головна панель</span>
+                <AdminNavIcon name="home" />
+                <span>Головна</span>
               </NavLink>
               <NavLink to="/admin/users" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
-                <span className="lms-nav-icon">👥</span>
+                <AdminNavIcon name="users" />
                 <span>Користувачі</span>
               </NavLink>
               <NavLink to="/admin/courses" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
-                <span className="lms-nav-icon">🎓</span>
-                <span>Керування курсами</span>
+                <AdminNavIcon name="courses" />
+                <span>Курси</span>
               </NavLink>
               <NavLink to="/admin/orders" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
-                <span className="lms-nav-icon">💳</span>
+                <AdminNavIcon name="orders" />
                 <span>Замовлення / Оплати</span>
               </NavLink>
               <NavLink to="/admin/analytics" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
-                <span className="lms-nav-icon">📈</span>
+                <AdminNavIcon name="analytics" />
                 <span>Аналітика</span>
               </NavLink>
               <NavLink to="/admin/profile" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
-                <span className="lms-nav-icon">👤</span>
-                <span>Профіль адміністратора</span>
+                <AdminNavIcon name="profile" />
+                <span>Профіль</span>
               </NavLink>
             </>
           )}
         </nav>
 
         <div className="lms-sidebar-promo-card">
-          <div className="lms-promo-icon">🌿</div>
-          <div className="lms-promo-title">Створи свій шлях у сталому дизайні</div>
+          <div className="lms-promo-icon">{isAdmin ? "СТАН ПЛАТФОРМИ" : "🌿"}</div>
+          <div className="lms-promo-title">{isAdmin ? "Системні дані поки недоступні" : "Створи свій шлях у сталому дизайні"}</div>
           <div className="lms-promo-desc">
-            Кожен проєкт — це крок до кращого майбутнього для нас і планети.
+            {isAdmin ? "Переглядайте доступні показники платформи в розділі аналітики." : "Кожен проєкт — це крок до кращого майбутнього для нас і планети."}
           </div>
-          <Link to="/about" className="lms-promo-link" onClick={closeSidebar}>
-            <span>Дізнатися більше &rarr;</span>
+          <Link to={isAdmin ? "/admin/analytics" : "/about"} className="lms-promo-link" onClick={closeSidebar}>
+            <span>{isAdmin ? "Переглянути аналітику" : "Дізнатися більше"} &rarr;</span>
           </Link>
         </div>
 
@@ -182,7 +183,7 @@ export default function AppShell() {
               </svg>
             </button>
             <span className="lms-topbar-breadcrumb">
-              {isAdmin ? "Admin LMS / Панель" : isMentor ? "Mentor LMS / Кабінет ментора" : "Student LMS / Головна"}
+              {isAdmin ? `Admin LMS / ${{ "/admin/users": "Користувачі", "/admin/courses": "Курси", "/admin/orders": "Замовлення / Оплати", "/admin/analytics": "Аналітика", "/admin/profile": "Профіль" }[location.pathname] || "Головна"}` : isMentor ? "Mentor LMS / Кабінет ментора" : "Student LMS / Головна"}
             </span>
           </div>
 
@@ -198,19 +199,20 @@ export default function AppShell() {
                 className="lms-search-input"
                 value={searchVal}
                 onChange={(e) => setSearchVal(e.target.value)}
+                onKeyDown={(event) => { if (event.key === "Enter") navigate("/courses?q=" + encodeURIComponent(searchVal)); }}
               />
             </div>
 
-            <button type="button" className="lms-lang-toggle">
+            <button type="button" className="lms-lang-toggle" disabled title="Англійська версія поки недоступна">
               🌐 UA / EN
             </button>
 
-            <button type="button" className="lms-bell-btn" aria-label="Сповіщення">
+            <button type="button" className="lms-bell-btn" aria-label="Сповіщення поки недоступні" disabled>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
               </svg>
-              <span className="lms-bell-dot"></span>
+
             </button>
 
             <div className="lms-user-menu" ref={dropdownRef}>
@@ -219,11 +221,7 @@ export default function AppShell() {
                 className="lms-user-btn"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
-                <img
-                  src="/student/student_avatar.webp"
-                  alt="User Avatar"
-                  className="lms-user-avatar"
-                />
+                <span className="lms-user-avatar profile-initial-avatar">{profile?.username?.charAt(0) || "·"}</span>
                 <span className="lms-user-name">{profile?.username || profile?.name || "Користувач"}</span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="6 9 12 15 18 9"></polyline>
@@ -246,7 +244,7 @@ export default function AppShell() {
                     </Link>
                   )}
                   <div className="lms-dropdown-divider"></div>
-                  <Link to="/student/profile" className="lms-dropdown-item" onClick={() => setDropdownOpen(false)}>
+                  <Link to={isAdmin ? "/admin/profile" : isMentor ? "/mentor/profile" : "/student/profile"} className="lms-dropdown-item" onClick={() => setDropdownOpen(false)}>
                     👤 Налаштування профілю
                   </Link>
                   <div className="lms-dropdown-divider"></div>
