@@ -1,14 +1,19 @@
 import { request } from "./api/apiClient";
-import type { CreateQuestionDTO } from "./learningService";
+import type { CreateQuestionDTO, Material } from "./learningService";
 
 export async function uploadMaterialFile(file: File): Promise<string> {
+    return (await uploadMaterial(file)).url;
+}
+
+export async function uploadMaterial(file: File): Promise<{ url: string; material: Material }> {
     const formData = new FormData();
     formData.append("file", file);
-    const result = await request<{ fileUrl?: string; url?: string }>("/api/cource/material/upload", {
+    const result = await request<{ url: string; material: Material }>("/api/cource/material/upload", {
         method: "POST",
         body: formData,
     });
-    return (result as { fileUrl?: string })?.fileUrl ?? (result as { url?: string })?.url ?? "";
+    if (!result?.url || !result.material?.id) throw new Error("Сервер не повернув адресу та ID завантаженого матеріалу. Перевірте дані перед повторним завантаженням.");
+    return result;
 }
 
 export type AssignTeacherData = {
@@ -99,7 +104,7 @@ export type UpdateMaterialPayload = Partial<CreateMaterialPayload> & {
 export async function updateMaterial(data: UpdateMaterialPayload) {
     return request("/api/cource/material/update", {
         method: "PATCH",
-        body: JSON.stringify(data),
+        body: JSON.stringify({ id: data.id, content: data.content, description: data.description, deadline: data.deadline, videoUrl: data.videoUrl, url: data.url, linkTitle: data.linkTitle, fileUrl: data.fileUrl, questions: data.questions }),
     });
 }
 

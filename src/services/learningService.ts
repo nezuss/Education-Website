@@ -1,4 +1,5 @@
 import { request } from "./api/apiClient";
+import { requestCollection } from "./api/collection";
 
 export type Module = { id: string; title: string; description?: string; lessonsId?: string[] };
 export type Lesson = { id: string; title: string; description?: string; materialsId?: string[] };
@@ -30,9 +31,9 @@ export type SubmissionDetail = {
 };
 export type SubmissionStatus = { isSubmitted: boolean; submission?: SubmissionDetail };
 
-export const getModules = (courseId: string) => request<Module[]>(`/api/cource/module/get-all-on-cource/${courseId}`);
-export const getLessons = (moduleId: string) => request<Lesson[]>(`/api/cource/lesson/get-all-on-module/${moduleId}`);
-export const getMaterials = (lessonId: string) => request<Material[]>(`/api/cource/material/get-all-on-lesson/${lessonId}`);
+export const getModules = (courseId: string) => requestCollection<Module>(`/api/cource/module/get-all-on-cource/${encodeURIComponent(courseId)}`, "There are no modules yet");
+export const getLessons = (moduleId: string) => requestCollection<Lesson>(`/api/cource/lesson/get-all-on-module/${encodeURIComponent(moduleId)}`, "There are no lessons yet");
+export const getMaterials = (lessonId: string) => requestCollection<Material>(`/api/cource/material/get-all-on-lesson/${encodeURIComponent(lessonId)}`, "There are no materials yet");
 export const getSubmissionStatus = (materialId: string) => request<SubmissionStatus>(`/api/cource/submit-material/status/${materialId}`);
 
 export async function createModule(data: { title: string; description: string }) {

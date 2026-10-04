@@ -7,6 +7,9 @@ export type Course = {
     assignedTeacherId?: string;
     modules: string[];
     price: number;
+    rating?: number;
+    reviews?: number;
+    studentsCount?: number;
     bannerUrl?: string;
     totalLearningPeriodWeeks?: number;
     projectsReadyForPortfolio?: number;
