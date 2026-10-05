@@ -1,3 +1,4 @@
+import DataUnavailable from "../shared/DataUnavailable";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import "../../styles/AdminPortal.css";
@@ -22,64 +23,7 @@ export default function OrdersPage() {
   const [search, setSearch] = useState<string>("");
   const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null);
 
-  const orders: OrderItem[] = [
-    {
-      id: "1",
-      orderNumber: "#NX-1048",
-      studentName: "Анна Коваль",
-      studentEmail: "anna@nexylva.ua",
-      avatar: "/about/team_1.webp",
-      courseName: "LCA & Еко-проєктування",
-      plan: "PRO",
-      dateStr: "17 серпня • 18:42",
-      amount: "₴ 19 900",
-      method: "Картка",
-      status: "success",
-      statusText: "Успішно"
-    },
-    {
-      id: "2",
-      orderNumber: "#NX-1047",
-      studentName: "Марія Іванова",
-      studentEmail: "m.ivanova@nexylva.ua",
-      avatar: "/about/team_2.webp",
-      courseName: "Zero-Waste Пакування",
-      plan: "Standard",
-      dateStr: "16 серпня • 14:10",
-      amount: "₴ 12 500",
-      method: "Apple Pay",
-      status: "success",
-      statusText: "Успішно"
-    },
-    {
-      id: "3",
-      orderNumber: "#NX-1046",
-      studentName: "Олексій Бондар",
-      studentEmail: "o.bondar@nexylva.ua",
-      avatar: "/about/team_3.webp",
-      courseName: "Циркулярний брендинг",
-      plan: "PRO",
-      dateStr: "15 серпня • 11:25",
-      amount: "₴ 19 900",
-      method: "Картка",
-      status: "pending",
-      statusText: "Очікує"
-    },
-    {
-      id: "4",
-      orderNumber: "#NX-1045",
-      studentName: "Наталія Савчук",
-      studentEmail: "n.savchuk@nexylva.ua",
-      avatar: "/about/team_4.webp",
-      courseName: "LCA & Еко-проєктування",
-      plan: "Standard",
-      dateStr: "14 серпня • 09:40",
-      amount: "₴ 12 500",
-      method: "Google Pay",
-      status: "refund",
-      statusText: "Повернення"
-    }
-  ];
+  const orders: OrderItem[] = [];
 
   const filtered = orders.filter((o) => {
     if (filter === "success" && o.status !== "success") return false;
@@ -99,7 +43,7 @@ export default function OrdersPage() {
 
   return (
     <div className="admin-container">
-      
+
       <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "16px" }}>
         <Link to="/admin" style={{ color: "inherit", textDecoration: "none" }}>Головна</Link>
         {" > "}
@@ -115,10 +59,10 @@ export default function OrdersPage() {
             Контролюйте платежі, перевіряйте статуси транзакцій, повернення та фінансову активність платформи.
           </p>
         </div>
-        <button
+        <button disabled title="Поки недоступно"
           type="button"
           className="admin-btn-secondary"
-          onClick={() => alert("Експорт фінансового звіту розпочато!")}
+
         >
           Експорт звіту ⤓
         </button>
@@ -134,65 +78,65 @@ export default function OrdersPage() {
         </div>
 
         <div className="admin-stat-card">
-          <div className="admin-stat-val">₴ 481 400</div>
-          <div className="admin-stat-label">Дохід за серпень</div>
-          <div className="admin-stat-change" style={{ color: "#215A36", fontWeight: 600 }}>+12% до минулого місяця</div>
+          <div className="admin-stat-val">—</div>
+          <div className="admin-stat-label">Показники оплат</div>
+          <div className="admin-stat-change" style={{ color: "#215A36", fontWeight: 600 }}>—</div>
         </div>
 
         <div className="admin-stat-card">
-          <div className="admin-stat-val">26</div>
+          <div className="admin-stat-val">—</div>
           <div className="admin-stat-label">Успішні оплати</div>
-          <div className="admin-stat-change">Підтверджені транзакції</div>
+          <div className="admin-stat-change">—</div>
         </div>
 
         <div className="admin-stat-card">
-          <div className="admin-stat-val">3</div>
+          <div className="admin-stat-val">—</div>
           <div className="admin-stat-label">Очікують</div>
-          <div className="admin-stat-change" style={{ color: "#C07C54", fontWeight: 600 }}>Потребують перевірки</div>
+          <div className="admin-stat-change" style={{ color: "#C07C54", fontWeight: 600 }}>—</div>
         </div>
 
         <div className="admin-stat-card">
-          <div className="admin-stat-val">2</div>
+          <div className="admin-stat-val">—</div>
           <div className="admin-stat-label">Повернення</div>
-          <div className="admin-stat-change">За поточний місяць</div>
+          <div className="admin-stat-change">—</div>
         </div>
       </section>
 
       <div style={{ textAlign: "right", fontSize: "12px", color: "var(--text-secondary)", marginTop: "-16px", marginBottom: "32px" }}>
-        32 транзакція за серпень • 3 потребують перевірки
+        Деталі транзакцій поки недоступні
       </div>
 
       <div className="admin-toolbar">
         <div className="admin-filter-pills">
-          <button
+          <button disabled title="Поки недоступно"
             type="button"
             className={`admin-pill ${filter === "all" ? "active" : ""}`}
             onClick={() => setFilter("all")}
           >
             Усі
           </button>
-          <button
+          <button disabled title="Поки недоступно"
             type="button"
             className={`admin-pill ${filter === "success" ? "active" : ""}`}
             onClick={() => setFilter("success")}
           >
             Успішні
           </button>
-          <button
+          <button disabled title="Поки недоступно"
             type="button"
             className={`admin-pill ${filter === "pending" ? "active" : ""}`}
             onClick={() => setFilter("pending")}
           >
             Очікують
           </button>
-          <button
+          <button disabled title="Поки недоступно"
             type="button"
             className={`admin-pill ${filter === "refund" ? "active" : ""}`}
             onClick={() => setFilter("refund")}
           >
             Повернення
           </button>
-          <button
+          <button disabled title="Поки недоступно"
             type="button"
             className={`admin-pill ${filter === "error" ? "active" : ""}`}
             onClick={() => setFilter("error")}
@@ -213,7 +157,7 @@ export default function OrdersPage() {
             />
           </div>
 
-          <select className="mentor-select" aria-label="Сортування транзакцій">
+          <select disabled title="Поки недоступно" className="mentor-select" aria-label="Сортування транзакцій">
             <option>Сортування: Найновіші</option>
             <option>Сортування: За сумою (спадання)</option>
             <option>Сортування: За сумою (зростання)</option>
@@ -225,14 +169,12 @@ export default function OrdersPage() {
         <div className="admin-orders-banner">
           <div>
             <div className="admin-tag" style={{ color: "#C2D1C9" }}>[ ПОТОЧНИЙ МІСЯЦЬ ]</div>
-            <h2 className="admin-orders-banner-title">Оплати за серпень</h2>
+            <h2 className="admin-orders-banner-title">Показники оплат</h2>
             <p style={{ fontSize: "14px", color: "#AABDB3", margin: 0 }}>
               Поточна сума підтверджених платежів на платформі.
             </p>
           </div>
-          <div className="admin-orders-banner-amount">
-            ₴ 481 400
-          </div>
+          <div className="admin-orders-banner-amount">—</div>
         </div>
 
         <div style={{ background: "#E2DAD2", borderRadius: "var(--radius-lg)", padding: "24px 28px", border: "1px solid #C9BDB2" }}>
@@ -243,22 +185,22 @@ export default function OrdersPage() {
 
           <div style={{ background: "#FFFFFF", borderRadius: "12px", padding: "12px 16px", display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
             <span style={{ fontSize: "13px", fontWeight: 600 }}>Очікують підтвердження</span>
-            <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, color: "var(--accent-warm)" }}>3</span>
+            <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, color: "var(--accent-warm)" }}>—</span>
           </div>
 
           <div style={{ background: "#FFFFFF", borderRadius: "12px", padding: "12px 16px", display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
             <span style={{ fontSize: "13px", fontWeight: 600 }}>Повернення в обробці</span>
-            <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, color: "#C53929" }}>2</span>
+            <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, color: "#C53929" }}>—</span>
           </div>
 
           <div style={{ background: "#FFFFFF", borderRadius: "12px", padding: "12px 16px", display: "flex", justifyContent: "space-between" }}>
             <span style={{ fontSize: "13px", fontWeight: 600 }}>Помилки оплати</span>
-            <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, color: "var(--text-secondary)" }}>1</span>
+            <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, color: "var(--text-secondary)" }}>—</span>
           </div>
         </div>
       </div>
 
-      <div className="admin-table-wrap">
+      <div className="admin-table-wrap"><DataUnavailable title="Список поки недоступний" />
         <div className="admin-table-header" style={{ gridTemplateColumns: "1.2fr 2fr 2fr 1.5fr 1.2fr 1.2fr 1.2fr 110px" }}>
           <span>Замовлення</span>
           <span>Студент</span>
@@ -308,7 +250,7 @@ export default function OrdersPage() {
             </div>
 
             <div>
-              <button
+              <button disabled title="Поки недоступно"
                 type="button"
                 className="admin-row-btn"
                 onClick={() => setSelectedOrder(item)}
@@ -390,11 +332,11 @@ export default function OrdersPage() {
             </div>
 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <button
+              <button disabled title="Поки недоступно"
                 type="button"
                 style={{ background: "#FCE8E6", color: "#C53929", border: "none", padding: "10px 18px", borderRadius: "12px", fontWeight: 600, cursor: "pointer" }}
                 onClick={() => {
-                  alert("Процедуру повернення коштів ініційовано");
+
                   setSelectedOrder(null);
                 }}
               >
@@ -402,18 +344,18 @@ export default function OrdersPage() {
               </button>
 
               <div style={{ display: "flex", gap: "10px" }}>
-                <button
+                <button disabled title="Поки недоступно"
                   type="button"
                   style={{ background: "#E8E2DA", border: "none", padding: "10px 18px", borderRadius: "12px", fontWeight: 600, cursor: "pointer" }}
                   onClick={() => setSelectedOrder(null)}
                 >
                   Закрити
                 </button>
-                <button
+                <button disabled title="Поки недоступно"
                   type="button"
                   className="admin-btn-primary"
                   onClick={() => {
-                    alert("Квитанцію завантажено");
+
                     setSelectedOrder(null);
                   }}
                 >
