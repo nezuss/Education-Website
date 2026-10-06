@@ -2,7 +2,7 @@ import type { ApiError, ApiResponse } from "./types";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "https://nexylva.pp.ua/api";
 
-export async function request<T>(path: string, options: RequestInit = {}, authenticated = true) {
+export async function request<T>(path: string, options: RequestInit = {}, authenticated = true, credentialError = false) {
     const token = localStorage.getItem("token");
     const headers = new Headers(options.headers);
 
@@ -37,7 +37,9 @@ export async function request<T>(path: string, options: RequestInit = {}, authen
     }
 
     if (!response.ok) {
-        if (response.status === 401) {
+        const problem = body as ApiError | undefined;
+        const wrongCredentials = credentialError && problem?.message === "Credentials are wrong";
+        if (response.status === 401 && authenticated && !wrongCredentials) {
             localStorage.removeItem("token");
             if (typeof window !== "undefined") {
                 window.dispatchEvent(new Event("auth:unauthorized"));
@@ -52,7 +54,9 @@ export async function request<T>(path: string, options: RequestInit = {}, authen
         }
 
         const message =
-            body?.message ||
+            problem?.message ||
+            (problem?.errors && Object.values(problem.errors).flat().join(" ")) ||
+            problem?.title ||
             (response.status === 401
                 ? "Необхідна авторизація для доступу (401 Unauthorized)"
                 : `Сталася помилка запиту (HTTP ${response.status})`);

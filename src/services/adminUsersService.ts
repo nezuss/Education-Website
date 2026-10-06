@@ -33,3 +33,6 @@ export function createAdminUser(data: {
     password: string;
 }) { return request("/admin/users/create", { method: "POST", body: JSON.stringify(data) }); }
 export function deleteAdminUser(id: string) { return request(`/admin/users/delete/${encodeURIComponent(id)}`, { method: "POST" }); }
+export function updateAdminUser(data: { id: string; username?: string; email?: string; password?: string }) {
+    return request<string>("/admin/users/update", { method: "POST", body: JSON.stringify(data) });
+}

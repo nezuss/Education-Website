@@ -24,12 +24,10 @@ export type ModuleStats = {
     completedSubmittableMaterials: number;
 };
 
-export async function getCourseStats(courseId: string, studentId?: string): Promise<CourseStats> {
-    const query = studentId ? `?studentId=${encodeURIComponent(studentId)}` : "";
-    return request<CourseStats>(`/api/cource/stats/total-cource/${encodeURIComponent(courseId)}${query}`);
+export async function getCourseStats(courseId: string): Promise<CourseStats> {
+    return request<CourseStats>(`/api/cource/stats/total-cource/${encodeURIComponent(courseId)}`);
 }
 
-export async function getModuleStats(moduleId: string, studentId?: string): Promise<ModuleStats> {
-    const query = studentId ? `?studentId=${encodeURIComponent(studentId)}` : "";
-    return request<ModuleStats>(`/api/cource/stats/total-module/${encodeURIComponent(moduleId)}${query}`);
+export async function getModuleStats(moduleId: string): Promise<ModuleStats> {
+    return request<ModuleStats>(`/api/cource/stats/total-module/${encodeURIComponent(moduleId)}`);
 }

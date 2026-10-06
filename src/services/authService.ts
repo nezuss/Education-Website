@@ -62,25 +62,33 @@ export async function signUp(data: SignUpData): Promise<SignUpResult | undefined
     return request<SignUpResult>("/auth/sign-up", {
         method: "POST",
         body: JSON.stringify(data),
-    });
+    }, false);
 }
 
 export async function requestPasswordReset(email: string) {
     return request<string>("/account/management/forgot-password", {
         method: "POST",
         body: JSON.stringify({ email }),
-    });
+    }, false);
 }
 
 export async function changePassword(resetToken: string, password: string) {
     return request<string>("/account/management/reset-password", {
         method: "POST",
         body: JSON.stringify({ resetToken, password }),
-    });
+    }, false);
 }
 
 export async function confirmEmail(code: string) {
-    await request(`/auth/confirm-email/${encodeURIComponent(code)}`, { method: "POST" });
+    await request(`/auth/confirm-email/${encodeURIComponent(code)}`, { method: "POST" }, false);
+}
+
+export function resendVerification(email: string) {
+    return request<string>("/auth/resend-verefication", { method: "POST", body: JSON.stringify({ email }) }, false);
+}
+
+export function updateAccountPassword(oldPassword: string, newPassword: string) {
+    return request<string>("/account/management/change-password", { method: "POST", body: JSON.stringify({ oldPassword, newPassword }) }, true, true);
 }
 
 export async function signOut() {

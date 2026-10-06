@@ -4,6 +4,8 @@ export type ApiResponse<T> = {
 };
 
 export type ApiError = {
-    message: string;
+    message?: string;
+    title?: string;
+    errors?: Record<string, string[]>;
     errorCode?: number;
 };

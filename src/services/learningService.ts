@@ -1,5 +1,6 @@
 import { request } from "./api/apiClient";
 import { requestCollection } from "./api/collection";
+import { getEnrolledCourses } from "./courseService";
 
 export type Module = { id: string; title: string; description?: string; lessonsId?: string[] };
 export type Lesson = { id: string; title: string; description?: string; materialsId?: string[] };
@@ -36,6 +37,20 @@ export const getLessons = (moduleId: string) => requestCollection<Lesson>(`/api/
 export const getMaterials = (lessonId: string) => requestCollection<Material>(`/api/cource/material/get-all-on-lesson/${encodeURIComponent(lessonId)}`, "There are no materials yet");
 export const getSubmissionStatus = (materialId: string) => request<SubmissionStatus>(`/api/cource/submit-material/status/${materialId}`);
 
+export async function getAssignmentContext(assignmentId: string) {
+    const courses = await getEnrolledCourses();
+    for (const course of courses) {
+        for (const module of await getModules(course.id)) {
+            for (const lesson of await getLessons(module.id)) {
+                if (!lesson.materialsId?.includes(assignmentId)) continue;
+                const material = (await getMaterials(lesson.id)).find(item => item.id === assignmentId && item.type === "Assignment");
+                if (material) return { courseId: course.id, courseTitle: course.title, assignmentTitle: material.title || "Практичне завдання", description: material.description, deadline: material.deadline };
+            }
+        }
+    }
+    throw Object.assign(new Error("Завдання не знайдено у ваших курсах."), { status: 404 });
+}
+
 export async function createModule(data: { title: string; description: string }) {
     return request<Module>("/api/cource/module/create", { method: "POST", body: JSON.stringify({ ...data, lessonsId: [] }) });
 }
@@ -52,13 +67,10 @@ export const assignModuleToCourse = (courseId: string, moduleId: string) => requ
 export const assignLessonToModule = (moduleId: string, lessonId: string) => request("/admin/assign/lesson-to-module", { method: "POST", body: JSON.stringify({ moduleId, lessonId }) });
 export const assignMaterialToLesson = (lessonId: string, materialId: string) => request("/admin/assign/material-to-lesson", { method: "POST", body: JSON.stringify({ lessonId, materialId }) });
 
-export async function submitAssignment(assignmentId: string, file: File, comment?: string) {
+export async function submitAssignment(assignmentId: string, file: File) {
     const formData = new FormData();
     formData.append("assignmentId", assignmentId);
     formData.append("file", file);
-    if (comment?.trim()) {
-        formData.append("comment", comment.trim());
-    }
     await request("/api/cource/submit-material/assignment", { method: "POST", body: formData });
 }
 
