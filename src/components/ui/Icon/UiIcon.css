@@ -1,0 +1,21 @@
+.ui-icon {
+  display: inline-block;
+  width: var(--ui-icon-size);
+  height: var(--ui-icon-size);
+  flex-shrink: 0;
+  vertical-align: -0.15em;
+  background-color: currentColor;
+  mask-image: var(--ui-icon-source);
+  mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+}
+
+.ui-icon-loading { animation: spin 1s linear infinite; }
+.lms-lang-toggle { display: inline-flex; align-items: center; gap: 4px; }
+.std-greeting-title > .ui-icon-wave { width: 48px; height: 48px; }
+.lms-promo-icon > .ui-icon { color: #B4CCBF; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-icon-loading { animation: none; }
+}
