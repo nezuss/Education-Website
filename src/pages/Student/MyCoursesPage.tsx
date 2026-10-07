@@ -1,3 +1,4 @@
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getEnrolledCourses } from "../../services/courseService";
@@ -120,10 +121,7 @@ export default function MyCoursesPage() {
 
         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
           <div className="lms-search-box" style={{ width: "300px" }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#557061" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
+            <UiIcon name="search" size={16} style={{ color: "#557061" }} />
             <input
               type="text"
               placeholder="Знайти курс..."
@@ -133,7 +131,7 @@ export default function MyCoursesPage() {
             />
           </div>
           <span style={{ fontSize: "14px", color: "var(--color-brand-soft)", cursor: "pointer" }}>
-            Сортувати ▾
+            Сортувати <UiIcon name="chevron" />
           </span>
         </div>
       </div>
@@ -165,7 +163,7 @@ export default function MyCoursesPage() {
                 className="std-continue-btn"
               >
                 <span>Продовжити навчання</span>
-                <span>&rarr;</span>
+                <span><UiIcon name="arrow" /></span>
               </Link>
             </div>
 
@@ -192,7 +190,7 @@ export default function MyCoursesPage() {
               className="std-continue-btn"
               style={{ width: "100%", justifyContent: "center", boxSizing: "border-box" }}
             >
-              <span>Переглянути програму →</span>
+              <span>Переглянути програму <UiIcon name="arrow" /></span>
             </Link>
           </div>
         </div>
@@ -212,7 +210,7 @@ export default function MyCoursesPage() {
               Перегляньте каталог та оберіть напрямок навчання.
             </p>
             <Link to="/courses" className="std-continue-btn" style={{ display: "inline-flex" }}>
-              <span>Переглянути каталог курсів →</span>
+              <span>Переглянути каталог курсів <UiIcon name="arrow" /></span>
             </Link>
           </div>
         ) : (
@@ -262,7 +260,7 @@ export default function MyCoursesPage() {
                       className="std-continue-btn"
                       style={{ width: "100%", justifyContent: "center", boxSizing: "border-box" }}
                     >
-                      <span>{isCompleted ? "Переглянути курс" : "Продовжити навчання"} &rarr;</span>
+                      <span>{isCompleted ? "Переглянути курс" : "Продовжити навчання"} <UiIcon name="arrow" /></span>
                     </Link>
                   </div>
                 </div>

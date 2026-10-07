@@ -1,3 +1,4 @@
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getEnrolledCourses } from "../../services/courseService";
@@ -42,7 +43,7 @@ export default function StudentDashboardPage() {
   if (loading) {
     return (
       <div className="std-dash" style={{ padding: "60px 20px", textAlign: "center" }}>
-        <div style={{ fontSize: "36px", marginBottom: "16px" }}>⏳</div>
+        <div style={{ fontSize: "36px", marginBottom: "16px" }}><UiIcon name="loading" size={36} /></div>
         <h2 style={{ color: "var(--color-brand-dark)", fontSize: "20px" }}>Завантаження кабінету...</h2>
       </div>
     );
@@ -55,7 +56,7 @@ export default function StudentDashboardPage() {
       <div className="std-greeting-row">
         <div>
           <h1 className="std-greeting-title">
-            <span>👋</span>
+            <span><UiIcon name="wave" size={48} /></span>
             <span>Добрий день, {profile?.username || profile?.name || "Студенте"}</span>
           </h1>
           <p className="std-greeting-sub">
@@ -108,7 +109,7 @@ export default function StudentDashboardPage() {
                 className="std-continue-btn"
               >
                 <span>Продовжити навчання</span>
-                <span>&rarr;</span>
+                <span><UiIcon name="arrow" /></span>
               </Link>
             </div>
 
@@ -130,7 +131,7 @@ export default function StudentDashboardPage() {
             </p>
             <Link to="/courses" className="std-continue-btn">
               <span>Обрати курс у каталозі</span>
-              <span>&rarr;</span>
+              <span><UiIcon name="arrow" /></span>
             </Link>
           </div>
         )}
@@ -182,7 +183,7 @@ export default function StudentDashboardPage() {
               Перевірте дедлайни у матеріалах курсу
             </span>
             <Link to={activeCourse ? `/student/learning/${activeCourse.id}` : "/student/courses"} className="std-assignment-link">
-              Переглянути деталі &rarr;
+              Переглянути деталі <UiIcon name="arrow" />
             </Link>
           </div>
         </div>
@@ -202,7 +203,7 @@ export default function StudentDashboardPage() {
 
           <div className="std-mentor-meta">
             <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "rgba(19,73,44,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>
-              🧑‍🏫
+              <UiIcon name="teacher" />
             </div>
             <div>
               <div className="std-mentor-name">{activeCourse?.mentor || "Ментор курсу"}</div>
@@ -219,7 +220,7 @@ export default function StudentDashboardPage() {
 
           {activeCourseStats && activeCourseStats.completedLessons > 0 ? (
             <div className="std-activity-item">
-              <div className="std-activity-icon">✓</div>
+              <div className="std-activity-icon"><UiIcon name="check" size={18} /></div>
               <div className="std-activity-info">
                 <div className="std-act-title">Уроків завершено: {activeCourseStats.completedLessons}</div>
                 <div className="std-act-sub">{activeCourse?.title || "Курс"}</div>
@@ -228,7 +229,7 @@ export default function StudentDashboardPage() {
             </div>
           ) : (
             <div className="std-activity-item">
-              <div className="std-activity-icon">📖</div>
+              <div className="std-activity-icon"><UiIcon name="courses" /></div>
               <div className="std-activity-info">
                 <div className="std-act-title">Почніть навчання</div>
                 <div className="std-act-sub">Виконайте перший урок курсу</div>
@@ -239,7 +240,7 @@ export default function StudentDashboardPage() {
 
           {courses.length > 0 && (
             <div className="std-activity-item">
-              <div className="std-activity-icon">🎓</div>
+              <div className="std-activity-icon"><UiIcon name="teacher" /></div>
               <div className="std-activity-info">
                 <div className="std-act-title">Активних курсів: {courses.length}</div>
                 <div className="std-act-sub">Продовжуйте навчання</div>
@@ -250,7 +251,7 @@ export default function StudentDashboardPage() {
 
           {activeCourseStats && activeCourseStats.completedSubmittableMaterials > 0 && (
             <div className="std-activity-item">
-              <div className="std-activity-icon">📝</div>
+              <div className="std-activity-icon"><UiIcon name="assignment" /></div>
               <div className="std-activity-info">
                 <div className="std-act-title">Здано робіт: {activeCourseStats.completedSubmittableMaterials}</div>
                 <div className="std-act-sub">Виконані завдання</div>
@@ -270,7 +271,7 @@ export default function StudentDashboardPage() {
           </div>
           <Link to="/community" className="std-community-btn">
             <span>Перейти у спільноту</span>
-            <span>&rarr;</span>
+            <span><UiIcon name="arrow" /></span>
           </Link>
         </div>
 

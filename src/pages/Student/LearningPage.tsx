@@ -1,9 +1,11 @@
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   getLessons,
   getMaterials,
   getModules,
+  getSubmissionStatus,
   submitTest,
   type Lesson,
   type Material,
@@ -40,6 +42,12 @@ function TestQuizWidget({ material }: { material: Material }) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [statusLoaded, setStatusLoaded] = useState(false);
+  useEffect(() => {
+    let active = true;
+    getSubmissionStatus(material.id).then(status => { if (active) { setSubmitted(status.isSubmitted); setStatusLoaded(true); } }).catch((reason: Error) => { if (active) setError(reason.message); });
+    return () => { active = false; };
+  }, [material.id]);
 
   const handleSelect = (questionId: string, answerId: string) => {
     if (submitted) return;
@@ -47,7 +55,7 @@ function TestQuizWidget({ material }: { material: Material }) {
   };
 
   const handleSubmit = async () => {
-    if (!material.questions || material.questions.length === 0) return;
+    if (!statusLoaded || submitted || !material.questions || material.questions.length === 0) return;
     setLoading(true);
     setError("");
     try {
@@ -71,8 +79,8 @@ function TestQuizWidget({ material }: { material: Material }) {
   return (
     <div style={{ marginTop: "20px", background: "#FFFFFF", borderRadius: "16px", padding: "24px", border: "1px solid rgba(10,45,27,0.08)" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-        <h3 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}>📝 Тестування</h3>
-        {submitted && <span style={{ color: "#215A36", fontWeight: 600, fontSize: "14px" }}>✓ Тест надіслано</span>}
+        <h3 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}><UiIcon name="assignment" /> Тестування</h3>
+        {submitted && <span style={{ color: "#215A36", fontWeight: 600, fontSize: "14px" }}><UiIcon name="check" /> Тест надіслано</span>}
       </div>
       {material.questions.map((q, qIdx) => (
         <div key={q.id} style={{ marginBottom: "16px" }}>
@@ -99,7 +107,7 @@ function TestQuizWidget({ material }: { material: Material }) {
                   value={ans.id}
                   checked={selectedAnswers[q.id] === ans.id}
                   onChange={() => handleSelect(q.id, ans.id)}
-                  disabled={submitted}
+                  disabled={submitted || !statusLoaded || loading}
                 />
                 <span style={{ fontSize: "14px" }}>{ans.text}</span>
               </label>
@@ -113,7 +121,7 @@ function TestQuizWidget({ material }: { material: Material }) {
           type="button"
           className="std-continue-btn"
           onClick={handleSubmit}
-          disabled={loading || Object.keys(selectedAnswers).length < material.questions.length}
+          disabled={loading || !statusLoaded || Object.keys(selectedAnswers).length < material.questions.length}
           style={{ padding: "10px 24px", fontSize: "14px" }}
         >
           {loading ? "Надсилання..." : "Завершити тест"}
@@ -142,7 +150,7 @@ function AssignmentWidget({ material, courseId, courseTitle }: { material: Mater
         className="std-continue-btn"
         style={{ display: "inline-flex", padding: "10px 20px", fontSize: "14px" }}
       >
-        <span>Здати роботу &rarr;</span>
+        <span>Здати роботу <UiIcon name="arrow" /></span>
       </Link>
     </div>
   );
@@ -162,7 +170,10 @@ export default function LearningPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!courseId) return;
+    if (!courseId) {
+      if (paramLessonId) getMaterials(paramLessonId).then(materials => { setActiveLesson({ id: paramLessonId, title: "Урок" }); setActiveMaterials(materials); }).catch((reason: Error) => setError(reason.message)).finally(() => setLoading(false));
+      return;
+    }
 
     getCourse(courseId).then(setCourseData).catch((reason: Error) => setError(reason.message));
 
@@ -235,7 +246,7 @@ export default function LearningPage() {
   if (loading) {
     return (
       <div className="learn-page" style={{ padding: "60px 20px", textAlign: "center" }}>
-        <div style={{ fontSize: "36px", marginBottom: "16px" }}>⏳</div>
+        <div style={{ fontSize: "36px", marginBottom: "16px" }}><UiIcon name="loading" size={36} /></div>
         <h2 style={{ color: "var(--color-brand-dark)", fontSize: "20px" }}>Завантаження матеріалів курсу...</h2>
       </div>
     );
@@ -292,7 +303,7 @@ export default function LearningPage() {
             className="std-continue-btn"
             style={{ justifyContent: "center" }}
           >
-            <span>{activeAssignment ? "Здати завдання →" : "Продовжити навчання →"}</span>
+            <span>{activeAssignment ? <>Здати завдання <UiIcon name="arrow" /></> : <>Продовжити навчання <UiIcon name="arrow" /></>}</span>
           </Link>
         </div>
       </div>
@@ -335,9 +346,9 @@ export default function LearningPage() {
                           textDecoration: "none",
                         }}
                       >
-                        <span>📁</span>
+                        <span><UiIcon name="file" /></span>
                         <span style={{ fontWeight: 600 }}>{mat.title || mat.description || "Завантажити файл"}</span>
-                        <span>⤓</span>
+                        <span><UiIcon name="download" size={18} /></span>
                       </a>
                     );
                   }
@@ -360,9 +371,9 @@ export default function LearningPage() {
                           textDecoration: "none",
                         }}
                       >
-                        <span>🔗</span>
+                        <span><UiIcon name="external" /></span>
                         <span style={{ fontWeight: 600 }}>{mat.title || mat.url}</span>
-                        <span>↗</span>
+                        <span><UiIcon name="external" /></span>
                       </a>
                     );
                   }
@@ -437,17 +448,7 @@ export default function LearningPage() {
                       <div className="learn-module-counter">
                         {lessons.length > 0 ? `${lessons.length} уроків` : "Уроки готуються"}
                       </div>
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}
-                      >
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                      </svg>
+                      <UiIcon name="chevron" size={18} style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
                     </div>
                   </div>
 
@@ -461,7 +462,7 @@ export default function LearningPage() {
                             onClick={() => handleSelectLesson(lesson)}
                           >
                             <div className="learn-lesson-meta-left">
-                              <div className="learn-lesson-check done">✓</div>
+                              <div className="learn-lesson-check done"><UiIcon name="check" size={18} /></div>
                               <div className="learn-lesson-info">
                                 <span className="learn-lesson-name">{lesson.title}</span>
                                 <span className="learn-lesson-type">
@@ -508,7 +509,7 @@ export default function LearningPage() {
           >
             <span>Після уроку:</span>
             <span style={{ color: "var(--color-brand-primary)" }}>
-              {activeAssignment ? "Здати завдання →" : "Наступний урок →"}
+              {activeAssignment ? <>Здати завдання <UiIcon name="arrow" /></> : <>Наступний урок <UiIcon name="arrow" /></>}
             </span>
           </Link>
         </aside>
