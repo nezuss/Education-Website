@@ -362,7 +362,7 @@
     width: 72px;
     padding: 16px 8px;
   }
-  .lms-nav-item span:not(.lms-nav-icon),
+  .lms-nav-item > span:not(.lms-nav-icon),
   .lms-sidebar-promo-card,
   .lms-sidebar-footer,
   .lms-brand-logo {

@@ -1,3 +1,4 @@
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import DataUnavailable from "../shared/DataUnavailable";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -64,7 +65,7 @@ export default function OrdersPage() {
           className="admin-btn-secondary"
 
         >
-          Експорт звіту ⤓
+          Експорт звіту <UiIcon name="download" size={18} />
         </button>
       </header>
 
@@ -147,7 +148,7 @@ export default function OrdersPage() {
 
         <div className="admin-controls-group">
           <div className="mentor-search-input-wrap">
-            <span className="mentor-search-icon">🔍</span>
+            <span className="mentor-search-icon"><UiIcon name="search" /></span>
             <input
               type="text"
               placeholder="Пошук замовлення або студента..."
@@ -256,7 +257,7 @@ export default function OrdersPage() {
                 onClick={() => setSelectedOrder(item)}
               >
                 <span>Відкрити</span>
-                <span>&rarr;</span>
+                <span><UiIcon name="arrow" /></span>
               </button>
             </div>
           </div>
@@ -359,7 +360,7 @@ export default function OrdersPage() {
                     setSelectedOrder(null);
                   }}
                 >
-                  Завантажити чек ⤓
+                  Завантажити чек <UiIcon name="download" size={18} />
                 </button>
               </div>
             </div>

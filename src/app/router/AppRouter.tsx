@@ -4,7 +4,7 @@ import AppShell from "../../components/layout/AppShell";
 import PublicLayout from "../../components/layout/PublicLayout";
 import ProtectedRoute from "../../components/auth/ProtectedRoute";
 
-/* ── Public ─────────────────────────────────────────── */
+
 const HomePage = lazy(() => import("../../pages/Public/HomePage"));
 const CoursesPage = lazy(() => import("../../pages/Public/CoursesPage"));
 const CourseDetailsPage = lazy(() => import("../../pages/Public/CourseDetailsPage"));
@@ -19,7 +19,7 @@ const CommunityPage = lazy(() => import("../../pages/Public/CommunityPage"));
 const PortfolioPage = lazy(() => import("../../pages/Public/PortfolioPage"));
 const AboutPage = lazy(() => import("../../pages/Public/AboutPage"));
 
-/* ── Auth ───────────────────────────────────────────── */
+
 const LoginPage = lazy(() => import("../../pages/Login/LoginPage"));
 const RegistrationPage = lazy(() => import("../../pages/Registration/RegistrationPage"));
 const ConfirmationPage = lazy(() => import("../../pages/Confirmation/ConfirmationPage"));
@@ -27,7 +27,7 @@ const ChooseRolePage = lazy(() => import("../../pages/Auth/ChooseRolePage"));
 const ForgotPasswordPage = lazy(() => import("../../pages/Auth/ForgotPasswordPage"));
 const ChangePasswordPage = lazy(() => import("../../pages/Auth/ChangePasswordPage"));
 
-/* ── Student ────────────────────────────────────────── */
+
 const StudentDashboardPage = lazy(() => import("../../pages/Student/StudentDashboardPage"));
 const MyCoursesPage = lazy(() => import("../../pages/Student/MyCoursesPage"));
 const LearningPage = lazy(() => import("../../pages/Student/LearningPage"));
@@ -35,21 +35,22 @@ const AssignmentPage = lazy(() => import("../../pages/Student/AssignmentPage"));
 const UploadProjectPage = lazy(() => import("../../pages/Student/UploadProjectPage"));
 const ProfilePage = lazy(() => import("../../pages/Student/ProfilePage"));
 
-/* ── Mentor ─────────────────────────────────────────── */
+
 const MentorDashboardPage = lazy(() => import("../../pages/Mentor/MentorDashboardPage"));
 const MentorSubmissionsPage = lazy(() => import("../../pages/Mentor/MentorSubmissionsPage"));
 const MentorReviewPage = lazy(() => import("../../pages/Mentor/MentorReviewPage"));
 const MentorProfilePage = lazy(() => import("../../pages/Mentor/MentorProfilePage"));
 
-/* ── Admin ──────────────────────────────────────────── */
+
 const AdminDashboardPage = lazy(() => import("../../pages/Admin/AdminDashboardPage"));
 const UsersPage = lazy(() => import("../../pages/Admin/UsersPage"));
 const CoursesManagePage = lazy(() => import("../../pages/Admin/CoursesManagePage"));
 const OrdersPage = lazy(() => import("../../pages/Admin/OrdersPage"));
 const AnalyticsPage = lazy(() => import("../../pages/Admin/AnalyticsPage"));
 const AdminProfilePage = lazy(() => import("../../pages/Admin/AdminProfilePage"));
+const PromocodesPage = lazy(() => import("../../pages/Admin/PromocodesPage"));
 
-/* ── Other ──────────────────────────────────────────── */
+
 const NotFoundPage = lazy(() => import("../../pages/NotFound/NotFoundPage"));
 
 function PageLoader() {
@@ -136,6 +137,7 @@ export default function AppRouter() {
                             <Route path="/admin/orders" element={<OrdersPage />} />
                             <Route path="/admin/analytics" element={<AnalyticsPage />} />
                             <Route path="/admin/profile" element={<AdminProfilePage />} />
+                            <Route path="/admin/promocodes" element={<PromocodesPage />} />
                         </Route>
                     </Route>
 
