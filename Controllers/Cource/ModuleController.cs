@@ -20,7 +20,6 @@ namespace Backend.Controllers.Cource
         }
 
         [HttpGet("get-all-on-cource/{id}")]
-        [Authorize]
         public async Task<IActionResult> GetAllOnCource(string id)
         {
             var result = await moduleService.GetAllOnCource(id);

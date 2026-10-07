@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Services.Cource;
 using Backend.DTO.Cource.Submission;
 using Backend.Attributes.Auth;
+using System.Security.Claims;
 
 namespace Backend.Controllers.Cource
 {
@@ -16,6 +18,30 @@ namespace Backend.Controllers.Cource
         )
         {
             submissionService = _submissionService;
+        }
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetDetails(string id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await submissionService.GetDetails(id, userId);
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data
+            });
         }
 
         [HttpPost("{id}/feedback")]

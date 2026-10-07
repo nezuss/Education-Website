@@ -20,11 +20,9 @@ namespace Backend.Controllers.Cource
         }
 
         [HttpGet("get-all-on-module/{id}")]
-        [Authorize]
         public async Task<IActionResult> GetAllOnModule(string id)
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            var result = await lessonService.GetAllOnModule(id, userId);
+            var result = await lessonService.GetAllOnModule(id);
 
             if (!result.Success)
             {
