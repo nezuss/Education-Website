@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import UiIcon from "../../components/ui/Icon/UiIcon";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Link, useParams, useLocation } from "react-router-dom";
-import { confirmEmail } from "../../services/authService";
+import { confirmEmail, resendVerification } from "../../services/authService";
 import "../../styles/AuthPages.css";
 
 export default function ConfirmationPage() {
@@ -11,6 +12,16 @@ export default function ConfirmationPage() {
   const [code, setCode] = useState(routeCode ?? "");
   const [state, setState] = useState<"idle" | "loading" | "success" | "error">(routeCode ? "loading" : "idle");
   const [error, setError] = useState("");
+  const [email, setEmail] = useState(registeredEmail || "");
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
+
+  async function resend(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setResending(true); setError(""); setResendMessage("");
+    try { await resendVerification(email.trim()); setResendMessage("Код підтвердження надіслано."); }
+    catch (reason) { setError((reason as Error).message); }
+    finally { setResending(false); }
+  }
 
   const handleConfirm = useCallback(async (codeToVerify?: string) => {
     const finalCode = (codeToVerify ?? code).trim();
@@ -67,7 +78,7 @@ export default function ConfirmationPage() {
                 fontSize: "28px",
               }}
             >
-              ✓
+              <UiIcon name="check" size={28} />
             </div>
             <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--color-brand-dark)", marginBottom: "8px" }}>
               Акаунт успішно активовано!
@@ -111,6 +122,12 @@ export default function ConfirmationPage() {
           </form>
         )}
 
+        {state !== "success" && <form className="nex-auth-form" onSubmit={resend}>
+          <label htmlFor="verification-email">Email для повторного надсилання коду</label>
+          <input id="verification-email" type="email" className="nex-auth-input" value={email} onChange={event => setEmail(event.target.value)} required disabled={resending} />
+          <button type="submit" className="nex-auth-submit-btn" disabled={resending || state === "loading"}>{resending ? "Надсилання…" : "Надіслати код ще раз"}</button>
+          {resendMessage && <p role="status">{resendMessage}</p>}
+        </form>}
         <div className="nex-auth-bottom-switch">
           Вже маєте доступ? <Link to="/login">Перейти до входу</Link>
         </div>

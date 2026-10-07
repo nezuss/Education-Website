@@ -1,3 +1,4 @@
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { requestPasswordReset } from '../../services/authService';
@@ -37,7 +38,7 @@ export const ForgotPasswordPage: React.FC = () => {
 
         {sent ? (
           <div style={{ textAlign: 'center', padding: '16px 0' }}>
-            <div style={{ fontSize: '44px', marginBottom: '16px' }}>✉️</div>
+            <div style={{ fontSize: '44px', marginBottom: '16px' }}><UiIcon name="mail" size={44} /></div>
             <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--color-brand-dark)', marginBottom: '8px' }}>
               Інструкцію надіслано!
             </h3>

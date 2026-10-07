@@ -1,3 +1,4 @@
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCourseStats, type CourseStats } from "../../services/courseStatsService";
@@ -6,6 +7,7 @@ import { getProfile, getProfileStats, type UserProfile } from "../../services/pr
 import type { Course } from "../../types/course";
 import "../../styles/StudentDashboard.css";
 import RequestError from "../shared/RequestError";
+import PasswordChangeForm from "../shared/PasswordChangeForm";
 
 type ProfileData = { profile?: UserProfile; courses: Course[]; stats: Record<string, CourseStats> };
 
@@ -90,7 +92,7 @@ export default function ProfilePage() {
 
     <section className="student-profile-lower-grid">
       <div className="student-profile-courses">
-        <div className="student-profile-section-heading"><div><span className="std-badge-tag">[ НАВЧАННЯ ]</span><h2>Мої курси</h2></div><Link to="/student/courses">Усі курси →</Link></div>
+        <div className="student-profile-section-heading"><div><span className="std-badge-tag">[ НАВЧАННЯ ]</span><h2>Мої курси</h2></div><Link to="/student/courses">Усі курси <UiIcon name="arrow" /></Link></div>
         {loading ? <p className="student-profile-empty">Завантажуємо курси…</p> : data.courses.length ? <div className="student-profile-course-list">
           {data.courses.slice(0, 3).map((course) => {
             const progress = data.stats[course.id]?.progressPercentage ?? 0;
@@ -109,6 +111,7 @@ export default function ProfilePage() {
       <div className="student-profile-personal-grid"><ProfileField label="Ім’я" value={name} /><ProfileField label="Email" value={email} /><ProfileField label="Телефон" value="Не вказано" /><ProfileField label="Статус профілю" value="Видимий у системі" /></div>
       <p className="student-profile-readonly">Поля доступні лише для перегляду: сервер поки не має методу оновлення профілю.</p>
     </section>
+    <PasswordChangeForm />
   </div>;
 }
 
