@@ -24,12 +24,30 @@ namespace Backend.Services.Cource
                 return ServiceResult<object>.Fail("User Id is required", 401);
 
             var submission = await db.MaterialSubmissions
-                .FirstOrDefaultAsync(s => s.RelatedMaterialId == materialId && s.UserId == userId);
+                .Where(s => s.RelatedMaterialId == materialId && s.UserId == userId)
+                .OrderByDescending(s => s.CreatedAt)
+                .FirstOrDefaultAsync();
 
             if (submission != null)
-                return ServiceResult<object>.Ok(new { isSubmitted = true, submission = submission }, "Submission found");
+            {
+                bool isNeedsRevision = submission.Status == "NeedsRevision";
+                return ServiceResult<object>.Ok(new
+                {
+                    isSubmitted = !isNeedsRevision,
+                    hasSubmission = true,
+                    needsRevision = isNeedsRevision,
+                    canResubmit = isNeedsRevision,
+                    submission = submission
+                }, "Submission found");
+            }
 
-            return ServiceResult<object>.Ok(new { isSubmitted = false }, "No submission found");
+            return ServiceResult<object>.Ok(new
+            {
+                isSubmitted = false,
+                hasSubmission = false,
+                needsRevision = false,
+                canResubmit = false
+            }, "No submission found");
         }
 
         public async Task<ServiceResult<object>> SubmitTest(SubmitTestAnswerDTO dTO, string userId)
@@ -41,10 +59,12 @@ namespace Backend.Services.Cource
             if (testMaterial == null)
                 return ServiceResult<object>.Fail("Test material not found", 404);
 
-            var existingSubmission = await db.MaterialSubmissions
-                .FirstOrDefaultAsync(s => s.RelatedMaterialId == dTO.TestId && s.UserId == userId);
+            var latestSubmission = await db.MaterialSubmissions
+                .Where(s => s.RelatedMaterialId == dTO.TestId && s.UserId == userId)
+                .OrderByDescending(s => s.CreatedAt)
+                .FirstOrDefaultAsync();
 
-            if (existingSubmission != null)
+            if (latestSubmission != null && latestSubmission.Status != "NeedsRevision")
                 return ServiceResult<object>.Fail("You have already submitted this test.", 400);
 
             var submission = new TestSubmissionModel
@@ -53,6 +73,7 @@ namespace Backend.Services.Cource
                 RelatedMaterialId = dTO.TestId,
                 UserId = userId,
                 Rate = -1,
+                Status = "Submitted",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 Answers = dTO.Answers?.Select(a => new TestQuestionAnswerModel
@@ -78,10 +99,12 @@ namespace Backend.Services.Cource
             if (assignmentMaterial == null)
                 return ServiceResult<object>.Fail("Assignment material not found", 404);
 
-            var existingSubmission = await db.MaterialSubmissions
-                .FirstOrDefaultAsync(s => s.RelatedMaterialId == assignmentId && s.UserId == userId);
+            var latestSubmission = await db.MaterialSubmissions
+                .Where(s => s.RelatedMaterialId == assignmentId && s.UserId == userId)
+                .OrderByDescending(s => s.CreatedAt)
+                .FirstOrDefaultAsync();
 
-            if (existingSubmission != null)
+            if (latestSubmission != null && latestSubmission.Status != "NeedsRevision")
                 return ServiceResult<object>.Fail("You have already submitted this assignment.", 400);
 
             string uploadsFolder = Path.Combine(webRootPath, "uploads");
@@ -102,6 +125,8 @@ namespace Backend.Services.Cource
                 RelatedMaterialId = assignmentId,
                 UserId = userId,
                 FileUrl = fileUrl,
+                Rate = -1,
+                Status = "Submitted",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };

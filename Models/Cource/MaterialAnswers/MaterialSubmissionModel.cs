@@ -10,6 +10,9 @@ namespace Backend.Models.Cource.MaterialAnswers
         public string RelatedMaterialId { get; set; }
         public string UserId { get; set; }
         public int Rate { get; set; }
+        public string? Status { get; set; }
+        public string? Feedback { get; set; }
+        public string? RevisionMessage { get; set; }
 
         public DateTime UpdatedAt { get; set; }
         public DateTime CreatedAt { get; set; }

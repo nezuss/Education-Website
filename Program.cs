@@ -119,9 +119,12 @@ namespace Backend
             services.AddScoped<Backend.Services.Cource.MaterialService>();
             services.AddScoped<Backend.Services.Cource.SubmitMaterialAnswerService>();
             services.AddScoped<Backend.Services.Cource.SubmissionRateService>();
+            services.AddScoped<Backend.Services.Cource.SubmissionService>();
             services.AddScoped<Backend.Services.Cource.CourceStatsService>();
             services.AddScoped<Backend.Services.User.AccountManagementService>();
             services.AddScoped<Backend.Services.User.AccountingService>();
+            services.AddScoped<Backend.Services.User.StudentService>();
+            services.AddScoped<Backend.Services.Mentor.MentorService>();
             services.AddScoped<Backend.Services.Stats.UsersStatsService>();
             services.AddScoped<Backend.Services.Profile.PublicProfileService>();
             services.AddScoped<Backend.Services.Auth.UserService>();

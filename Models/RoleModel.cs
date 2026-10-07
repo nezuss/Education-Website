@@ -49,6 +49,12 @@ namespace Backend.Models
         // ? Dashboard
         public bool CanGetTotalUsers { get; set; }
 
+        // ? Mentor & Submissions
+        public bool CanSendSubmissionFeedback { get; set; }
+        public bool CanRequestSubmissionRevision { get; set; }
+        public bool CanGetMentorsCoursesStats { get; set; }
+        public bool CanGetMentorsSubmissionsStats { get; set; }
+
         public DateTime UpdatedAt { get; set; }
         public DateTime CreatedAt { get; set; }
     }

@@ -87,6 +87,12 @@ namespace Backend.Attributes.Auth
                 // ? Dashboard
                 case Permissions.GetTotalUsers: hasPermission = role.CanGetTotalUsers; break;
 
+                // ? Mentor & Submissions
+                case Permissions.SendSubmissionFeedback: hasPermission = role.CanSendSubmissionFeedback; break;
+                case Permissions.RequestSubmissionRevision: hasPermission = role.CanRequestSubmissionRevision; break;
+                case Permissions.GetMentorsCoursesStats: hasPermission = role.CanGetMentorsCoursesStats; break;
+                case Permissions.GetMentorsSubmissionsStats: hasPermission = role.CanGetMentorsSubmissionsStats; break;
+
                 default:
                     hasPermission = false;
                     break;

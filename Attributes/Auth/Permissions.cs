@@ -45,5 +45,11 @@ namespace Backend.Attributes.Auth
 
         // ? Dashboard
         public const string GetTotalUsers = "totalUsers.get";
+
+        // ? Mentor & Submissions
+        public const string SendSubmissionFeedback = "submission.send.feedback";
+        public const string RequestSubmissionRevision = "submission.request.revision";
+        public const string GetMentorsCoursesStats = "mentor.courses.stats";
+        public const string GetMentorsSubmissionsStats = "mentor.submissions.stats";
     }
 }
