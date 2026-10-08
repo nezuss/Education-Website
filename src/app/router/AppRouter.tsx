@@ -99,6 +99,8 @@ export default function AppRouter() {
                         <Route path="/community" element={<CommunityPage />} />
                         <Route path="/portfolio" element={<PortfolioPage />} />
                         <Route path="/about" element={<AboutPage />} />
+                        <Route path="/confirm-email" element={<ConfirmationPage />} />
+                        <Route path="/confirm-email/:code" element={<ConfirmationPage />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/registration" element={<RegistrationPage />} />
                         <Route path="/choose-role" element={<ChooseRolePage />} />
@@ -141,8 +143,6 @@ export default function AppRouter() {
                         </Route>
                     </Route>
 
-                    <Route path="/confirm-email" element={<ConfirmationPage />} />
-                    <Route path="/confirm-email/:code" element={<ConfirmationPage />} />
                     <Route path="/not-found" element={<NotFoundPage />} />
                     <Route path="*" element={<Navigate to="/not-found" replace />} />
                 </Routes>

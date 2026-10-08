@@ -1,280 +1,101 @@
 .nex-auth-wrapper {
   position: relative;
-  min-height: calc(100vh - 96px);
-  background-color: #E8E4DF;
-  background-image: url('/auth/auth_bg.webp');
-  background-size: cover;
-  background-position: center right;
-  background-repeat: no-repeat;
+  min-height: 742px;
+  background: #e8e4df url('/auth/auth_bg.webp') center top / cover no-repeat;
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 60px 0 60px 246px;
+  align-items: flex-start;
+  padding: 60px max(24px, calc((100vw - 1920px) / 2 + 246px)) 100px;
   box-sizing: border-box;
 }
-
-@media (max-width: 1440px) {
-  .nex-auth-wrapper {
-    padding: 40px 0 40px 100px;
-  }
-}
-
-@media (max-width: 1024px) {
-  .nex-auth-wrapper {
-    padding: 32px 24px;
-    justify-content: center;
-    background-position: center;
-  }
-}
-
 .nex-auth-card {
-  background: #FFFFFF;
+  width: 557px;
+  max-width: 100%;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  background: #fff;
   border-radius: 24px;
-  padding: 40px 36px;
-  width: 100%;
-  max-width: 557px;
-  box-shadow: 0 16px 40px rgba(10, 45, 27, 0.12);
-  border: 1px solid rgba(19, 73, 44, 0.08);
-  box-sizing: border-box;
+  padding: 24px;
   display: flex;
   flex-direction: column;
+  color: #0a2d1b;
 }
-
-.nex-auth-steps {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
-  justify-content: center;
+.nex-auth-title { font: 500 20px/1.4 var(--font-heading); text-align: center; margin: 0 0 40px; }
+.nex-auth-subtitle { font-size: 16px; font-weight: 500; line-height: 1.5; text-align: center; margin: 0 0 24px; color: #557061; }
+.nex-auth-login .nex-auth-subtitle, .nex-auth-registration .nex-auth-subtitle { text-align: left; color: #0a2d1b; }
+.nex-auth-form { display: flex; flex-direction: column; gap: 24px; }
+.nex-auth-field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.nex-auth-field > label { font-size: 14px; line-height: 20px; }
+.nex-auth-input-wrap { position: relative; width: 100%; }
+.nex-auth-input { box-sizing: border-box; display: block; width: 100%; min-width: 0; height: 44px; border: 1px solid #b4ccbf; border-radius: 8px; padding: 10px 12px; background: #f5f8f6; color: #0a2d1b; font: 400 14px/1.4 var(--font-body); }
+.nex-auth-input::placeholder { color: #557061; opacity: 1; }
+.nex-auth-input:focus-visible { outline: 2px solid #13492c; outline-offset: 2px; }
+.nex-auth-field-inline { position: relative; }
+.nex-auth-field-inline > label { position: absolute; top: 12px; left: 12px; z-index: 1; color: #557061; }
+.nex-auth-field-inline .nex-auth-input { padding-left: 76px; }
+.nex-auth-password { padding-right: 48px; }
+.nex-auth-pwd-toggle { position: absolute; right: 4px; top: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 0; background: transparent; color: #557061; cursor: pointer; }
+.nex-auth-options { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 14px; color: #557061; }
+.nex-auth-remember { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 20px; color: #557061; cursor: pointer; }
+.nex-auth-remember input { accent-color: #13492c; width: 14px; height: 14px; flex-shrink: 0; margin: 3px 0 0; }
+.nex-auth-forgot, .nex-auth-bottom-switch a { color: #557061; text-decoration: none; }
+.nex-auth-submit-btn { display: flex; align-items: center; justify-content: center; min-height: 52px; box-sizing: border-box; padding: 14px 20px; border: 0; border-radius: 8px; background: #13492c; color: #fff; font: 600 14px/1.5 var(--font-body); box-shadow: 0 4px 10px #0a2d1b14; text-align: center; text-decoration: none; cursor: pointer; }
+.nex-auth-submit-btn:hover:not(:disabled) { background: #0a2d1b; }
+.nex-auth-submit-btn:disabled { opacity: .6; cursor: not-allowed; }
+.nex-auth-divider { text-align: center; color: #557061; font-size: 14px; margin: 24px 0 32px; }
+.nex-auth-socials { display: flex; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+.nex-auth-social-btn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; width: 208px; max-width: 100%; border: 1px solid #d6d1cb; border-radius: 8px; background: #f3f0eb; color: #0a2d1b; font: 600 14px/1.4 var(--font-body); padding: 12px; }
+.nex-auth-social-btn:disabled { color: #557061; cursor: not-allowed; }
+.nex-google-sign-in { width: 208px; min-height: 56px; max-width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.nex-auth-bottom-switch { text-align: center; font-size: 14px; line-height: 1.5; color: #557061; margin-top: 0; }
+.nex-auth-bottom-switch a { color: #0a2d1b; margin-left: 20px; }
+.nex-auth-back { display: inline-flex; align-items: center; gap: 12px; }
+.nex-auth-text-button { background: none; border: 0; padding: 0; color: #0a2d1b; font: 400 14px/1.5 var(--font-body); cursor: pointer; }
+.nex-auth-text-button:disabled { opacity: .6; cursor: not-allowed; }
+.nex-auth-text-button:hover:not(:disabled), .nex-auth-bottom-switch a:hover, .nex-auth-forgot:hover { text-decoration: underline; }
+.nex-auth-card button:focus-visible, .nex-auth-card a:focus-visible { outline: 2px solid #13492c; outline-offset: 4px; }
+.nex-auth-error-box { padding: 12px 8px; margin: 0 0 24px; border-radius: 8px; background: #faeae6; color: #b82b0c; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.nex-auth-form .nex-auth-error-box { margin: 0; }
+.nex-auth-steps { display: flex; justify-content: center; gap: 8px; margin: 16px 0 24px; }
+.nex-auth-step-bar { width: 32px; height: 8px; background: #b4ccbf; border-radius: 8px; }
+.nex-auth-step-bar.active { background: #0a2d1b; }
+.nex-auth-registration .nex-auth-title { margin-bottom: 24px; }
+.nex-auth-consent { margin: 0 0 24px; }
+.nex-auth-registration .nex-auth-card { padding-bottom: 40px; }
+.nex-auth-verification .nex-auth-title { margin-bottom: 24px; }
+.nex-auth-verification .nex-auth-card { padding-bottom: 40px; }
+.nex-auth-code { display: grid; grid-template-columns: repeat(6, minmax(0, 60px)); justify-content: space-between; gap: 12px; padding: 0 14px; }
+.nex-auth-code .nex-auth-input { height: 60px; text-align: center; border-color: #13492c; font-size: 16px; padding: 4px; }
+.nex-auth-resend { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 16px 24px; margin-top: 24px; font-size: 14px; color: #557061; }
+.nex-auth-resend .nex-auth-field { width: 100%; }
+.nex-auth-change-email { margin-top: 24px; color: #557061; }
+.nex-auth-notice { margin: 16px 0 0; font-size: 14px; text-align: center; }
+.nex-auth-success { display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center; }
+.nex-auth-success .nex-auth-submit-btn { width: 100%; }
+.nex-auth-password-hint { color: #557061; font-size: 16px; font-weight: 500; line-height: 1.5; text-align: center; margin: 12px 0; }
+.nex-auth-reset .nex-auth-subtitle { margin-bottom: 40px; }
+.nex-auth-forgot-page .nex-auth-card { padding: 40px 24px; }
+.nex-auth-forgot-page .nex-auth-title { margin-bottom: 24px; }
+.nex-auth-forgot-page .nex-auth-subtitle { margin-bottom: 24px; }
+@media (max-width: 1440px) {
+  .nex-auth-wrapper { padding-left: 100px; padding-right: 100px; background-position: center top; }
 }
-
-.nex-auth-step-bar {
-  width: 32px;
-  height: 4px;
-  border-radius: 2px;
-  background: #C4D3CB;
+@media (max-width: 1024px) {
+  .nex-auth-wrapper { padding: 40px 24px 64px; justify-content: center; background-position: right top; }
 }
-
-.nex-auth-step-bar.active {
-  background: var(--color-brand-primary, #13492C);
-}
-
-.nex-auth-title {
-  font-family: var(--font-heading, 'Montserrat Alternates', 'Montserrat', sans-serif);
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--color-brand-dark, #0A2D1B);
-  text-align: center;
-  margin: 0 0 8px 0;
-}
-
-.nex-auth-subtitle {
-  font-size: 14px;
-  color: var(--color-brand-soft, #557061);
-  text-align: center;
-  margin: 0 0 24px 0;
-  line-height: 1.4;
-}
-
-.nex-auth-error-box {
-  background: #FCE8E6;
-  border: 1px solid #F5C6CB;
-  color: #721C24;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 14px;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.nex-auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.nex-auth-input-wrap {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-.nex-auth-input {
-  background: #E8EFEA;
-  border: 1px solid rgba(19, 73, 44, 0.15);
-  border-radius: 14px;
-  padding: 14px 18px;
-  font-size: 15px;
-  font-family: inherit;
-  color: var(--color-brand-dark, #0A2D1B);
-  outline: none;
-  transition: all 0.2s ease;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.nex-auth-input:focus {
-  background: #FFFFFF;
-  border-color: var(--color-brand-primary, #13492C);
-  box-shadow: 0 0 0 3px rgba(19, 73, 44, 0.12);
-}
-
-.nex-auth-pwd-toggle {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: var(--color-brand-soft, #557061);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.nex-auth-options {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  color: var(--color-brand-soft, #557061);
-  margin-top: 4px;
-  margin-bottom: 8px;
-}
-
-.nex-auth-remember {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.nex-auth-remember input {
-  accent-color: var(--color-brand-primary, #13492C);
-}
-
-.nex-auth-forgot {
-  color: var(--color-brand-soft, #557061);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.nex-auth-forgot:hover {
-  color: var(--color-brand-primary, #13492C);
-  text-decoration: underline;
-}
-
-.nex-auth-submit-btn {
-  background: var(--color-brand-primary, #13492C);
-  color: #FFFFFF;
-  border: none;
-  padding: 16px;
-  font-size: 15px;
-  font-weight: 600;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(19, 73, 44, 0.2);
-  margin-top: 8px;
-}
-
-.nex-auth-submit-btn:hover:not(:disabled) {
-  background: #0E3620;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(19, 73, 44, 0.3);
-}
-
-.nex-auth-submit-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.nex-auth-divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  margin: 24px 0;
-  color: var(--color-brand-soft, #557061);
-  font-size: 13px;
-}
-
-.nex-auth-divider::before,
-.nex-auth-divider::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid rgba(10, 45, 27, 0.1);
-}
-
-.nex-auth-divider:not(:empty)::before {
-  margin-right: 12px;
-}
-
-.nex-auth-divider:not(:empty)::after {
-  margin-left: 12px;
-}
-
-.nex-auth-socials {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.nex-google-sign-in {
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.nex-google-sign-in > div {
-  width: 100% !important;
-}
-
-.nex-google-sign-in iframe {
-  max-width: 100% !important;
-}
-
-.nex-auth-social-btn {
-  background: #E8EFEA;
-  border: 1px solid rgba(19, 73, 44, 0.1);
-  padding: 12px;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-brand-dark, #0A2D1B);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s;
-}
-
-.nex-auth-social-btn:hover {
-  background: #D8E5DC;
-}
-
-.nex-auth-bottom-switch {
-  text-align: center;
-  font-size: 14px;
-  color: var(--color-brand-soft, #557061);
-  margin-top: 8px;
-}
-
-.nex-auth-bottom-switch a {
-  color: var(--color-brand-primary, #13492C);
-  font-weight: 600;
-  text-decoration: none;
-  margin-left: 6px;
-}
-
-.nex-auth-bottom-switch a:hover {
-  text-decoration: underline;
+@media (max-width: 600px) {
+  .nex-auth-wrapper { min-height: 0; padding: 32px 16px 48px; }
+  .nex-auth-card { padding: 24px 20px; border-radius: 20px; }
+  .nex-auth-title { font-size: 20px; margin-bottom: 24px; }
+  .nex-auth-subtitle, .nex-auth-password-hint { font-size: 14px; }
+  .nex-auth-form { gap: 20px; }
+  .nex-auth-options { font-size: 12px; gap: 8px; }
+  .nex-auth-options .nex-auth-remember { font-size: 12px; }
+  .nex-auth-socials { flex-direction: column; align-items: center; gap: 12px; }
+  .nex-auth-social-btn, .nex-google-sign-in { width: 100%; }
+  .nex-auth-code { gap: 8px; padding: 0; }
+  .nex-auth-code .nex-auth-input { height: 48px; }
+  .nex-auth-bottom-switch a { margin-left: 8px; }
+  .nex-auth-forgot-page .nex-auth-card { padding: 32px 20px; }
 }
 
 .nex-role-grid {

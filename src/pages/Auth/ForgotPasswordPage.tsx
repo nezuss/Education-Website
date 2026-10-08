@@ -17,7 +17,7 @@ export const ForgotPasswordPage: React.FC = () => {
     setError('');
     setIsLoading(true);
     try {
-      await requestPasswordReset(email);
+      await requestPasswordReset(email.trim());
       setSent(true);
     } catch (reason) {
       setError((reason as Error)?.message || 'Не вдалося надіслати лист. Спробуйте ще раз.');
@@ -27,11 +27,11 @@ export const ForgotPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="nex-auth-wrapper">
+    <div className="nex-auth-wrapper nex-auth-forgot-page">
       <div className="nex-auth-card">
-        <h1 className="nex-auth-title">Відновлення пароля</h1>
+        <h1 className="nex-auth-title">Відновити пароль</h1>
         <p className="nex-auth-subtitle">
-          Введіть адресу електронної пошти, на яку зареєстровано акаунт
+          Вкажіть Email, який ви використовували під час реєстрації
         </p>
 
         {error && <div className="nex-auth-error-box" role="alert">{error}</div>}
@@ -51,8 +51,11 @@ export const ForgotPasswordPage: React.FC = () => {
           </div>
         ) : (
           <form className="nex-auth-form" onSubmit={handleSubmit}>
-            <div className="nex-auth-input-wrap">
+            <div className="nex-auth-field">
+              <label htmlFor="recovery-email">Email</label>
               <input
+                id="recovery-email"
+                autoComplete="email"
                 type="email"
                 className="nex-auth-input"
                 placeholder="name@email.com"
@@ -63,14 +66,13 @@ export const ForgotPasswordPage: React.FC = () => {
             </div>
 
             <button type="submit" className="nex-auth-submit-btn" disabled={isLoading}>
-              {isLoading ? 'Надсилання...' : 'Надіслати інструкцію'}
+              {isLoading ? 'Надсилання...' : 'Надіслати посилання'}
             </button>
           </form>
         )}
 
         <div className="nex-auth-bottom-switch" style={{ marginTop: '24px' }}>
-          Згадали пароль?
-          <Link to="/login">Увійти</Link>
+          <Link to="/login" className="nex-auth-back"><UiIcon name="left" size={18} />Повернутися до входу</Link>
         </div>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import PasswordField from "../../components/auth/PasswordField";
 import UiIcon from "../../components/ui/Icon/UiIcon";
 import type { FormEvent } from "react";
 import { useState } from "react";
@@ -40,11 +41,11 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <div className="nex-auth-wrapper">
+    <div className="nex-auth-wrapper nex-auth-reset">
       <div className="nex-auth-card">
-        <h1 className="nex-auth-title">Новий пароль</h1>
+        <h1 className="nex-auth-title">{isComplete ? "Пароль змінено" : "Відновити пароль"}</h1>
         <p className="nex-auth-subtitle">
-          Створіть новий пароль для вашого акаунту NEXYLVA
+          Створіть новий пароль для свого акаунта
         </p>
 
         {error && <div className="nex-auth-error-box" role="alert">{error}</div>}
@@ -64,14 +65,12 @@ export default function ChangePasswordPage() {
           </div>
         ) : (
           <form className="nex-auth-form" onSubmit={handleSubmit}>
-            <div className="nex-auth-input-wrap">
-              <input name="password" type="password" className="nex-auth-input" placeholder="Новий пароль" autoComplete="new-password" required />
-            </div>
-            <div className="nex-auth-input-wrap">
-              <input name="confirmPassword" type="password" className="nex-auth-input" placeholder="Повторіть новий пароль" autoComplete="new-password" required />
-            </div>
+            <PasswordField name="password" label="Пароль" placeholder="Створіть пароль" />
+            <PasswordField name="confirmPassword" label="Повторіть пароль" placeholder="Повторіть пароль" />
+            <p className="nex-auth-password-hint">Рекомендуємо щонайменше 8 символів, велику літеру та цифру.</p>
+            {!resetToken && <p className="nex-auth-error-box" role="status">Відкрийте посилання з листа для відновлення пароля або запитайте нове.</p>}
             <button type="submit" className="nex-auth-submit-btn" disabled={isLoading || !resetToken}>
-              {isLoading ? "Збереження..." : "Змінити пароль"}
+              {isLoading ? "Збереження..." : "Зберегти новий пароль"}
             </button>
           </form>
         )}
