@@ -235,7 +235,8 @@ namespace Backend.Services.Auth
 
         public async Task<UserModel> GetUserByIdAsync(string id)
         {
-            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
+            var user = await db.Users.AsNoTracking()
+                                     .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
             { return new UserModel(); }
