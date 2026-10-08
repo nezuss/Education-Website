@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getModules, getLessons, getMaterials, type Module, type Lesson, type Material } from "../../services/learningService";
-import { updateModule, updateLesson, updateMaterial, unassignModuleFromCourse, unassignLessonFromModule, unassignMaterialFromLesson } from "../../services/adminService";
+import { updateModule, updateLesson, updateMaterial, deleteModule, deleteLesson, deleteMaterial, unassignModuleFromCourse, unassignLessonFromModule, unassignMaterialFromLesson } from "../../services/adminService";
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import { createCurriculumItem, attachCurriculumItem, validateMaterial, type CurriculumDraft, type CurriculumKind, type PendingCurriculumItem } from "../../services/curriculumService";
 import MaterialFields from "./MaterialFields";
 
@@ -91,6 +92,17 @@ function CurriculumCollection({ kind, parentId, onChange, busyItems, onBusyChang
     } catch (reason) { setError((reason as Error).message); }
     finally { setSaving(false); }
   }
+  async function remove(id: string) {
+    if (!window.confirm(`Видалити ${labels[kind]} з усіх курсів? Цю дію неможливо скасувати.`)) return;
+    setSaving(true); setError(""); setNotice("");
+    try {
+      if (kind === "module") await deleteModule(id);
+      else if (kind === "lesson") await deleteLesson(id);
+      else await deleteMaterial(id);
+      setExpanded(undefined); setDetachId(undefined); setNotice("Запис видалено на сервері."); refresh(); onChange?.();
+    } catch (reason) { setError((reason as Error).message); }
+    finally { setSaving(false); }
+  }
   async function detach(id: string) {
     setSaving(true); setError(""); setNotice("");
     try {
@@ -118,8 +130,9 @@ function CurriculumCollection({ kind, parentId, onChange, busyItems, onBusyChang
           </div></div>
           <div className="curriculum-actions">
             <button type="button" disabled={saving || otherBusy || Boolean(pending) || quizUnavailable || unsupported} onClick={() => edit(item)}>Редагувати {labels[kind]}</button>
-            {kind !== "material" && <button type="button" aria-expanded={expanded === item.id} disabled={saving || otherBusy || Boolean(pending)} onClick={() => setExpanded(expanded === item.id ? undefined : item.id)}>{kind === "module" ? "Уроки" : "Матеріали"} {expanded === item.id ? "↑" : "↓"}</button>}
+            {kind !== "material" && <button type="button" aria-expanded={expanded === item.id} disabled={saving || otherBusy || Boolean(pending)} onClick={() => setExpanded(expanded === item.id ? undefined : item.id)}>{kind === "module" ? "Уроки" : "Матеріали"} <UiIcon name="down" style={{ transform: expanded === item.id ? "rotate(180deg)" : undefined }} /></button>}
             <button type="button" disabled={saving || otherBusy || Boolean(pending)} onClick={() => setDetachId(item.id)}>Прибрати зв’язок</button>
+            <button type="button" disabled={saving || otherBusy || Boolean(pending)} onClick={() => void remove(item.id)}>Видалити {labels[kind]}</button>
           </div>
           {quizUnavailable && <p>Редагування тесту недоступне: правильні відповіді не надано.</p>}
           {unsupported && <p>Редагування цього типу матеріалу поки недоступне.</p>}
