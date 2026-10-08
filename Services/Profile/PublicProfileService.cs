@@ -4,6 +4,7 @@ using Backend.Utils;
 using Backend.Responses.Profile;
 using Backend.Models.Cource;
 using Backend.Models.Cource.MaterialAnswers;
+using Backend.DTO.User;
 
 namespace Backend.Services.Profile
 {
@@ -72,6 +73,22 @@ namespace Backend.Services.Profile
 
             return ServiceResult<UserStatsResponse>
                    .Ok(stats, "User stats found successfuly");
+        }
+
+        public async Task<ServiceResult<string>> UpdateProfile(string Id, UpdateProfileDTO dTO)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == Id);
+
+            if (user == null)
+            {
+                return ServiceResult<string>
+                       .Fail("User not found with this id", 404);
+            }
+
+            user.Username ??= dTO.Username;
+
+            return ServiceResult<string>
+                   .Ok("Profile updated", "Profile updated successfuly");
         }
     }
 }
