@@ -26,6 +26,9 @@ namespace Backend.Services.Admin
             if (user == null)
                 return ServiceResult<UserModel>.Fail("There is no user with this id", 404);
 
+            user.Password = "";
+            user.Salt = "";
+          
             return ServiceResult<UserModel>.Ok(user, "User get successfully");
         }
 
@@ -38,6 +41,12 @@ namespace Backend.Services.Admin
             if (users == null)
                 return ServiceResult<List<UserModel>>.Fail("There is no users yet", 404);
 
+            users.ForEach(u => 
+            {
+                u.Password = ""; 
+                u.Salt = "";
+            });
+          
             return ServiceResult<List<UserModel>>.Ok(users,
                                             "Users get successfully");
         }
