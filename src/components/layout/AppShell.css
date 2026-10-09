@@ -377,6 +377,10 @@
 }
 
 @media (max-width: 768px) {
+  .lms-topbar { gap: 8px; }
+  .lms-topbar-right { gap: 8px; min-width: 0; }
+  .lms-user-menu, .lms-user-btn { min-width: 0; }
+  .lms-user-name { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .lms-sidebar {
     position: fixed;
     top: 0;
@@ -410,4 +414,9 @@
   .lms-content {
     padding: 16px;
   }
+}
+
+@media (max-width: 480px) {
+  .lms-topbar-breadcrumb { display: none; }
+  .lms-topbar { padding: 0 12px; }
 }

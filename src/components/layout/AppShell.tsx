@@ -38,6 +38,8 @@ export default function AppShell() {
   const isMentor = location.pathname.startsWith("/mentor");
   const isAdmin = location.pathname.startsWith("/admin");
   const isStudent = !isMentor && !isAdmin;
+  const isAssignment = location.pathname.startsWith("/student/assignments") || location.pathname.startsWith("/student/upload/");
+  const isSubmissionResult = /^\/student\/submissions\/[^/]+\/?$/.test(location.pathname);
 
   const userRole = profile?.role || "None";
   const hasTeacherAccess = userRole === "Teacher" || userRole === "Admin";
@@ -51,7 +53,7 @@ export default function AppShell() {
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className={`lms-layout${isAdmin ? " admin-layout" : ""}`}>
+    <div className={`lms-layout${isAdmin ? " admin-layout" : ""}${isAssignment || isSubmissionResult ? " assignment-layout" : ""}`}>
       {sidebarOpen && (
         <div className="lms-sidebar-backdrop" onClick={closeSidebar} />
       )}
@@ -59,7 +61,7 @@ export default function AppShell() {
       <aside className={`lms-sidebar ${sidebarOpen ? "open" : ""}`}>
         <div className="lms-sidebar-top-row">
           <Link to="/" className="lms-brand-link" onClick={closeSidebar}>
-            <img src={isAdmin ? "/logo-on-dark.svg" : "/logo.svg"} alt="NEXYLVA" className="lms-brand-logo" />
+            <img src={isAdmin || isAssignment || isSubmissionResult ? "/logo-on-dark.svg" : "/logo.svg"} alt="NEXYLVA" className="lms-brand-logo" />
           </Link>
           <button
             type="button"
@@ -85,6 +87,10 @@ export default function AppShell() {
               <NavLink to="/student/courses" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon"><UiIcon name="assignment" /></span>
                 <span>Завдання</span>
+              </NavLink>
+              <NavLink to="/student/submissions" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
+                <span className="lms-nav-icon"><UiIcon name="assignment" /></span>
+                <span>Мої роботи</span>
               </NavLink>
               <NavLink to="/community" className="lms-nav-item" onClick={closeSidebar}>
                 <span className="lms-nav-icon"><UiIcon name="users" /></span>
@@ -187,7 +193,7 @@ export default function AppShell() {
               </svg>
             </button>
             <span className="lms-topbar-breadcrumb">
-              {isAdmin ? `Admin LMS / ${{ "/admin/users": "Користувачі", "/admin/courses": "Курси", "/admin/orders": "Замовлення / Оплати", "/admin/analytics": "Аналітика", "/admin/profile": "Профіль" }[location.pathname] || "Головна"}` : isMentor ? "Mentor LMS / Кабінет ментора" : "Student LMS / Головна"}
+              {isAdmin ? `Admin LMS / ${{ "/admin/users": "Користувачі", "/admin/courses": "Курси", "/admin/orders": "Замовлення / Оплати", "/admin/analytics": "Аналітика", "/admin/profile": "Профіль" }[location.pathname] || "Головна"}` : isMentor ? "Mentor LMS / Кабінет ментора" : isSubmissionResult ? "Student LMS / Результат перевірки" : isAssignment ? "Student LMS / Завдання" : "Student LMS / Головна"}
             </span>
           </div>
 

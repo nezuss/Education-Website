@@ -64,6 +64,6 @@ export async function request<T>(path: string, options: RequestInit = {}, authen
     }
 
     if (response.status === 204) return undefined as T;
-    if (!body || !("data" in body)) throw new Error("Сервер повернув відповідь у невідомому форматі");
+    if (!body || typeof body !== "object" || !("data" in body)) throw Object.assign(new Error("Сервер повернув відповідь у невідомому форматі"), { status: response.status });
     return (body as ApiResponse<T>).data;
 }

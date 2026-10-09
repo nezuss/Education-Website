@@ -36,6 +36,9 @@ const UploadProjectPage = lazy(() => import("../../pages/Student/UploadProjectPa
 const ProfilePage = lazy(() => import("../../pages/Student/ProfilePage"));
 
 
+const SubmissionsPage = lazy(() => import("../../pages/Student/SubmissionsPage"));
+const SubmissionDetailsPage = lazy(() => import("../../pages/Student/SubmissionDetailsPage"));
+
 const MentorDashboardPage = lazy(() => import("../../pages/Mentor/MentorDashboardPage"));
 const MentorSubmissionsPage = lazy(() => import("../../pages/Mentor/MentorSubmissionsPage"));
 const MentorReviewPage = lazy(() => import("../../pages/Mentor/MentorReviewPage"));
@@ -122,7 +125,9 @@ export default function AppRouter() {
                             <Route path="/student/profile" element={<ProfilePage />} />
                             <Route path="/student/progress" element={<Navigate to="/student" replace />} />
                             <Route path="/student/schedule" element={<Navigate to="/student" replace />} />
-                            <Route path="/student/reviews" element={<Navigate to="/student" replace />} />
+                            <Route path="/student/reviews" element={<SubmissionsPage />} />
+                            <Route path="/student/submissions" element={<SubmissionsPage />} />
+                            <Route path="/student/submissions/:submissionId" element={<SubmissionDetailsPage />} />
                         </Route>
 
                         <Route element={<ProtectedRoute allowedRoles={["Teacher", "Admin"]} />}>
@@ -150,4 +155,3 @@ export default function AppRouter() {
         </BrowserRouter>
     );
 }
-
