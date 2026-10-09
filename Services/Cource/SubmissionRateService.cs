@@ -42,6 +42,22 @@ namespace Backend.Services.Cource
             }
 
             var submission = await db.MaterialSubmissions.FirstOrDefaultAsync(ms => ms.Id == dTO.SubmissionId);
+            
+            var course = await (
+                from lesson in db.Lessons
+                where lesson.MaterialsId.Contains(submission.RelatedMaterialId)
+                from module in db.Modules
+                where module.LessonsId.Contains(lesson.Id)
+                from c in db.Cources
+                where c.ModulesId.Contains(module.Id)
+                select c
+            ).FirstOrDefaultAsync();
+
+            if (course.AssignedTeacherId != user.Id)
+            {
+                return ServiceResult<string>
+                       .Fail("You are not assigned teacher to this cource", 404); 
+            }
 
             if (submission == null)
             {
@@ -59,7 +75,12 @@ namespace Backend.Services.Cource
                        .Fail("Rate cannot be null and should be between 1 and 12", 400);
             }
 
+
             submission.Rate = dTO.Rate;
+            submission.ReviewerId = user.Id;
+            submission.ReviewerName = user.Username;
+            submission.ReviewerAvatarUrl = "";
+            submission.ReviewerAt = DateTime.UtcNow;
 
             db.MaterialSubmissions.Update(submission);
             await db.SaveChangesAsync();
