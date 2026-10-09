@@ -79,13 +79,17 @@ namespace Backend.Services.Profile
         {
             var user = await db.Users.FirstOrDefaultAsync(u => u.Id == Id);
 
+          
             if (user == null)
             {
                 return ServiceResult<string>
                        .Fail("User not found with this id", 404);
             }
-
+          
             user.Username ??= dTO.Username;
+          
+            db.Users.Update(user);
+            await db.SaveChangesAsync();
 
             return ServiceResult<string>
                    .Ok("Profile updated", "Profile updated successfuly");

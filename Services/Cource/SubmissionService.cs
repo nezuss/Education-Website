@@ -109,9 +109,8 @@ namespace Backend.Services.Cource
                 return ServiceResult<MaterialSubmissionModel>
                        .Fail("There are no submission with this id", 404);
             }
-
+  
             submission.Feedback = dTO.Feedback;
-            submission.Status = "Reviewed";
             submission.UpdatedAt = DateTime.UtcNow;
 
             db.MaterialSubmissions.Update(submission);

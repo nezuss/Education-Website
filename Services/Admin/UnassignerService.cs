@@ -23,7 +23,7 @@ namespace Backend.Services.Admin
 
             if (cource == null)
                 return ServiceResult<string>.Fail("There is no cource with this id", 404);
-            if (cource.AssignedTeacherId == dTO.TeacherId)
+            if (cource.AssignedTeacherId != dTO.TeacherId)
                 return ServiceResult<string>.Fail("There is no teacher assigned to this cource with this id", 404);
 
             cource.AssignedTeacherId = "";

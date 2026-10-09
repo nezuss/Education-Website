@@ -42,6 +42,22 @@ namespace Backend.Services.Cource
             }
 
             var submission = await db.MaterialSubmissions.FirstOrDefaultAsync(ms => ms.Id == dTO.SubmissionId);
+
+            if (submission == null)
+            {
+                return ServiceResult<string>
+                       .Fail("There are no submission with this id", 404);
+            }
+            if (submission.Rate != -1)
+            {
+                return ServiceResult<string>
+                       .Fail("You can not rate already rated submission", 403);
+            }
+            if (dTO.Rate == null || dTO.Rate < 1 || dTO.Rate > 12)
+            {
+                return ServiceResult<string>
+                       .Fail("Rate cannot be null and should be between 1 and 12", 400);
+            }
             
             var course = await (
                 from lesson in db.Lessons
@@ -59,23 +75,7 @@ namespace Backend.Services.Cource
                        .Fail("You are not assigned teacher to this cource", 404); 
             }
 
-            if (submission == null)
-            {
-                return ServiceResult<string>
-                       .Fail("There are no submission with this id", 404);
-            }
-            if (submission.Rate != -1)
-            {
-                return ServiceResult<string>
-                       .Fail("You can not rate already rated submission", 403);
-            }
-            if (dTO.Rate == null || dTO.Rate < 1 || dTO.Rate > 12)
-            {
-                return ServiceResult<string>
-                       .Fail("Rate cannot be null and should be between 1 and 12", 400);
-            }
-
-
+            submission.Status = "Reviewed";
             submission.Rate = dTO.Rate;
             submission.ReviewerId = user.Id;
             submission.ReviewerName = user.Username;

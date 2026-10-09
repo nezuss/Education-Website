@@ -270,13 +270,12 @@ namespace Backend.Services.Mentor
                 })
                 .ToList();
 
-            if (students == null || students.Count() <- 0)
-            {
-                return ServiceResult<List<StudentsLIstResponce>>
-                       .Fail("There is no students", 404);
-            }
+            List<StudentsLIstResponce> pagedStudents = students
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
           
-            return ServiceResult<List<StudentsLIstResponce>>.Ok(students, "Students get successfully");
+            return ServiceResult<List<StudentsLIstResponce>>.Ok(pagedStudents, "Students get successfully");
         }
     }
 }

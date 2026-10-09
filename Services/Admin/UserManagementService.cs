@@ -76,8 +76,8 @@ namespace Backend.Services.Admin
         {
             var user = await db.Users.FirstOrDefaultAsync(m => m.Id == dTO.Id);
 
-            if (user != null)
-                return ServiceResult<string>.Fail("There is already user with this email", 404);
+            if (user == null)
+                return ServiceResult<string>.Fail("User not found with this id", 404);
 
             string salt = BCrypt.Net.BCrypt.GenerateSalt(workFactor: 12);
 
@@ -85,7 +85,6 @@ namespace Backend.Services.Admin
             user.Username = (dTO.Username ?? dTO.Email.Split('@')[0]) ?? user.Username;
             user.Password = BCrypt.Net.BCrypt.HashPassword(dTO.Password, salt) ?? user.Password;
             user.Salt = salt ?? user.Salt;
-            user.RoleId = "";
             user.UpdatedAt = DateTime.UtcNow;
 
             db.Users.Update(user);

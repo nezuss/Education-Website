@@ -131,6 +131,8 @@ namespace Backend
             services.AddScoped<Backend.Services.Auth.DBService>();
             services.AddScoped<Backend.Services.Admin.PromocodeService>();
             services.AddScoped<Backend.Services.Admin.UserManagementService>();
+            services.AddScoped<Backend.Services.Admin.AssignerService>();
+            services.AddScoped<Backend.Services.Admin.UnassignerService>();
             services.AddScoped<Backend.Services.JWT.JWTService>();
             services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
             services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
