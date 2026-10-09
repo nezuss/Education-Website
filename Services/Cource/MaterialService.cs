@@ -261,7 +261,11 @@ namespace Backend.Services.Cource
                 .Where(l => l.MaterialsId != null && l.MaterialsId.Contains(Id))
                 .ToListAsync();
 
-            foreach (var lesson in lessons) lesson.MaterialsId.Remove(Id);
+            foreach (var lesson in lessons)
+            {
+                lesson.MaterialsId.Remove(Id);
+                db.Lessons.Update(lesson);
+            }
 
             db.Materials.Remove(material);
             await db.SaveChangesAsync();

@@ -60,6 +60,7 @@ namespace Backend.Services.Admin
                 return ServiceResult<string>.Fail("This module already assigned to this cource", 400);
 
             cource.ModulesId.Add(dTO.ModuleId);
+            cource.ModulesId ??= new List<string>();
 
             db.Cources.Update(cource);
             await db.SaveChangesAsync();
@@ -83,7 +84,8 @@ namespace Backend.Services.Admin
                 return ServiceResult<string>.Fail("This lesson already assigned to this module", 400);
 
             module.LessonsId.Add(dTO.LessonId);
-
+            module.LessonsId ??= new List<string>();
+          
             db.Modules.Update(module);
             await db.SaveChangesAsync();
 
@@ -106,6 +108,7 @@ namespace Backend.Services.Admin
                 return ServiceResult<string>.Fail("This material already assigned to this lesson", 400);
 
             lesson.MaterialsId.Add(dTO.MaterialId);
+            lesson.MaterialsId ??= new List<string>();
 
             db.Lessons.Update(lesson);
             await db.SaveChangesAsync();

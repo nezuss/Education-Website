@@ -141,6 +141,12 @@ namespace Backend.Services.Cource
                        .Fail("There are no submission with this id", 404);
             }
 
+            if (submission.Status == "Reviewed")
+            {
+                return ServiceResult<MaterialSubmissionModel>
+                       .Fail("Cannot request revision for already reviewed submission", 400);
+            }
+          
             submission.RevisionMessage = dTO.Message;
             submission.Status = "NeedsRevision";
             submission.UpdatedAt = DateTime.UtcNow;
