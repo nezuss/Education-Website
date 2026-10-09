@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import "./UiIcon.css";
 
-export type UiIconName = "home" | "courses" | "assignment" | "users" | "person" | "mail" | "recycle" | "wave" | "teacher" | "admin" | "course-manage" | "orders" | "bell" | "bell-filled" | "cart" | "cart-filled" | "search" | "globe" | "chevron" | "left" | "arrow" | "down" | "logout" | "check" | "check-circle" | "warning" | "loading" | "download" | "file" | "external" | "plus" | "close";
+export type UiIconName = "home" | "courses" | "assignment" | "users" | "person" | "mail" | "recycle" | "wave" | "teacher" | "admin" | "course-manage" | "orders" | "bell" | "bell-filled" | "cart" | "cart-filled" | "search" | "globe" | "chevron" | "left" | "arrow" | "down" | "logout" | "check" | "check-circle" | "warning" | "loading" | "download" | "file" | "external" | "plus" | "close" | "progress" | "calendar" | "feedback" | "certificate" | "settings";
 
 type UiIconProps = {
   name: UiIconName;

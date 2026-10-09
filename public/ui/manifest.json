@@ -1,0 +1,985 @@
+{
+  "sourceRoot": "C:\\Users\\lehan\\OneDrive\\Документы\\GitHub",
+  "coordinateSystem": "Original pixels; crop [left, top, right, bottom], right/bottom exclusive.",
+  "rendering": "PNG alpha masks inherit currentColor. Flat export backgrounds removed by color projection, preserving antialiasing. No vector tracing.",
+  "icons": [
+    {
+      "name": "home",
+      "source": "NEXYLVA screens/7-Student Dashboard (Кабінет студента).png",
+      "sourceSha256": "a5725a49fe2cf456c8dc48412c1767f57f9592f40a1ba029979ae11f05f3f5bb",
+      "crop": [
+        130,
+        130,
+        152,
+        153
+      ],
+      "trimWithinCrop": [
+        4,
+        3,
+        16,
+        16
+      ],
+      "output": "home.png",
+      "pixelSize": [
+        14,
+        15
+      ],
+      "intendedSize": 18,
+      "state": "active",
+      "substitution": ""
+    },
+    {
+      "name": "courses",
+      "source": "NEXYLVA screens/7-Student Dashboard (Кабінет студента).png",
+      "sourceSha256": "a5725a49fe2cf456c8dc48412c1767f57f9592f40a1ba029979ae11f05f3f5bb",
+      "crop": [
+        130,
+        178,
+        152,
+        200
+      ],
+      "trimWithinCrop": [
+        4,
+        2,
+        16,
+        17
+      ],
+      "output": "courses.png",
+      "pixelSize": [
+        14,
+        17
+      ],
+      "intendedSize": 18,
+      "state": "inactive",
+      "substitution": ""
+    },
+    {
+      "name": "assignment",
+      "source": "NEXYLVA screens/7-Student Dashboard (Кабінет студента).png",
+      "sourceSha256": "a5725a49fe2cf456c8dc48412c1767f57f9592f40a1ba029979ae11f05f3f5bb",
+      "crop": [
+        130,
+        225,
+        152,
+        248
+      ],
+      "trimWithinCrop": [
+        4,
+        4,
+        17,
+        17
+      ],
+      "output": "assignment.png",
+      "pixelSize": [
+        15,
+        15
+      ],
+      "intendedSize": 18,
+      "state": "inactive",
+      "substitution": ""
+    },
+    {
+      "name": "users",
+      "source": "NEXYLVA screens/6-05-Payment Success (Успішна оплата).png",
+      "sourceSha256": "e70de6a7f1009fbac6a57492ada95e0cf96aefb209c5984329f37a9c44de82a6",
+      "crop": [
+        997,
+        363,
+        1028,
+        391
+      ],
+      "trimWithinCrop": [
+        3,
+        4,
+        27,
+        20
+      ],
+      "output": "users.png",
+      "pixelSize": [
+        26,
+        18
+      ],
+      "intendedSize": 18,
+      "state": "default",
+      "substitution": ""
+    },
+    {
+      "name": "person",
+      "source": "NEXYLVA screens/7-Student Dashboard (Кабінет студента).png",
+      "sourceSha256": "a5725a49fe2cf456c8dc48412c1767f57f9592f40a1ba029979ae11f05f3f5bb",
+      "crop": [
+        130,
+        579,
+        152,
+        602
+      ],
+      "trimWithinCrop": [
+        3,
+        2,
+        17,
+        15
+      ],
+      "output": "person.png",
+      "pixelSize": [
+        16,
+        15
+      ],
+      "intendedSize": 18,
+      "state": "inactive",
+      "substitution": ""
+    },
+    {
+      "name": "mail",
+      "source": "NEXYLVA screens/7-Student Dashboard (Кабінет студента).png",
+      "sourceSha256": "a5725a49fe2cf456c8dc48412c1767f57f9592f40a1ba029979ae11f05f3f5bb",
+      "crop": [
+        130,
+        465,
+        152,
+        485
+      ],
+      "trimWithinCrop": [
+        3,
+        6,
+        17,
+        16
+      ],
+      "output": "mail.png",
+      "pixelSize": [
+        16,
+        12
+      ],
+      "intendedSize": 24,
+      "state": "inactive",
+      "substitution": ""
+    },
+    {
+      "name": "recycle",
+      "source": "NEXYLVA screens/7-Student Dashboard (Кабінет студента).png",
+      "sourceSha256": "a5725a49fe2cf456c8dc48412c1767f57f9592f40a1ba029979ae11f05f3f5bb",
+      "crop": [
+        205,
+        697,
+        263,
+        755
+      ],
+      "trimWithinCrop": [
+        4,
+        5,
+        53,
+        53
+      ],
+      "output": "recycle.png",
+      "pixelSize": [
+        51,
+        50
+      ],
+      "intendedSize": 44,
+      "state": "default",
+      "substitution": "Replaces the leaf emoji with the exported sidebar recycling emblem."
+    },
+    {
+      "name": "wave",
+      "source": "NEXYLVA screens/7-Student Dashboard (Кабінет студента).png",
+      "sourceSha256": "a5725a49fe2cf456c8dc48412c1767f57f9592f40a1ba029979ae11f05f3f5bb",
+      "crop": [
+        396,
+        160,
+        450,
+        218
+      ],
+      "trimWithinCrop": [
+        1,
+        2,
+        53,
+        56
+      ],
+      "output": "wave.png",
+      "pixelSize": [
+        54,
+        56
+      ],
+      "intendedSize": 48,
+      "state": "default",
+      "substitution": ""
+    },
+    {
+      "name": "teacher",
+      "source": "NEXYLVA screens/6-05-Payment Success (Успішна оплата).png",
+      "sourceSha256": "e70de6a7f1009fbac6a57492ada95e0cf96aefb209c5984329f37a9c44de82a6",
+      "crop": [
+        997,
+        402,
+        1028,
+        433
+      ],
+      "trimWithinCrop": [
+        1,
+        3,
+        25,
+        26
+      ],
+      "output": "teacher.png",
+      "pixelSize": [
+        26,
+        25
+      ],
+      "intendedSize": 24,
+      "state": "default",
+      "substitution": "Also used for the student cabinet and graduation activity icons."
+    },
+    {
+      "name": "admin",
+      "source": "NEXYLVA screens/17-Admin Dashboard/Analytics (Головна панель адміністратора).png",
+      "sourceSha256": "978d5b6a9805d3d8a496adf3ea5cb5ba9502ca8fb2f8d3f03bee8479e8e7514a",
+      "crop": [
+        131,
+        340,
+        154,
+        363
+      ],
+      "trimWithinCrop": [
+        1,
+        0,
+        17,
+        16
+      ],
+      "output": "admin.png",
+      "pixelSize": [
+        18,
+        18
+      ],
+      "intendedSize": 18,
+      "state": "inactive",
+      "substitution": "Exported analytics symbol replaces the shield emoji in the admin cabinet menu."
+    },
+    {
+      "name": "course-manage",
+      "source": "NEXYLVA screens/17-Admin Dashboard/Analytics (Головна панель адміністратора).png",
+      "sourceSha256": "978d5b6a9805d3d8a496adf3ea5cb5ba9502ca8fb2f8d3f03bee8479e8e7514a",
+      "crop": [
+        131,
+        228,
+        154,
+        255
+      ],
+      "trimWithinCrop": [
+        2,
+        8,
+        16,
+        24
+      ],
+      "output": "course-manage.png",
+      "pixelSize": [
+        16,
+        18
+      ],
+      "intendedSize": 18,
+      "state": "inactive",
+      "substitution": ""
+    },
+    {
+      "name": "orders",
+      "source": "NEXYLVA screens/17-Admin Dashboard/Analytics (Головна панель адміністратора).png",
+      "sourceSha256": "978d5b6a9805d3d8a496adf3ea5cb5ba9502ca8fb2f8d3f03bee8479e8e7514a",
+      "crop": [
+        131,
+        289,
+        154,
+        320
+      ],
+      "trimWithinCrop": [
+        2,
+        4,
+        15,
+        18
+      ],
+      "output": "orders.png",
+      "pixelSize": [
+        15,
+        16
+      ],
+      "intendedSize": 18,
+      "state": "inactive",
+      "substitution": ""
+    },
+    {
+      "name": "bell",
+      "source": "UI/Bell.png",
+      "sourceSha256": "3cd9a56d8acce14615cfcbc3a42b563b03d44cdd25510d0df50c1e457695fb95",
+      "crop": [
+        43,
+        41,
+        84,
+        88
+      ],
+      "trimWithinCrop": [
+        3,
+        3,
+        39,
+        43
+      ],
+      "output": "bell.png",
+      "pixelSize": [
+        38,
+        42
+      ],
+      "intendedSize": 20,
+      "state": "outline",
+      "substitution": ""
+    },
+    {
+      "name": "bell-filled",
+      "source": "UI/Bell.png",
+      "sourceSha256": "3cd9a56d8acce14615cfcbc3a42b563b03d44cdd25510d0df50c1e457695fb95",
+      "crop": [
+        147,
+        41,
+        190,
+        88
+      ],
+      "trimWithinCrop": [
+        5,
+        3,
+        41,
+        43
+      ],
+      "output": "bell-filled.png",
+      "pixelSize": [
+        38,
+        42
+      ],
+      "intendedSize": 20,
+      "state": "filled",
+      "substitution": ""
+    },
+    {
+      "name": "cart",
+      "source": "UI/ShoppingCartSimple.png",
+      "sourceSha256": "4914f9d1f6e193e54027eeb9d4e5118299c647a5b0905876e3d0cc66453294be",
+      "crop": [
+        38,
+        40,
+        91,
+        87
+      ],
+      "trimWithinCrop": [
+        3,
+        4,
+        47,
+        44
+      ],
+      "output": "cart.png",
+      "pixelSize": [
+        46,
+        42
+      ],
+      "intendedSize": 20,
+      "state": "outline",
+      "substitution": ""
+    },
+    {
+      "name": "cart-filled",
+      "source": "UI/ShoppingCartSimple.png",
+      "sourceSha256": "4914f9d1f6e193e54027eeb9d4e5118299c647a5b0905876e3d0cc66453294be",
+      "crop": [
+        116,
+        40,
+        170,
+        87
+      ],
+      "trimWithinCrop": [
+        5,
+        4,
+        49,
+        44
+      ],
+      "output": "cart-filled.png",
+      "pixelSize": [
+        46,
+        42
+      ],
+      "intendedSize": 20,
+      "state": "filled",
+      "substitution": ""
+    },
+    {
+      "name": "search",
+      "source": "UI/Header.png",
+      "sourceSha256": "b39804fde69879740ff636c0e6229c1dd9759c22eeb90bb87c6ff77314a3a479",
+      "crop": [
+        2170,
+        1572,
+        2216,
+        1620
+      ],
+      "trimWithinCrop": [
+        0,
+        6,
+        40,
+        46
+      ],
+      "output": "search.png",
+      "pixelSize": [
+        42,
+        42
+      ],
+      "intendedSize": 20,
+      "state": "default",
+      "substitution": ""
+    },
+    {
+      "name": "globe",
+      "source": "UI/Header.png",
+      "sourceSha256": "b39804fde69879740ff636c0e6229c1dd9759c22eeb90bb87c6ff77314a3a479",
+      "crop": [
+        2888,
+        1576,
+        2931,
+        1622
+      ],
+      "trimWithinCrop": [
+        0,
+        2,
+        40,
+        42
+      ],
+      "output": "globe.png",
+      "pixelSize": [
+        42,
+        42
+      ],
+      "intendedSize": 18,
+      "state": "default",
+      "substitution": ""
+    },
+    {
+      "name": "chevron",
+      "source": "UI/btm-1.png",
+      "sourceSha256": "c55d0a3c2073a1951b9cdd48bcafd95c90d87ca3173869f88c58de55ccc9ac3d",
+      "crop": [
+        1930,
+        95,
+        1973,
+        122
+      ],
+      "trimWithinCrop": [
+        3,
+        4,
+        36,
+        22
+      ],
+      "output": "chevron.png",
+      "pixelSize": [
+        35,
+        20
+      ],
+      "intendedSize": 14,
+      "state": "default",
+      "substitution": ""
+    },
+    {
+      "name": "left",
+      "source": "UI/State=btm-активно, type=active/Vector.png",
+      "sourceSha256": "6a5b1016f1c88b9ba75e9fc44bd3e5871da8996f134e7818a373b4b09880350f",
+      "crop": [
+        0,
+        0,
+        12,
+        10
+      ],
+      "trimWithinCrop": [
+        0,
+        0,
+        12,
+        10
+      ],
+      "output": "left.png",
+      "pixelSize": [
+        14,
+        12
+      ],
+      "intendedSize": 14,
+      "state": "active",
+      "substitution": ""
+    },
+    {
+      "name": "logout",
+      "source": "UI/btm-1.png",
+      "sourceSha256": "c55d0a3c2073a1951b9cdd48bcafd95c90d87ca3173869f88c58de55ccc9ac3d",
+      "crop": [
+        2532,
+        435,
+        2573,
+        482
+      ],
+      "trimWithinCrop": [
+        3,
+        6,
+        35,
+        40
+      ],
+      "output": "logout.png",
+      "pixelSize": [
+        34,
+        36
+      ],
+      "intendedSize": 18,
+      "state": "active",
+      "substitution": "Uses the exported exit/send symbol for sign out."
+    },
+    {
+      "name": "check",
+      "source": "NEXYLVA screens/6-05-Payment Success (Успішна оплата).png",
+      "sourceSha256": "e70de6a7f1009fbac6a57492ada95e0cf96aefb209c5984329f37a9c44de82a6",
+      "crop": [
+        460,
+        268,
+        507,
+        307
+      ],
+      "trimWithinCrop": [
+        1,
+        2,
+        46,
+        37
+      ],
+      "output": "check.png",
+      "pixelSize": [
+        47,
+        37
+      ],
+      "intendedSize": 18,
+      "state": "success",
+      "substitution": ""
+    },
+    {
+      "name": "check-circle",
+      "source": "NEXYLVA screens/6-05-Payment Success (Успішна оплата).png",
+      "sourceSha256": "e70de6a7f1009fbac6a57492ada95e0cf96aefb209c5984329f37a9c44de82a6",
+      "crop": [
+        442,
+        247,
+        523,
+        327
+      ],
+      "trimWithinCrop": [
+        2,
+        2,
+        78,
+        78
+      ],
+      "output": "check-circle.png",
+      "pixelSize": [
+        78,
+        78
+      ],
+      "intendedSize": 36,
+      "state": "success",
+      "substitution": ""
+    },
+    {
+      "name": "warning",
+      "source": "NEXYLVA screens/6-04-Payment Failed (Помилка оплати).png",
+      "sourceSha256": "b2f5bab823fa73ba47129c4e67abce3c90de7257e8a5e8c360dfed609e3acfed",
+      "crop": [
+        639,
+        246,
+        700,
+        307
+      ],
+      "trimWithinCrop": [
+        3,
+        3,
+        58,
+        57
+      ],
+      "output": "warning.png",
+      "pixelSize": [
+        57,
+        56
+      ],
+      "intendedSize": 40,
+      "state": "error",
+      "substitution": "Uses the exported payment information/error symbol instead of the warning emoji."
+    },
+    {
+      "name": "loading",
+      "source": "NEXYLVA screens/6-03-Payment Processing (Обробка платежу).png",
+      "sourceSha256": "ba4ef26be671d066523aae577bf62c50f8a1701a69b5992ff7ebe9252afe3d51",
+      "crop": [
+        1003,
+        240,
+        1063,
+        299
+      ],
+      "trimWithinCrop": [
+        3,
+        3,
+        57,
+        56
+      ],
+      "output": "loading.png",
+      "pixelSize": [
+        56,
+        55
+      ],
+      "intendedSize": 36,
+      "state": "loading",
+      "substitution": "Replaces hourglass emojis with the exported processing ring."
+    },
+    {
+      "name": "download",
+      "source": "NEXYLVA screens/12-Upload Project (Завантаження проєкту).png",
+      "sourceSha256": "5e0b026b4606652aefd2fce3cc7c8fd87ba9e6352b933114309b2ca157f62ee9",
+      "crop": [
+        796,
+        649,
+        835,
+        699
+      ],
+      "trimWithinCrop": [
+        2,
+        2,
+        36,
+        48
+      ],
+      "output": "download.png",
+      "pixelSize": [
+        36,
+        48
+      ],
+      "intendedSize": 36,
+      "state": "default",
+      "substitution": "Also used for file download and upload indicators."
+    },
+    {
+      "name": "file",
+      "source": "NEXYLVA screens/12-Upload Project (Завантаження проєкту).png",
+      "sourceSha256": "5e0b026b4606652aefd2fce3cc7c8fd87ba9e6352b933114309b2ca157f62ee9",
+      "crop": [
+        421,
+        1061,
+        461,
+        1107
+      ],
+      "trimWithinCrop": [
+        2,
+        3,
+        37,
+        40
+      ],
+      "output": "file.png",
+      "pixelSize": [
+        37,
+        39
+      ],
+      "intendedSize": 20,
+      "state": "default",
+      "substitution": "Exported PDF/file symbol replaces the folder emoji."
+    },
+    {
+      "name": "external",
+      "source": "NEXYLVA screens/6-05-Payment Success (Успішна оплата).png",
+      "sourceSha256": "e70de6a7f1009fbac6a57492ada95e0cf96aefb209c5984329f37a9c44de82a6",
+      "crop": [
+        1191,
+        322,
+        1209,
+        339
+      ],
+      "trimWithinCrop": [
+        3,
+        3,
+        15,
+        15
+      ],
+      "output": "external.png",
+      "pixelSize": [
+        14,
+        14
+      ],
+      "intendedSize": 14,
+      "state": "default",
+      "substitution": "Also replaces the link emoji beside resource links."
+    },
+    {
+      "name": "plus",
+      "source": "NEXYLVA screens/17-01-Notifications (Сповіщення).png",
+      "sourceSha256": "df5543c81bf5d632d6641b20378229f08842e12fa279851c8e17117398eb25ec",
+      "crop": [
+        487,
+        707,
+        505,
+        726
+      ],
+      "trimWithinCrop": [
+        1,
+        1,
+        17,
+        17
+      ],
+      "output": "plus.png",
+      "pixelSize": [
+        18,
+        18
+      ],
+      "intendedSize": 14,
+      "state": "default",
+      "substitution": "Cropped from the exported add-user symbol."
+    },
+    {
+      "name": "arrow",
+      "source": "UI/State=btm-активно, type=active/Vector.png",
+      "crop": [
+        0,
+        0,
+        12,
+        10
+      ],
+      "rotationDegrees": 180,
+      "output": "arrow.png",
+      "pixelSize": [
+        14,
+        12
+      ],
+      "intendedSize": 14,
+      "state": "active",
+      "substitution": "Rotated supplied arrow."
+    },
+    {
+      "name": "down",
+      "source": "UI/State=btm-активно, type=active/Vector.png",
+      "crop": [
+        0,
+        0,
+        12,
+        10
+      ],
+      "rotationDegrees": 90,
+      "output": "down.png",
+      "pixelSize": [
+        12,
+        14
+      ],
+      "intendedSize": 14,
+      "state": "active",
+      "substitution": "Rotated supplied arrow."
+    },
+    {
+      "name": "close",
+      "source": "NEXYLVA screens/17-01-Notifications (Сповіщення).png",
+      "crop": [
+        487,
+        707,
+        505,
+        726
+      ],
+      "rotationDegrees": 45,
+      "output": "close.png",
+      "pixelSize": [
+        26,
+        26
+      ],
+      "intendedSize": 18,
+      "state": "default",
+      "substitution": "Rotated exported plus silhouette for close/delete controls; no standalone close asset was supplied."
+    },
+    {
+      "name": "progress",
+      "source": "NEXYLVA screens/7-Student Dashboard (Кабінет студента).png",
+      "sourceSha256": "a5725a49fe2cf456c8dc48412c1767f57f9592f40a1ba029979ae11f05f3f5bb",
+      "crop": [
+        130,
+        274,
+        152,
+        297
+      ],
+      "trimWithinCrop": [
+        2,
+        4,
+        18,
+        17
+      ],
+      "output": "progress.png",
+      "pixelSize": [
+        18,
+        15
+      ],
+      "intendedSize": 18,
+      "state": "inactive",
+      "substitution": ""
+    },
+    {
+      "name": "calendar",
+      "source": "NEXYLVA screens/7-Student Dashboard (Кабінет студента).png",
+      "sourceSha256": "a5725a49fe2cf456c8dc48412c1767f57f9592f40a1ba029979ae11f05f3f5bb",
+      "crop": [
+        130,
+        321,
+        152,
+        345
+      ],
+      "trimWithinCrop": [
+        4,
+        4,
+        16,
+        17
+      ],
+      "output": "calendar.png",
+      "pixelSize": [
+        14,
+        15
+      ],
+      "intendedSize": 18,
+      "state": "inactive",
+      "substitution": ""
+    },
+    {
+      "name": "feedback",
+      "source": "NEXYLVA screens/7-Student Dashboard (Кабінет студента).png",
+      "sourceSha256": "a5725a49fe2cf456c8dc48412c1767f57f9592f40a1ba029979ae11f05f3f5bb",
+      "crop": [
+        130,
+        369,
+        152,
+        393
+      ],
+      "trimWithinCrop": [
+        3,
+        4,
+        17,
+        18
+      ],
+      "output": "feedback.png",
+      "pixelSize": [
+        16,
+        16
+      ],
+      "intendedSize": 18,
+      "state": "inactive",
+      "substitution": ""
+    },
+    {
+      "name": "certificate",
+      "source": "NEXYLVA screens/7-Student Dashboard (Кабінет студента).png",
+      "sourceSha256": "a5725a49fe2cf456c8dc48412c1767f57f9592f40a1ba029979ae11f05f3f5bb",
+      "crop": [
+        130,
+        521,
+        152,
+        544
+      ],
+      "trimWithinCrop": [
+        3,
+        5,
+        18,
+        18
+      ],
+      "output": "certificate.png",
+      "pixelSize": [
+        17,
+        15
+      ],
+      "intendedSize": 18,
+      "state": "inactive",
+      "substitution": ""
+    },
+    {
+      "name": "settings",
+      "source": "NEXYLVA screens/7-Student Dashboard (Кабінет студента).png",
+      "sourceSha256": "a5725a49fe2cf456c8dc48412c1767f57f9592f40a1ba029979ae11f05f3f5bb",
+      "crop": [
+        130,
+        626,
+        152,
+        650
+      ],
+      "trimWithinCrop": [
+        3,
+        3,
+        17,
+        17
+      ],
+      "output": "settings.png",
+      "pixelSize": [
+        16,
+        16
+      ],
+      "intendedSize": 18,
+      "state": "inactive",
+      "substitution": ""
+    }
+  ],
+  "illustrations": [
+    {
+      "name": "progress-mascot",
+      "source": "NEXYLVA screens/7-01-Progress (Прогрес).png",
+      "sourceSha256": "fb42ba44c3e20bbf653da8b37d2322e7cf0f3fddd2b58b9d478b803c29059ccb",
+      "crop": [
+        1495,
+        1093,
+        1628,
+        1305
+      ],
+      "output": "progress-mascot.png",
+      "pixelSize": [
+        133,
+        212
+      ],
+      "intendedSize": [
+        133,
+        212
+      ],
+      "state": "decorative",
+      "excludedArtwork": "Copper curve below character feet",
+      "background": "Original card background preserved; render only on matching Figma card color."
+    },
+    {
+      "name": "profile-mascot",
+      "source": "NEXYLVA screens/7-03-Профіль студента.png",
+      "sourceSha256": "ae3a62d257ee2b1975a3e88ddb07f021534e329e1ba35dd9e982c57b157eab71",
+      "crop": [
+        1490,
+        1619,
+        1773,
+        1864
+      ],
+      "output": "profile-mascot.png",
+      "pixelSize": [
+        283,
+        245
+      ],
+      "intendedSize": [
+        283,
+        245
+      ],
+      "state": "decorative",
+      "excludedArtwork": "Adjacent PDF label in top-left 72x72px",
+      "background": "Original card background preserved; render only on matching Figma card color."
+    },
+    {
+      "name": "dashboard-tree",
+      "source": "NEXYLVA screens/7-Student Dashboard (Кабінет студента).png",
+      "sourceSha256": "a5725a49fe2cf456c8dc48412c1767f57f9592f40a1ba029979ae11f05f3f5bb",
+      "crop": [
+        1409,
+        1081,
+        1821,
+        1396
+      ],
+      "output": "dashboard-tree.png",
+      "pixelSize": [
+        412,
+        315
+      ],
+      "intendedSize": [
+        412,
+        315
+      ],
+      "state": "decorative",
+      "excludedArtwork": "All adjacent feedback text and cards excluded.",
+      "background": "Original #E8E4DF canvas preserved."
+    }
+  ]
+}
