@@ -9,6 +9,8 @@
 }
 
 .data-unavailable, .request-error {
+  min-width: 0;
+  overflow-wrap: anywhere;
   border: 1px solid var(--accent-border);
   border-radius: 16px;
   padding: 28px;

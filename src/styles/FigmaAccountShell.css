@@ -1,0 +1,68 @@
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) { background: linear-gradient(to right, #13492c 260px, #e8e4df 260px); }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-sidebar { background: #13492c; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-brand-logo { filter: none; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-topbar { height: 96px; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-topbar-breadcrumb { color: #0a2d1b; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-nav-item { font-size: 16px; line-height: 24px; gap: 16px; border-radius: 7px; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-nav-item.active { background: #b29074; color: #0a2d1b; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-nav-divider { background: #b4ccbf; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-sidebar-promo-card { border: 1px solid #b4ccbf; background: transparent; border-radius: 24px; padding: 12px 24px; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-promo-icon { display: flex; justify-content: center; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-promo-title { font: 500 20px/1.3 var(--font-heading); color: #b4ccbf; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-promo-desc { font-size: 16px; line-height: 1.5; color: #b4ccbf; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-promo-link { width: 100%; min-height: 52px; padding: 12px; border: 1px solid #b4ccbf; border-radius: 6px; color: #b4ccbf; justify-content: center; font-size: 14px; line-height: 20px; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-sidebar-footer { color: #b4ccbf; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-search-box { height: 48px; padding: 12px; gap: 8px; background: #5570611a; border: 1px solid #b6c2bc; border-radius: 8px; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-search-input { font-size: 14px; line-height: 20px; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-search-box .ui-icon { width: 24px; height: 24px; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-user-btn { min-height: 52px; padding: 8px 24px; gap: 8px; background: #fff; border: 1px solid #0a2d1b; border-radius: 8px; justify-content: center; }
+.lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-user-name { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.lms-layout.mentor-profile-layout .mentor-profile-tablet-community { display: none; }
+
+@media (min-width: 1600px) {
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) { background: linear-gradient(to right, #13492c 367px, #e8e4df 367px); }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-sidebar { width: 367px; padding: 14px 24px 24px 120px; scrollbar-width: none; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-sidebar::-webkit-scrollbar { display: none; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-sidebar-top-row { min-height: 82px; margin-bottom: 24px; align-items: flex-start; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-sidebar-top-row::after { content: ''; position: absolute; top: 95px; left: 0; right: 0; height: 1px; background: #ffffff66; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-brand-link { padding: 0; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-brand-logo { width: 225.65px; height: 66px; max-width: none; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-nav-group { width: 219px; margin-left: 4px; flex: 0 0 auto; gap: 8px; opacity: .8; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-nav-item { min-height: 40px; height: 40px; padding: 8px; font-weight: 500; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-nav-icon { width: 16px; height: 16px; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-nav-icon .ui-icon { width: 16px; height: 16px; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-nav-divider { position: relative; height: 0; margin: 0; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-nav-divider::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: #b4ccbf; }
+  .lms-layout.mentor-profile-layout .mentor-profile-nav-separator { margin: 8px 0; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-sidebar-promo-card { width: 250px; margin: 33px 0 25px -12px; border-color: #fff; opacity: .8; }
+  .lms-layout.submission-result-layout .lms-promo-icon .ui-icon { width: 48px; height: 48px; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-promo-title { color: #fff; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-promo-desc { font-weight: 500; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-promo-link { border-color: #fff; color: #fff; border-radius: 8px; padding: 16px; }
+  .lms-layout.mentor-profile-layout .lms-sidebar-promo-card { display: grid; grid-template-columns: 41px minmax(0, 1fr); column-gap: 8px; }
+  .lms-layout.mentor-profile-layout .lms-promo-icon { justify-content: flex-start; align-items: center; }
+  .lms-layout.mentor-profile-layout .lms-promo-icon .ui-icon { width: 41px; height: 41px; }
+  .lms-layout.mentor-profile-layout .lms-promo-desc, .lms-layout.mentor-profile-layout .lms-promo-link { grid-column: 1 / -1; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-sidebar-footer { margin-left: -20px; padding: 0; font-size: 12px; line-height: 16px; color: #fff; opacity: .8; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-content { padding: 60px 100px 40px 24px; max-width: none; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-topbar { padding-right: 100px; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-topbar-right { gap: 24px; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-lang-toggle { display: inline-flex; align-items: center; gap: 4px; width: 76px; padding: 0; font-size: 14px; font-weight: 600; line-height: 20px; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-lang-toggle .ui-icon { width: 24px; height: 24px; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-bell-btn { width: 24px; height: 24px; padding: 0; color: #557061; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-bell-btn .ui-icon { width: 24px; height: 24px; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-search-box { width: 347px; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-user-btn { width: 250px; max-width: 250px; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-user-btn > .ui-icon { width: 16px; height: 16px; }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) { background: linear-gradient(to right, #13492c 72px, #e8e4df 72px); }
+  .lms-layout.mentor-profile-layout .mentor-profile-tablet-community { display: flex; }
+}
+@media (max-width: 768px) {
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) { background: #e8e4df; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-topbar { height: 72px; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-content { padding: 28px 16px; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-user-btn { padding: 8px 12px; gap: 12px; min-height: 42px; max-width: 100%; }
+  .lms-layout:is(.submission-result-layout, .mentor-profile-layout) .lms-user-avatar { flex-shrink: 0; }
+}

@@ -1,0 +1,45 @@
+.student-insights-layout { background: linear-gradient(to right, #13492c 260px, #e8e4df 260px); }
+.student-insights-layout .lms-sidebar { background: #13492c; }
+.student-insights-layout .lms-brand-logo { filter: none; }
+.student-insights-layout .lms-topbar { height: 96px; }
+.student-insights-layout .lms-content { padding-top: 60px; max-width: none; }
+.student-insights-layout .lms-topbar-breadcrumb { font-weight: 600; color: #0a2d1b; }
+.student-insights-layout .lms-nav-item { font-size: 16px; line-height: 24px; gap: 16px; }
+.student-insights-layout .lms-nav-item.active { background: #99896b; color: #0a2d1b; }
+.lms-nav-item.lms-nav-unavailable { opacity: 1; font-family: inherit; font-size: inherit; text-align: left; border: 0; cursor: not-allowed; width: 100%; background: transparent; color: #aabdb3; }
+.student-insights-layout .lms-sidebar-promo-card { background: transparent; border: 1px solid #b4ccbf; border-radius: 24px; padding: 12px 24px; }
+.student-insights-layout .lms-promo-icon { display: flex; justify-content: center; }
+.student-insights-layout .lms-promo-title { color: #b4ccbf; font: 500 20px/1.3 var(--font-heading); }
+.student-insights-layout .lms-promo-desc { color: #b4ccbf; font-size: 16px; line-height: 1.5; }
+.student-insights-layout .lms-promo-link { color: #b4ccbf; border: 1px solid #b4ccbf; border-radius: 6px; padding: 15px; width: 100%; min-height: 52px; font-size: 14px; line-height: 20px; justify-content: center; }
+.student-insights-layout .lms-search-box { background: #ecf0ee; border: 1px solid #b4ccbf; border-radius: 6px; height: 48px; }
+.student-insights-layout .lms-user-btn { background: #13492c; border-radius: 6px; padding: 12px 24px; gap: 24px; color: #b4ccbf; }
+.student-insights-layout .lms-user-name { color: #b4ccbf; }
+.student-insights-layout .lms-sidebar-footer { color: #b4ccbf; }
+@media (min-width: 1600px) {
+  .student-insights-layout { background: linear-gradient(to right, #13492c 368px, #e8e4df 368px); }
+  .lms-layout.student-insights-layout .lms-sidebar { width: 368px; padding: 14px 24px 24px 120px; }
+  .lms-layout.student-insights-layout .lms-sidebar-top-row { min-height: 82px; margin-bottom: 24px; align-items: flex-start; }
+  .student-insights-layout .lms-brand-link { padding: 0; }
+  .lms-layout.student-insights-layout .lms-brand-logo { width: 225.65px; height: 66px; max-width: none; }
+  .lms-layout.student-insights-layout .lms-nav-group { flex: 0 0 auto; gap: 8px; width: 219px; margin-left: 4px; }
+  .lms-layout.student-insights-layout .lms-nav-item { min-height: 40px; height: 40px; padding: 8px; }
+  .student-insights-layout .lms-nav-divider { margin: 0; background: #b4ccbf; }
+  .student-insights-layout .lms-sidebar-promo-card { margin: 36px 0 24px -12px; width: 250px; }
+  .student-insights-layout .lms-sidebar-footer { margin-left: -20px; font-size: 12px; }
+  .lms-layout.student-insights-layout .lms-content { padding: 60px 100px 32px 24px; }
+  .student-insights-layout .lms-topbar { padding-right: 100px; }
+  .student-insights-layout .lms-search-box { width: 350px; }
+  .student-insights-layout .lms-user-btn { min-width: 250px; justify-content: center; }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+  .student-insights-layout { background: linear-gradient(to right, #13492c 72px, #e8e4df 72px); }
+}
+@media (max-width: 768px) {
+  .student-insights-layout { background: #e8e4df; }
+  .student-insights-layout .lms-topbar { height: 72px; }
+  .student-insights-layout .lms-content { padding: 28px 16px; }
+  .student-insights-layout .lms-user-btn { padding: 8px 12px; gap: 12px; max-width: 100%; }
+  .student-insights-layout .lms-user-name { min-width: 0; }
+  .student-insights-layout .lms-user-avatar { flex-shrink: 0; }
+}

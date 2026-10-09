@@ -377,11 +377,13 @@
 }
 
 @media (max-width: 768px) {
+  .lms-topbar-breadcrumb { display: none; }
   .lms-topbar { gap: 8px; }
   .lms-topbar-right { gap: 8px; min-width: 0; }
   .lms-user-menu, .lms-user-btn { min-width: 0; }
   .lms-user-name { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .lms-sidebar {
+    visibility: hidden;
     position: fixed;
     top: 0;
     left: 0;
@@ -391,6 +393,7 @@
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
   }
   .lms-sidebar.open {
+    visibility: visible;
     transform: translateX(0);
   }
   .lms-sidebar.open .lms-nav-item span,

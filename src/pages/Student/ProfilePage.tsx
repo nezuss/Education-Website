@@ -1,120 +1,110 @@
-import UiIcon from "../../components/ui/Icon/UiIcon";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import { getCourseStats, type CourseStats } from "../../services/courseStatsService";
 import { getEnrolledCourses } from "../../services/courseService";
 import { getProfile, getProfileStats, type UserProfile } from "../../services/profileService";
+import { submissionGrade } from "../../services/submissionService";
 import type { Course } from "../../types/course";
-import "../../styles/StudentDashboard.css";
 import RequestError from "../shared/RequestError";
 import PasswordChangeForm from "../shared/PasswordChangeForm";
+import "../../styles/StudentProfile.css";
 
-type ProfileData = { profile?: UserProfile; courses: Course[]; stats: Record<string, CourseStats> };
+type ProfileData = { profile?: UserProfile; courses?: Course[]; stats: Record<string, CourseStats>; submissions?: unknown[] };
+type ProfileWork = { relatedMaterialId: string; rate: number; status?: string; createdAt: string; type?: string };
+
+function latestWorks(submissions?: unknown[]): ProfileWork[] | undefined {
+  if (!submissions) return undefined;
+  const latest = new Map<string, ProfileWork>();
+  for (const value of submissions) {
+    if (!value || typeof value !== "object") return undefined;
+    const item = value as Partial<ProfileWork>;
+    if (typeof item.relatedMaterialId !== "string" || !item.relatedMaterialId || typeof item.type !== "string" || !["Assignment", "Test"].includes(item.type) || typeof item.rate !== "number" || (item.rate !== -1 && submissionGrade(item.rate) === undefined) || typeof item.createdAt !== "string" || !Number.isFinite(Date.parse(item.createdAt))) return undefined;
+    const previous = latest.get(item.relatedMaterialId);
+    if (!previous || Date.parse(item.createdAt) > Date.parse(previous.createdAt)) latest.set(item.relatedMaterialId, item as ProfileWork);
+  }
+  return [...latest.values()];
+}
+
+function validStats(stats?: CourseStats): stats is CourseStats {
+  return Boolean(stats && [stats.progressPercentage, stats.totalSubmittableMaterials, stats.completedSubmittableMaterials].every(value => typeof value === "number" && Number.isFinite(value) && value >= 0) && stats.progressPercentage <= 100 && stats.completedSubmittableMaterials <= stats.totalSubmittableMaterials);
+}
 
 export default function ProfilePage() {
-  const [data, setData] = useState<ProfileData>({ courses: [], stats: {} });
+  const [data, setData] = useState<ProfileData>({ stats: {} });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [submissionCount, setSubmissionCount] = useState<number>();
 
   useEffect(() => {
     let mounted = true;
-    async function loadProfile() {
-      try {
-        const [profile, courses] = await Promise.all([getProfile(), getEnrolledCourses()]);
-        const entries = await Promise.all(courses.map(async (course) => {
-          try { return [course.id, await getCourseStats(course.id)] as const; }
-          catch (reason) { if (mounted) setError((reason as Error).message); return [course.id, undefined] as const; }
-        }));
-        if (mounted) setData({
-          profile,
-          courses,
-          stats: Object.fromEntries(entries.filter((entry): entry is readonly [string, CourseStats] => Boolean(entry[1]))),
-        });
-      } catch {
-        if (mounted) setError("Не вдалося завантажити дані профілю. Спробуйте оновити сторінку.");
-      } finally {
-        if (mounted) setLoading(false);
-      }
+    async function load() {
+      const [profile, courses, profileStats] = await Promise.allSettled([getProfile(), getEnrolledCourses(), getProfileStats()]);
+      const errors: string[] = [];
+      if (profile.status === "rejected") errors.push("профіль");
+      if (courses.status === "rejected") errors.push("курси");
+      if (profileStats.status === "rejected") errors.push("статистику робіт");
+      const enrolled = courses.status === "fulfilled" ? courses.value : undefined;
+      const stats: Record<string, CourseStats> = {};
+      const entries = await Promise.allSettled((enrolled ?? []).map(async course => [course.id, await getCourseStats(course.id)] as const));
+      entries.forEach(entry => {
+        if (entry.status === "fulfilled" && validStats(entry.value[1])) stats[entry.value[0]] = entry.value[1];
+        else if (!errors.includes("прогрес курсів")) errors.push("прогрес курсів");
+      });
+      if (!mounted) return;
+      setData({ profile: profile.status === "fulfilled" ? profile.value : undefined, courses: enrolled, stats, submissions: profileStats.status === "fulfilled" ? profileStats.value.submissions : undefined });
+      setError(errors.length ? `Не вдалося завантажити ${errors.join(", ")}. Частина даних поки недоступна.` : "");
+      setLoading(false);
     }
-    void loadProfile();
-    getProfileStats().then(stats => { if (mounted) setSubmissionCount(stats.submissions.length); }).catch((reason: Error) => { if (mounted) setError(reason.message); });
+    void load();
     return () => { mounted = false; };
   }, []);
 
   const summary = useMemo(() => {
+    const allStatsAvailable = data.courses !== undefined && data.courses.every(course => validStats(data.stats[course.id]));
     const stats = Object.values(data.stats);
-    const activeCourses = stats.filter((item) => item.progressPercentage < 100).length;
-    const completedCourses = stats.filter((item) => item.progressPercentage >= 100).length;
-    const submittedWorks = submissionCount ?? "—";
-    const totalLessons = stats.reduce((total, item) => total + item.totalLessons, 0);
-    const completedLessons = stats.reduce((total, item) => total + item.completedLessons, 0);
-    const progress = totalLessons ? Math.round((completedLessons / totalLessons) * 100) : 0;
-    return { activeCourses, completedCourses, submittedWorks, progress, totalLessons };
-  }, [data.stats, submissionCount]);
+    const total = stats.reduce((sum, item) => sum + item.totalSubmittableMaterials, 0);
+    const completed = stats.reduce((sum, item) => sum + item.completedSubmittableMaterials, 0);
+    const works = latestWorks(data.submissions);
+    const graded = works?.filter(item => item.status !== "NeedsRevision" && submissionGrade(item.rate) !== undefined);
+    return {
+      activeCourses: allStatsAvailable ? stats.filter(item => item.progressPercentage < 100).length : undefined,
+      progress: allStatsAvailable && total > 0 ? Math.round(completed / total * 100) : undefined,
+      projects: works?.filter(item => item.type === "Assignment" && item.status !== "NeedsRevision" && submissionGrade(item.rate) !== undefined).length,
+      averageGrade: graded?.length ? Math.round(graded.reduce((sum, item) => sum + item.rate, 0) / graded.length * 10) / 10 : undefined,
+    };
+  }, [data]);
 
-  const name = data.profile?.username || data.profile?.name || "Користувач";
-  const email = data.profile?.email || "Не вказано";
+  const name = loading ? "Завантаження…" : data.profile?.username || data.profile?.name || "Дані недоступні";
+  const email = loading ? "Завантаження…" : data.profile?.email || "Дані недоступні";
+  const editReason = "Редагування профілю тимчасово недоступне.";
 
-  return <div className="std-dash student-profile-page">
-    <div className="std-breadcrumb"><Link to="/student">Головна</Link><span>›</span><span>Профіль</span></div>
-    <section className="student-profile-intro">
-      <div><span className="std-badge-tag">[ ПРОФІЛЬ СТУДЕНТА ]</span><h1>Профіль студента</h1><p>Відстежуйте свій навчальний шлях та прогрес у курсах.</p></div>
-      <span className="student-profile-api-note">Дані синхронізовано з акаунтом</span>
+  return <div className="student-figma-profile" aria-busy={loading}>
+    <nav className="sfp-breadcrumb" aria-label="Навігаційний шлях"><Link to="/student">Головна</Link><UiIcon name="chevron" size={16} /><span>Профіль</span><UiIcon name="chevron" size={16} /><span aria-current="page">Профіль студента</span></nav>
+    <section className="sfp-intro">
+      <div className="sfp-intro-copy"><span className="sfp-tag">[ ПРОФІЛЬ СТУДЕНТА ]</span><div><h1>Профіль студента</h1><p>Керуй інформацією про себе, відстежуй навчальний шлях і збирай найкращі проєкти в одному місці.</p></div></div>
+      <button className="sfp-edit-button" type="button" disabled title={editReason} aria-describedby="sfp-edit-note">Редагувати профіль <UiIcon name="arrow" size={18} /></button>
     </section>
+    <p className="sfp-edit-note" id="sfp-edit-note">{editReason}</p>
     {error && <RequestError message={error} />}
-
-    <section className="student-profile-overview">
-      <div className="student-profile-main-card">
-        <span className="profile-initial-avatar">{name.charAt(0)}</span>
-        <div className="student-profile-identity">
-          <span className="student-profile-label">[ STUDENT PROFILE / ПРОФІЛЬ ]</span>
-          <h2>{loading ? "Завантаження…" : name}</h2><p>Студентка / студент платформи NEXYLVA</p>
-          <div className="student-profile-numbers">
-            <ProfileNumber value={summary.activeCourses} label="активних курсів" /><ProfileNumber value={summary.submittedWorks} label="зданих завдань" />
-            <ProfileNumber value={`${summary.progress}%`} label="загальний прогрес" /><ProfileNumber value={summary.completedCourses} label="завершених курсів" />
-          </div>
-        </div>
+    <section className="sfp-overview" aria-label="Профіль та особисті інтереси">
+      <div className="sfp-identity-card">
+        <div className="sfp-avatar-empty"><span className="sfp-avatar-monogram" aria-hidden="true">{data.profile?.username?.charAt(0).toUpperCase() || "—"}</span><span>Фото профілю поки недоступне</span></div>
+        <div className="sfp-identity-copy"><span className="sfp-tag">[ STUDENT PROFILE / ПРОФІЛЬ ]</span><div className="sfp-identity-heading"><h2>{name}</h2><p>Опис профілю поки недоступний.</p></div><div className="sfp-identity-numbers">
+          <ProfileNumber value={loading ? undefined : summary.activeCourses} label="активних курсів" /><ProfileNumber value={loading ? undefined : summary.projects} label="перевірених проєктів" /><ProfileNumber value={loading || summary.progress === undefined ? undefined : `${summary.progress}%`} label="загальний прогрес" /><ProfileNumber label="досягнень" />
+        </div></div>
       </div>
-      <aside className="student-profile-about">
-        <span className="std-badge-tag">[ ПРО МЕНЕ / ABOUT ME ]</span><h2>Мій профіль</h2>
-        <p className="student-profile-about-copy">Персональні дані надходять з облікового запису. Редагування стане доступним після підключення відповідного методу API.</p>
-        <div className="student-profile-detail"><span>Роль</span><strong>{data.profile?.role === "None" || !data.profile?.role ? "Студент" : data.profile.role}</strong></div>
-        <div className="student-profile-detail"><span>Курсів у навчанні</span><strong>{data.courses.length}</strong></div>
-        <div className="student-profile-detail"><span>Уроків пройдено</span><strong>{summary.totalLessons ? `${summary.progress}%` : "—"}</strong></div>
-      </aside>
+      <aside className="sfp-about"><div className="sfp-about-top"><span className="sfp-tag">[ ABOUT ME / ПРО МЕНЕ ]</span><h2>МОЯ ЦІЛЬ</h2><p className="sfp-goal">Дані поки недоступні.</p><p className="sfp-about-tags">Інтереси ще не вказані.</p></div><div className="sfp-professional"><h3>ПРОФЕСІЙНІ ІНТЕРЕСИ</h3><p>Дані поки недоступні.</p></div><p className="sfp-about-location">Місто та дата приєднання поки недоступні.</p></aside>
     </section>
-
-    <section className="student-profile-stat-grid" aria-label="Навчальна статистика">
-      <ProfileStat title="НАВЧАННЯ" value={summary.totalLessons} label="уроків у курсах" /><ProfileStat title="ПРОЄКТИ" value={summary.submittedWorks} label="завдань здано" />
-      <ProfileStat title="ПРОГРЕС" value={`${summary.progress}%`} label="за всіма курсами" /><ProfileStat title="СЕРТИФІКАТИ" value="—" label="дані ще не надані API" />
+    <section className="sfp-stat-grid" aria-label="Навчальна статистика"><ProfileStat title="НАВЧАННЯ" label="час навчання поки недоступний" /><ProfileStat title="ПРОЄКТИ" value={loading ? undefined : summary.projects} label="перевірених проєктів" /><ProfileStat title="СЕРЕДНІЙ БАЛ" value={loading || summary.averageGrade === undefined ? undefined : `${summary.averageGrade.toLocaleString("uk-UA")} / 12`} label={summary.averageGrade === undefined ? "оцінки поки недоступні" : "за перевірені роботи"} /><ProfileStat title="СЕРТИФІКАТИ" label="дані поки недоступні" /></section>
+    <section className="sfp-showcase" aria-label="Портфоліо та сертифікати">
+      <div className="sfp-portfolio"><div className="sfp-section-heading"><h2>Моє портфоліо</h2><button type="button" disabled title="Портфоліо поки недоступне">Усі проєкти <UiIcon name="arrow" size={16} /></button></div><div className="sfp-portfolio-empty"><UiIcon name="file" size={48} /><h3>Проєкти поки недоступні</h3><p>Тут з’являться твої опубліковані роботи.</p><Link to="/student/assignments">Мої завдання <UiIcon name="arrow" size={18} /></Link></div></div>
+      <aside className="sfp-certificates"><div className="sfp-section-heading"><h2>Сертифікати</h2><button type="button" disabled title="Сертифікати поки недоступні">Переглянути всі <UiIcon name="arrow" size={16} /></button></div><div className="sfp-certificate-empty"><UiIcon name="file" size={40} /><h3>Сертифікати поки недоступні</h3><p>Дані про отримані сертифікати ще не доступні.</p></div><div className="sfp-certificate-decoration"><img src="/ui/profile-mascot.png" width={283} height={245} alt="" /></div></aside>
     </section>
-
-    <section className="student-profile-lower-grid">
-      <div className="student-profile-courses">
-        <div className="student-profile-section-heading"><div><span className="std-badge-tag">[ НАВЧАННЯ ]</span><h2>Мої курси</h2></div><Link to="/student/courses">Усі курси <UiIcon name="arrow" /></Link></div>
-        {loading ? <p className="student-profile-empty">Завантажуємо курси…</p> : data.courses.length ? <div className="student-profile-course-list">
-          {data.courses.slice(0, 3).map((course) => {
-            const progress = data.stats[course.id]?.progressPercentage ?? 0;
-            return <Link className="student-profile-course" to={`/student/learning/${course.id}`} key={course.id}>
-              <div><h3>{course.title}</h3><p>{course.direction || "Навчальний курс"}</p></div>
-              <div className="student-profile-course-progress"><strong>{progress}%</strong><div><span style={{ width: `${progress}%` }} /></div></div>
-            </Link>;
-          })}
-        </div> : <p className="student-profile-empty">Ви ще не записалися на жоден курс.</p>}
-      </div>
-      <aside className="student-profile-certificates"><span className="std-badge-tag">[ СЕРТИФІКАТИ ]</span><h2>Сертифікати</h2><p>Сертифікати з’являться тут, коли сервер передаватиме дані про їх отримання.</p></aside>
-    </section>
-
-    <section className="student-profile-personal">
-      <div className="student-profile-section-heading"><div><span className="std-badge-tag">[ АКАУНТ ]</span><h2>Особиста інформація</h2></div></div>
-      <div className="student-profile-personal-grid"><ProfileField label="Ім’я" value={name} /><ProfileField label="Email" value={email} /><ProfileField label="Телефон" value="Не вказано" /><ProfileField label="Статус профілю" value="Видимий у системі" /></div>
-      <p className="student-profile-readonly">Поля доступні лише для перегляду: сервер поки не має методу оновлення профілю.</p>
-    </section>
-    <PasswordChangeForm />
+    <section className="sfp-personal"><div className="sfp-section-heading"><h2>Особиста інформація</h2><span className="sfp-heading-line" /><button type="button" disabled title={editReason}>Редагувати <UiIcon name="arrow" size={16} /></button></div><dl className="sfp-personal-grid"><ProfileField label="Email" value={email} /><ProfileField label="Телефон" value="Дані недоступні" /><ProfileField label="Місто" value="Дані недоступні" /><ProfileField label="Статус профілю" value="Дані недоступні" /></dl></section>
+    <details className="sfp-security"><summary>Безпека акаунта <UiIcon name="chevron" size={18} /></summary><PasswordChangeForm /></details>
   </div>;
 }
 
-function ProfileNumber({ value, label }: { value: string | number; label: string }) { return <div><strong>{value}</strong><span>{label}</span></div>; }
-function ProfileStat({ title, value, label }: { title: string; value: string | number; label: string }) { return <div><span>{title}</span><strong>{value}</strong><p>{label}</p></div>; }
-function ProfileField({ label, value }: { label: string; value: string }) { return <div><span>{label}</span><strong>{value}</strong></div>; }
+function ProfileNumber({ value, label }: { value?: string | number; label: string }) { return <div><strong>{value ?? "—"}</strong><span>{label}</span></div>; }
+function ProfileStat({ title, value, label }: { title: string; value?: string | number; label: string }) { return <div><span>{title}</span><strong>{value ?? "—"}</strong><p>{label}</p></div>; }
+function ProfileField({ label, value }: { label: string; value: string }) { return <div><dt>{label}</dt><dd>{value}</dd></div>; }
