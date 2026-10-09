@@ -1,3 +1,4 @@
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import { Link } from "react-router-dom";
 import "../../styles/CheckoutPage.css";
 
@@ -17,7 +18,7 @@ export default function CancelPage() {
                     margin: "0 auto 24px",
                     fontSize: "30px"
                 }}>
-                    ✕
+                    <UiIcon name="close" />
                 </div>
 
                 <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "26px", color: "var(--color-brand-dark)", marginBottom: "12px" }}>
@@ -34,7 +35,7 @@ export default function CancelPage() {
                         style={{ padding: "14px 28px", textDecoration: "none" }}
                     >
                         <span>Каталог курсів</span>
-                        <span>→</span>
+                        <span><UiIcon name="arrow" /></span>
                     </Link>
                     <Link 
                         to="/" 

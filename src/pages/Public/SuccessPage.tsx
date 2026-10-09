@@ -1,3 +1,4 @@
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { checkPaymentStatus } from "../../services/accountingService";
@@ -34,7 +35,7 @@ export default function SuccessPage() {
             <div className="checkout-order-card" style={{ maxWidth: "680px", textAlign: "center", padding: "48px 40px" }}>
                 {status === "loading" && (
                     <div>
-                        <div style={{ fontSize: "36px", marginBottom: "16px" }}>⏳</div>
+                        <div style={{ fontSize: "36px", marginBottom: "16px" }}><UiIcon name="loading" size={36} /></div>
                         <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "24px", color: "var(--color-brand-dark)", marginBottom: "12px" }}>
                             Підтвердження платежу...
                         </h2>
@@ -58,7 +59,7 @@ export default function SuccessPage() {
                             margin: "0 auto 24px",
                             fontSize: "36px"
                         }}>
-                            ✓
+                            <UiIcon name="check" size={36} />
                         </div>
                         <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "28px", color: "var(--color-brand-dark)", marginBottom: "12px" }}>
                             Оплату успішно завершено!
@@ -74,7 +75,7 @@ export default function SuccessPage() {
                                 style={{ padding: "14px 28px", textDecoration: "none" }}
                             >
                                 <span>Перейти до навчання</span>
-                                <span>→</span>
+                                <span><UiIcon name="arrow" /></span>
                             </Link>
                             <Link 
                                 to="/student/courses" 
@@ -89,7 +90,7 @@ export default function SuccessPage() {
 
                 {status === "error" && (
                     <div>
-                        <div style={{ fontSize: "40px", marginBottom: "16px" }}>⚠️</div>
+                        <div style={{ fontSize: "40px", marginBottom: "16px" }}><UiIcon name="warning" size={40} /></div>
                         <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "24px", color: "#d32f2f", marginBottom: "12px" }}>
                             Помилка обробки оплати
                         </h2>
