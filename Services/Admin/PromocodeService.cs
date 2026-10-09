@@ -59,8 +59,8 @@ namespace Backend.Services.Admin
 
             var promocode = await db.Promocodes.FirstOrDefaultAsync(p => p.Promocode == dTO.Promocode);
 
-            if (promocode != null)
-                return ServiceResult<string>.Fail("This promocode already exists", 400);
+            if (promocode == null)
+                return ServiceResult<string>.Fail("There is no promocode with this name", 404);
 
             promocode.Promocode = promocode.Promocode;
             promocode.WillExpireAt = dTO.WillExpireAt;

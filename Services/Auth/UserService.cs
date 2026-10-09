@@ -69,6 +69,11 @@ namespace Backend.Services.Auth
                 CreatedAt = DateTime.UtcNow,
             };
 
+            db.Entry(user).State = EntityState.Detached;
+
+            user.Password = "";
+            user.Salt = "";
+
             await db.Users.AddAsync(user);
             await db.SaveChangesAsync();
 
@@ -228,6 +233,8 @@ namespace Backend.Services.Auth
                        .Fail("User does not exist with this id", 404);
 
             user.AuthorizedKeyId = "";
+
+            await db.SaveChangesAsync();
 
             return ServiceResult<string>.Ok("Token unauthorized successfully",
                                             "You successfully signed out");
