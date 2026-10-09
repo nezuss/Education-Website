@@ -1,275 +1,72 @@
-import UiIcon from "../../components/ui/Icon/UiIcon";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import { getEnrolledCourses } from "../../services/courseService";
 import { getCourseStats, type CourseStats } from "../../services/courseStatsService";
 import type { Course } from "../../types/course";
-import "../../styles/StudentDashboard.css";
+import useRemoteData from "../shared/useRemoteData";
 import RequestError from "../shared/RequestError";
+import "../../styles/MyCourses.css";
+
+async function loadCourses() {
+  const courses = await getEnrolledCourses();
+  const results = await Promise.allSettled(courses.map(course => getCourseStats(course.id)));
+  const stats: Record<string, CourseStats> = {};
+  const failed: string[] = [];
+  results.forEach((result, index) => {
+    if (result.status === "fulfilled") stats[courses[index].id] = result.value;
+    else failed.push(courses[index].title);
+  });
+  return { courses, stats, failed };
+}
+
+function progressOf(stats?: CourseStats) {
+  const value = stats?.progressPercentage;
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100 ? value : undefined;
+}
+
+function Progress({ value }: { value?: number }) {
+  return <div className="mc-progress"><div><span>Ваш прогрес</span><strong>{value === undefined ? "Недоступний" : `${Math.round(value)}%`}</strong></div>{value !== undefined && <progress aria-label="Прогрес курсу" max={100} value={value} />}</div>;
+}
+
+function CourseImage({ course }: { course: Course }) {
+  const [failed, setFailed] = useState(false);
+  return course.bannerUrl && !failed ? <img src={course.bannerUrl} alt="" onError={() => setFailed(true)} /> : <div className="mc-image-empty"><UiIcon name="courses" size={48} /><span>Обкладинка курсу відсутня</span></div>;
+}
 
 export default function MyCoursesPage() {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [activeCourseStats, setActiveCourseStats] = useState<CourseStats>();
-  const [courseStats, setCourseStats] = useState<Record<string, CourseStats>>({});
+  const remote = useRemoteData(loadCourses);
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    getEnrolledCourses()
-      .then(async (data) => {
-        setCourses(data);
-        const stats = await Promise.all(
-          data.map(async (course) => {
-            try {
-              return [course.id, await getCourseStats(course.id)] as const;
-            } catch (reason) {
-              setError((reason as Error).message);
-              return null;
-            }
-          }),
-        );
-        const statsByCourse = Object.fromEntries(
-          stats.filter((entry): entry is readonly [string, CourseStats] => entry !== null),
-        );
-        setCourseStats(statsByCourse);
-        if (data[0]) {
-          setActiveCourseStats(statsByCourse[data[0].id]);
-        }
-      })
-      .catch((reason: Error) => setError(reason.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const activeCourse = courses[0];
-  const progressVal = Math.round(activeCourseStats?.progressPercentage ?? 0);
-  const formattedDate = new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(new Date());
-
-  const filtered = courses.filter((c) => {
-    const matchesSearch = c.title.toLowerCase().includes(search.toLowerCase());
-    const progress = courseStats[c.id]?.progressPercentage ?? 0;
-    const matchesFilter = filter === "all" || (filter === "active" ? progress < 100 : progress >= 100);
-    return matchesSearch && matchesFilter;
+  const [sort, setSort] = useState("default");
+  const courses = remote.data?.courses ?? [];
+  const stats = remote.data?.stats ?? {};
+  const featured = courses.find(course => { const value = progressOf(stats[course.id]); return value !== undefined && value < 100; }) ?? courses[0];
+  const filtered = courses.filter(course => {
+    const progress = progressOf(stats[course.id]);
+    return course.title.toLocaleLowerCase("uk-UA").includes(search.trim().toLocaleLowerCase("uk-UA")) &&
+      (filter === "all" || progress !== undefined && (filter === "active" ? progress < 100 : progress >= 100));
+  }).sort((a, b) => {
+    if (sort === "title") return a.title.localeCompare(b.title, "uk");
+    if (sort === "progress") return (progressOf(stats[b.id]) ?? -1) - (progressOf(stats[a.id]) ?? -1);
+    return 0;
   });
-
-  return (
-    <div className="std-dash">
-      {error && <RequestError message={error} />}
-      
-      <div style={{ fontSize: "14px", color: "var(--color-brand-soft)", display: "flex", gap: "8px" }}>
-        <Link to="/student" style={{ color: "var(--color-brand-soft)", textDecoration: "none" }}>Головна</Link>
-        <span>&gt;</span>
-        <span style={{ color: "var(--color-brand-dark)", fontWeight: 500 }}>Мої курси</span>
-      </div>
-
-      <div className="std-greeting-row">
-        <div>
-          <h1 className="std-greeting-title">Мої курси</h1>
-          <p className="std-greeting-sub">
-            Продовжуйте активні курси, переглядайте завершені та слідкуйте за прогресом.
-          </p>
-        </div>
-        <div className="std-date-badge">{formattedDate}</div>
-      </div>
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
-        <div style={{ display: "flex", gap: "10px" }}>
-          <button
-            type="button"
-            className={`std-chip ${filter === "all" ? "active" : ""}`}
-            style={{
-              cursor: "pointer",
-              border: "none",
-              padding: "8px 16px",
-              background: filter === "all" ? "var(--color-brand-dark)" : "var(--color-bg-sand)",
-              color: filter === "all" ? "#FFFFFF" : "var(--color-brand-dark)"
-            }}
-            onClick={() => setFilter("all")}
-          >
-            Усі
-          </button>
-          <button
-            type="button"
-            className={`std-chip ${filter === "active" ? "active" : ""}`}
-            style={{
-              cursor: "pointer",
-              border: "none",
-              padding: "8px 16px",
-              background: filter === "active" ? "var(--color-brand-dark)" : "var(--color-bg-sand)",
-              color: filter === "active" ? "#FFFFFF" : "var(--color-brand-dark)"
-            }}
-            onClick={() => setFilter("active")}
-          >
-            Активні
-          </button>
-          <button
-            type="button"
-            className={`std-chip ${filter === "completed" ? "active" : ""}`}
-            style={{
-              cursor: "pointer",
-              border: "none",
-              padding: "8px 16px",
-              background: filter === "completed" ? "var(--color-brand-dark)" : "var(--color-bg-sand)",
-              color: filter === "completed" ? "#FFFFFF" : "var(--color-brand-dark)"
-            }}
-            onClick={() => setFilter("completed")}
-          >
-            Завершені
-          </button>
-        </div>
-
-        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-          <div className="lms-search-box" style={{ width: "300px" }}>
-            <UiIcon name="search" size={16} style={{ color: "#557061" }} />
-            <input
-              type="text"
-              placeholder="Знайти курс..."
-              className="lms-search-input"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <span style={{ fontSize: "14px", color: "var(--color-brand-soft)", cursor: "pointer" }}>
-            Сортувати <UiIcon name="chevron" />
-          </span>
-        </div>
-      </div>
-
-      {activeCourse && (
-        <div className="std-top-grid">
-          <div className="std-active-course-card">
-            <div className="std-active-course-left">
-              <span className="std-badge-tag">[ ПРОДОВЖИТИ НАВЧАННЯ ]</span>
-              <h2 className="std-active-course-title">
-                {activeCourse.title}
-              </h2>
-              <div className="std-active-course-module">
-                {activeCourseStats?.title || activeCourse.description || "Курс у процесі вивчення"}
-              </div>
-
-              <div className="std-progress-wrap">
-                <div className="std-progress-label">
-                  <span>Ваш прогрес</span>
-                  <span>{progressVal}%</span>
-                </div>
-                <div className="std-progress-bar-bg">
-                  <div className="std-progress-bar-fill" style={{ width: `${progressVal}%` }}></div>
-                </div>
-              </div>
-
-              <Link
-                to={`/student/learning/${activeCourse.id}`}
-                className="std-continue-btn"
-              >
-                <span>Продовжити навчання</span>
-                <span><UiIcon name="arrow" /></span>
-              </Link>
-            </div>
-
-            <div className="std-active-course-art">
-              <img
-                src={activeCourse.bannerUrl || "/student/my_courses_hero.webp"}
-                alt={activeCourse.title}
-              />
-            </div>
-          </div>
-
-          <div className="std-overview-card" style={{ background: "#C4D3CB" }}>
-            <span className="std-badge-tag" style={{ color: "#385546" }}>[ НАСТУПНЕ ]</span>
-            <h3 className="std-overview-title" style={{ fontSize: "24px" }}>Що далі?</h3>
-            <p style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-brand-dark)", margin: "0 0 4px 0" }}>
-              {activeCourse.title}
-            </p>
-            <p style={{ fontSize: "14px", color: "var(--color-brand-soft)", margin: "0 0 20px 0" }}>
-              Перейдіть до програми курсу та виконуйте завдання.
-            </p>
-
-            <Link
-              to={`/student/learning/${activeCourse.id}`}
-              className="std-continue-btn"
-              style={{ width: "100%", justifyContent: "center", boxSizing: "border-box" }}
-            >
-              <span>Переглянути програму <UiIcon name="arrow" /></span>
-            </Link>
-          </div>
-        </div>
-      )}
-
-      <div>
-        <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "28px", fontWeight: 700, color: "var(--color-brand-dark)", marginBottom: "20px" }}>
-          Усі мої курси
-        </h2>
-
-        {filtered.length === 0 ? (
-          <div style={{ background: "#FFFFFF", borderRadius: "16px", padding: "40px", textAlign: "center" }}>
-            <h3 style={{ fontSize: "18px", color: "var(--color-brand-dark)", marginBottom: "8px" }}>
-              {loading ? "Завантаження курсів..." : "У вас поки немає активних курсів"}
-            </h3>
-            <p style={{ color: "var(--color-brand-soft)", fontSize: "14px", marginBottom: "20px" }}>
-              Перегляньте каталог та оберіть напрямок навчання.
-            </p>
-            <Link to="/courses" className="std-continue-btn" style={{ display: "inline-flex" }}>
-              <span>Переглянути каталог курсів <UiIcon name="arrow" /></span>
-            </Link>
-          </div>
-        ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }}>
-            {filtered.map((course) => {
-              const stats = courseStats[course.id];
-              const progress = Math.round(stats?.progressPercentage ?? 0);
-              const isCompleted = progress >= 100;
-
-              return (
-              <div
-                key={course.id}
-                style={{
-                  background: "#FFFFFF",
-                  borderRadius: "20px",
-                  overflow: "hidden",
-                  boxShadow: "0 4px 16px rgba(10, 45, 27, 0.04)",
-                  display: "flex",
-                  flexDirection: "column"
-                }}
-              >
-                <img
-                  src={course.bannerUrl || "/course-placeholder.svg"}
-                  alt={course.title}
-                  style={{ width: "100%", height: "200px", objectFit: "cover" }}
-                />
-                <div style={{ padding: "24px", display: "flex", flexDirection: "column", flex: 1 }}>
-                  <span className="std-badge-tag">[ {course.direction || "DESIGN"} ]</span>
-                  <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "18px", fontWeight: 700, color: "var(--color-brand-dark)", margin: "0 0 8px 0" }}>
-                    {course.title}
-                  </h3>
-                  <p style={{ fontSize: "13px", color: "var(--color-brand-soft)", margin: "0 0 16px 0", lineHeight: 1.4 }}>
-                    {course.description}
-                  </p>
-
-                  <div style={{ marginTop: "auto" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", fontWeight: 600, marginBottom: "6px" }}>
-                      <span>{isCompleted ? "Прогрес завершено" : "Ваш прогрес"}</span>
-                      <span>{progress}%</span>
-                    </div>
-                    <div className="std-progress-bar-bg" style={{ marginBottom: "16px" }}>
-                      <div className="std-progress-bar-fill" style={{ width: `${progress}%` }} />
-                    </div>
-
-                    <Link
-                      to={`/student/learning/${course.id}`}
-                      className="std-continue-btn"
-                      style={{ width: "100%", justifyContent: "center", boxSizing: "border-box" }}
-                    >
-                      <span>{isCompleted ? "Переглянути курс" : "Продовжити навчання"} <UiIcon name="arrow" /></span>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  const featuredProgress = featured ? progressOf(stats[featured.id]) : undefined;
+  return <div className="my-courses">
+    <nav className="mc-breadcrumbs" aria-label="Навігаційний шлях"><Link to="/student">Головна</Link><UiIcon name="chevron" /><span>Мої курси</span></nav>
+    <section className="mc-heading">
+      <header><div><h1>Мої курси</h1><p>Продовжуйте активні курси, переглядайте завершені та слідкуйте за прогресом.</p></div><time dateTime={new Date().toISOString()}>{new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(new Date())}</time></header>
+      <div className="mc-toolbar"><div className="mc-filters" role="group" aria-label="Статус курсів">{([['all', 'Усі'], ['active', 'Активні'], ['completed', 'Завершені']] as const).map(([key, label]) => <button key={key} type="button" aria-pressed={filter === key} onClick={() => setFilter(key)}>{label}</button>)}</div><div className="mc-controls"><label className="mc-search"><UiIcon name="search" size={22} /><input aria-label="Знайти курс" placeholder="Знайти курс…" value={search} onChange={event => setSearch(event.target.value)} /></label><select aria-label="Сортувати курси" value={sort} onChange={event => setSort(event.target.value)}><option value="default">Сортувати</option><option value="title">За назвою</option><option value="progress">За прогресом</option></select></div></div>
+    </section>
+    {remote.loading && <p className="mc-empty" role="status">Завантаження курсів…</p>}
+    {remote.error && <RequestError message={remote.error} retry={remote.reload} />}
+    {!!remote.data?.failed.length && <RequestError message={`Прогрес недоступний для курсів: ${remote.data.failed.join(", ")}. Вони залишаються у списку «Усі».`} retry={remote.reload} />}
+    {featured && <section className="mc-featured" aria-label="Продовжити навчання"><article className="mc-featured-course"><div className="mc-featured-copy"><span className="mc-tag">Продовжити навчання</span><h2>{featured.title}</h2><p>{featured.description}</p><Progress value={featuredProgress} /><Link className="mc-button" to={`/student/learning/${featured.id}`}>{featuredProgress === 100 ? "Переглянути курс" : "Продовжити навчання"}<UiIcon name="arrow" /></Link></div><div className="mc-featured-image"><CourseImage key={featured.id} course={featured} />{featured.direction && <span className="mc-tag">{featured.direction}</span>}</div></article><aside className="mc-next"><span className="mc-tag">Наступне</span><h2>Що далі?</h2><h3>{featured.title}</h3><p>Відкрийте програму курсу та оберіть урок для навчання.</p><div className="mc-deadline"><span>Дедлайн</span><span>Не вказано</span></div><Link className="mc-button" to={`/student/learning/${featured.id}`}>Переглянути програму<UiIcon name="arrow" /></Link></aside></section>}
+    {remote.data && <section className="mc-list"><h2>{filter === "all" ? "Усі мої курси" : filter === "active" ? "Активні курси" : "Завершені курси"}</h2>{filtered.length ? <div className="mc-cards">{filtered.map(course => {
+      const value = progressOf(stats[course.id]);
+      const completed = value === 100;
+      const courseStats = stats[course.id];
+      return <article className="mc-course" key={course.id}><div className="mc-cover"><CourseImage course={course} /><span className="mc-course-status">{value === undefined ? "Прогрес недоступний" : completed ? "Завершено" : "Активний"}</span></div><div className="mc-course-copy"><h3>{course.title}</h3><p>{course.description}</p><Progress value={value} /><footer><Link to={`/student/learning/${course.id}`}>{completed ? "Переглянути курс" : "Продовжити"}<UiIcon name="arrow" /></Link>{Number.isFinite(courseStats?.completedModules) && Number.isFinite(courseStats?.totalModules) && <span>{courseStats.completedModules} / {courseStats.totalModules} модулів</span>}</footer></div></article>;
+    })}</div> : <div className="mc-empty" role="status"><h3>{courses.length ? "Курсів за цими умовами не знайдено" : "У вас поки немає курсів"}</h3><p>{courses.length ? "Змініть пошук або виберіть інший статус." : "Перегляньте каталог та оберіть напрямок навчання."}</p>{courses.length ? <button className="mc-button" onClick={() => { setSearch(""); setFilter("all"); }}>Скинути фільтри</button> : <Link className="mc-button" to="/courses">Переглянути каталог<UiIcon name="arrow" /></Link>}</div>}</section>}
+  </div>;
 }

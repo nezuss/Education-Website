@@ -30,14 +30,15 @@ const ChangePasswordPage = lazy(() => import("../../pages/Auth/ChangePasswordPag
 
 const StudentDashboardPage = lazy(() => import("../../pages/Student/StudentDashboardPage"));
 const MyCoursesPage = lazy(() => import("../../pages/Student/MyCoursesPage"));
+const CourseLearningPage = lazy(() => import("../../pages/Student/CourseLearningPage"));
 const LearningPage = lazy(() => import("../../pages/Student/LearningPage"));
 const AssignmentPage = lazy(() => import("../../pages/Student/AssignmentPage"));
+const AssignmentsPage = lazy(() => import("../../pages/Student/AssignmentsPage"));
 const UploadProjectPage = lazy(() => import("../../pages/Student/UploadProjectPage"));
 const ProfilePage = lazy(() => import("../../pages/Student/ProfilePage"));
-
-
 const SubmissionsPage = lazy(() => import("../../pages/Student/SubmissionsPage"));
 const SubmissionDetailsPage = lazy(() => import("../../pages/Student/SubmissionDetailsPage"));
+
 
 const MentorDashboardPage = lazy(() => import("../../pages/Mentor/MentorDashboardPage"));
 const MentorSubmissionsPage = lazy(() => import("../../pages/Mentor/MentorSubmissionsPage"));
@@ -117,10 +118,11 @@ export default function AppRouter() {
                         <Route element={<ProtectedRoute />}>
                             <Route path="/student" element={<StudentDashboardPage />} />
                             <Route path="/student/courses" element={<MyCoursesPage />} />
-                            <Route path="/student/learning/:courseId" element={<LearningPage />} />
+                            <Route path="/student/learning/:courseId" element={<CourseLearningPage />} />
                             <Route path="/student/learning/:courseId/lesson/:lessonId" element={<LearningPage />} />
                             <Route path="/student/lesson/:lessonId" element={<LearningPage />} />
-                            <Route path="/student/assignments/:assignmentId" element={<AssignmentPage />} />
+                        <Route path="/student/assignments" element={<AssignmentsPage />} />
+                        <Route path="/student/assignments/:assignmentId" element={<AssignmentPage />} />
                             <Route path="/student/upload/:assignmentId" element={<UploadProjectPage />} />
                             <Route path="/student/profile" element={<ProfilePage />} />
                             <Route path="/student/progress" element={<Navigate to="/student" replace />} />

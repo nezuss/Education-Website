@@ -7,8 +7,12 @@ import { getCourseStats, type CourseStats } from "../../services/courseStatsServ
 import type { Course } from "../../types/course";
 import "../../styles/StudentDashboard.css";
 import RequestError from "../shared/RequestError";
+import useRemoteData from "../shared/useRemoteData";
+import { getStudentSubmissions } from "../../services/submissionService";
 
 export default function StudentDashboardPage() {
+  const submissions = useRemoteData(getStudentSubmissions);
+  const latestFeedback = submissions.data?.filter(item => item.feedback || item.revisionMessage).sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))[0];
   const [courses, setCourses] = useState<Course[]>([]);
   const [profile, setProfile] = useState<UserProfile>();
   const [activeCourseStats, setActiveCourseStats] = useState<CourseStats>();
@@ -194,11 +198,11 @@ export default function StudentDashboardPage() {
             <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "20px", fontWeight: 700, margin: "8px 0 0 0" }}>
               Зворотний зв'язок
             </h3>
-            <p className="std-feedback-quote">
-              {activeCourseStats && activeCourseStats.completedSubmittableMaterials > 0
-                ? "Інформація про відгуки ментора поки недоступна."
-                : "Виконуйте перше практичне завдання, щоб отримати зворотний зв'язок від ментора."}
+            {submissions.error && <RequestError message={submissions.error} retry={submissions.reload} />}
+            <p className="std-feedback-quote" style={{ whiteSpace: "pre-wrap" }}>
+              {submissions.loading ? "Завантаження відгуків…" : latestFeedback ? (latestFeedback.status === "NeedsRevision" ? latestFeedback.revisionMessage || latestFeedback.feedback : latestFeedback.feedback || latestFeedback.revisionMessage) : submissions.error ? "Відгуки поки недоступні." : "Коментарів ментора ще немає."}
             </p>
+            <Link to="/student/submissions">Мої роботи та результати перевірки</Link>
           </div>
 
           <div className="std-mentor-meta">
@@ -206,7 +210,7 @@ export default function StudentDashboardPage() {
               <UiIcon name="teacher" />
             </div>
             <div>
-              <div className="std-mentor-name">{activeCourse?.mentor || "Ментор курсу"}</div>
+              <div className="std-mentor-name">Ментор</div>
               <div className="std-mentor-role">NEXYLVA Platform</div>
             </div>
           </div>

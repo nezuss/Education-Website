@@ -38,6 +38,7 @@ export default function AppShell() {
   const isMentor = location.pathname.startsWith("/mentor");
   const isAdmin = location.pathname.startsWith("/admin");
   const isStudent = !isMentor && !isAdmin;
+  const isCourseOverview = /^\/student\/learning\/[^/]+\/?$/.test(location.pathname);
   const isAssignment = location.pathname.startsWith("/student/assignments") || location.pathname.startsWith("/student/upload/");
   const isSubmissionResult = /^\/student\/submissions\/[^/]+\/?$/.test(location.pathname);
 
@@ -53,7 +54,7 @@ export default function AppShell() {
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className={`lms-layout${isAdmin ? " admin-layout" : ""}${isAssignment || isSubmissionResult ? " assignment-layout" : ""}`}>
+    <div className={`lms-layout${isAdmin ? " admin-layout" : ""}${location.pathname === "/student/courses" ? " my-courses-layout" : ""}${isCourseOverview ? " course-learning-layout" : ""}${isAssignment || isSubmissionResult ? " assignment-layout" : ""}`}>
       {sidebarOpen && (
         <div className="lms-sidebar-backdrop" onClick={closeSidebar} />
       )}
@@ -61,7 +62,7 @@ export default function AppShell() {
       <aside className={`lms-sidebar ${sidebarOpen ? "open" : ""}`}>
         <div className="lms-sidebar-top-row">
           <Link to="/" className="lms-brand-link" onClick={closeSidebar}>
-            <img src={isAdmin || isAssignment || isSubmissionResult ? "/logo-on-dark.svg" : "/logo.svg"} alt="NEXYLVA" className="lms-brand-logo" />
+            <img src={isAdmin || location.pathname === "/student/courses" || isCourseOverview || isAssignment || isSubmissionResult ? "/logo-on-dark.svg" : "/logo.svg"} alt="NEXYLVA" className="lms-brand-logo" />
           </Link>
           <button
             type="button"
@@ -80,11 +81,11 @@ export default function AppShell() {
                 <span className="lms-nav-icon"><UiIcon name="home" /></span>
                 <span>Головна</span>
               </NavLink>
-              <NavLink to="/student/courses" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
+              <NavLink to="/student/courses" className={({ isActive }) => `lms-nav-item ${isActive || location.pathname.startsWith("/student/learning/") ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon"><UiIcon name="courses" /></span>
                 <span>Мої курси</span>
               </NavLink>
-              <NavLink to="/student/courses" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
+              <NavLink to="/student/assignments" className={({ isActive }) => `lms-nav-item ${isActive || isAssignment ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon"><UiIcon name="assignment" /></span>
                 <span>Завдання</span>
               </NavLink>
@@ -193,7 +194,7 @@ export default function AppShell() {
               </svg>
             </button>
             <span className="lms-topbar-breadcrumb">
-              {isAdmin ? `Admin LMS / ${{ "/admin/users": "Користувачі", "/admin/courses": "Курси", "/admin/orders": "Замовлення / Оплати", "/admin/analytics": "Аналітика", "/admin/profile": "Профіль" }[location.pathname] || "Головна"}` : isMentor ? "Mentor LMS / Кабінет ментора" : isSubmissionResult ? "Student LMS / Результат перевірки" : isAssignment ? "Student LMS / Завдання" : "Student LMS / Головна"}
+              {isAdmin ? `Admin LMS / ${{ "/admin/users": "Користувачі", "/admin/courses": "Курси", "/admin/orders": "Замовлення / Оплати", "/admin/analytics": "Аналітика", "/admin/profile": "Профіль" }[location.pathname] || "Головна"}` : isMentor ? "Mentor LMS / Кабінет ментора" : isSubmissionResult ? "Student LMS / Результат перевірки" : isAssignment ? "Student LMS / Завдання" : location.pathname === "/student/courses" || location.pathname.startsWith("/student/learning/") ? "Student LMS / Мої курси" : "Student LMS / Головна"}
             </span>
           </div>
 
