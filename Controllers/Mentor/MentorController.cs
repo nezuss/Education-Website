@@ -66,5 +66,29 @@ namespace Backend.Controllers.Mentor
                 data = result.Data
             });
         }
+
+        [HttpGet("students")]
+        [Permission(Permissions.GetMentorsSubmissionsStats)]
+        public async Task<IActionResult> GetStudents([FromQuery] string courseId, [FromQuery] int page, [FromQuery] int pageSize)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await mentorService.GetStudents(userId, courseId, page, pageSize);
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data
+            });
+        }
     }
 }

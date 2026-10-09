@@ -14,6 +14,8 @@ namespace Backend.Models.Cource.MaterialAnswers
         public string? Feedback { get; set; }
         public string? RevisionMessage { get; set; }
 
+        public DateTime SubmittedAt { get; set; }
+      
         // ? Mentor Info
         public string ReviewerId { get; set; }
         public string ReviewerName { get; set; }

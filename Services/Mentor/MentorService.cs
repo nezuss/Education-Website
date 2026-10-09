@@ -212,5 +212,71 @@ namespace Backend.Services.Mentor
 
             return ServiceResult<List<SubmissionsResponse>>.Ok(response, "Submissions successfully get");
         }
+
+        public async Task<ServiceResult<List<StudentsLIstResponce>>> GetStudents(string userId, string courseId, int page, int pageSize)
+        {
+            if (string.IsNullOrEmpty(courseId) || page == null || pageSize == null)
+            {
+                return ServiceResult<List<StudentsLIstResponce>>
+                       .Fail("All fileds are required", 404);
+            }
+          
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                return ServiceResult<List<StudentsLIstResponce>>
+                       .Fail("There is no user with this id", 404);
+            }
+
+            var role = await db.Roles.FirstOrDefaultAsync(r => r.Id == user.RoleId);
+
+            if (role.Name != "Teacher" && role.Name != "Admin")
+            {
+                return ServiceResult<List<StudentsLIstResponce>>
+                       .Fail("You are not a teacher", 403);
+            }
+
+            var cource = await db.Cources.FirstOrDefaultAsync(r => r.Id == courseId);
+
+            if (cource == null)
+            {
+                return ServiceResult<List<StudentsLIstResponce>>
+                       .Fail("There is no cource with this id", 404);
+            }
+
+            var studentData = await db.Users
+                .Where(u => u.EnrolledCourcesId.Contains(courseId))
+                .Select(u => new
+                {
+                    u.Username,
+                    LatestActivity = db.MaterialSubmissions
+                        .Where(s => s.UserId == u.Id)
+                        .OrderByDescending(s => s.SubmittedAt)
+                        .Select(s => (DateTime?)s.SubmittedAt)
+                        .FirstOrDefault(),
+                    WorksOnReview = db.MaterialSubmissions
+                        .Count(s => s.UserId == u.Id && s.Rate == -1)
+                })
+                .ToListAsync();
+            List<StudentsLIstResponce> students = studentData
+                .Select(u => new StudentsLIstResponce
+                {
+                    Username = u.Username,
+                    CourceId = courseId,
+                    Progress = 0,
+                    LastActivity = u.LatestActivity?.ToString("yyyy-MM-dd HH:mm:ss") ?? "No activity",
+                    TotalAmountOfWorksOnReview = u.WorksOnReview
+                })
+                .ToList();
+
+            if (students == null || students.Count() <- 0)
+            {
+                return ServiceResult<List<StudentsLIstResponce>>
+                       .Fail("There is no students", 404);
+            }
+          
+            return ServiceResult<List<StudentsLIstResponce>>.Ok(students, "Students get successfully");
+        }
     }
 }

@@ -81,6 +81,7 @@ namespace Backend.Services.Cource
             submission.ReviewerName = user.Username;
             submission.ReviewerAvatarUrl = "";
             submission.ReviewerAt = DateTime.UtcNow;
+            submission.UpdatedAt = DateTime.UtcNow;
 
             db.MaterialSubmissions.Update(submission);
             await db.SaveChangesAsync();

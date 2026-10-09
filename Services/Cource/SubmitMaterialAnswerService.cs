@@ -74,6 +74,7 @@ namespace Backend.Services.Cource
                 UserId = userId,
                 Rate = -1,
                 Status = "Submitted",
+                SubmittedAt = DateTime.UtcNow,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 Answers = dTO.Answers?.Select(a => new TestQuestionAnswerModel
@@ -127,6 +128,7 @@ namespace Backend.Services.Cource
                 FileUrl = fileUrl,
                 Rate = -1,
                 Status = "Submitted",
+                SubmittedAt = DateTime.UtcNow,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
