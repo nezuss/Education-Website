@@ -79,7 +79,10 @@ namespace Backend.Services.Cource
                 .Where(s => s.UserId == userId && materialIds.Contains(s.RelatedMaterialId))
                 .ToListAsync();
 
-            var submittedMaterialIds = submissions.Select(s => s.RelatedMaterialId).ToHashSet();
+            var completedMaterialIds = submissions
+                .Where(s => s.Status == "Reviewed" && s.Rate > 0)
+                .Select(s => s.RelatedMaterialId)
+                .ToHashSet();
 
             int completedModules = 0;
             int completedLessons = 0;
@@ -111,7 +114,7 @@ namespace Backend.Services.Cource
                                     lessonHasSubmittable = true;
                                     moduleHasSubmittable = true;
 
-                                    if (submittedMaterialIds.Contains(material.Id))
+                                    if (completedMaterialIds.Contains(material.Id))
                                         completedSubmittable++;
                                     else lessonCompleted = false;
                                 }
@@ -203,7 +206,10 @@ namespace Backend.Services.Cource
                 .Where(s => s.UserId == userId && materialIds.Contains(s.RelatedMaterialId))
                 .ToListAsync();
 
-            var submittedMaterialIds = submissions.Select(s => s.RelatedMaterialId).ToHashSet();
+            var completedMaterialIds = submissions
+                .Where(s => s.Status == "Reviewed" && s.Rate > 0)
+                .Select(s => s.RelatedMaterialId)
+                .ToHashSet();
 
             int completedLessons = 0;
             int totalSubmittable = 0;
@@ -224,7 +230,7 @@ namespace Backend.Services.Cource
                             totalSubmittable++;
                             lessonHasSubmittable = true;
 
-                            if (submittedMaterialIds.Contains(material.Id)) completedSubmittable++;
+                            if (completedMaterialIds.Contains(material.Id)) completedSubmittable++;
                             else lessonCompleted = false;
                         }
                 }
