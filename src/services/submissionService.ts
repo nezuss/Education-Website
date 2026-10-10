@@ -9,6 +9,11 @@ export type Submission = {
   status?: string | null;
   feedback?: string | null;
   revisionMessage?: string | null;
+  reviewerId?: string | null;
+  reviewerName?: string | null;
+  reviewerAvatarUrl?: string | null;
+  reviewerAt?: string | null;
+  submittedAt?: string | null;
   fileUrl?: string;
   createdAt: string;
   updatedAt: string;

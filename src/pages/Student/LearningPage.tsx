@@ -1,519 +1,114 @@
-import UiIcon from "../../components/ui/Icon/UiIcon";
+import { useCallback, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import {
-  getLessons,
-  getMaterials,
-  getModules,
-  getSubmissionStatus,
-  submitTest,
-  type Lesson,
-  type Material,
-  type Module,
-} from "../../services/learningService";
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import { getCourse } from "../../services/courseService";
-import { getCourseStats, getModuleStats, type CourseStats, type ModuleStats } from "../../services/courseStatsService";
-import type { Course } from "../../types/course";
-import "../../styles/CourseLearning.css";
-import "../../styles/StudentDashboard.css";
+import { getModuleStats } from "../../services/courseStatsService";
+import { getLessons, getMaterials, getModules, type Lesson, type Material } from "../../services/learningService";
+import { submissionFileUrl } from "../../services/submissionService";
+import LessonQuiz from "../shared/LessonQuiz";
 import RequestError from "../shared/RequestError";
+import useRemoteData from "../shared/useRemoteData";
+import "../../styles/LessonPage.css";
 
-function VideoPlayer({ url }: { url: string }) {
-  let embedUrl = url;
-  if (url.includes("watch?v=")) {
-    embedUrl = url.replace("watch?v=", "embed/");
-  } else if (url.includes("youtu.be/")) {
-    embedUrl = url.replace("youtu.be/", "www.youtube.com/embed/");
-  }
-  return (
-    <div className="learn-video-player-wrap">
-      <iframe
-        className="learn-video-iframe"
-        src={embedUrl}
-        title="Лекція"
-        allowFullScreen
-      />
-    </div>
-  );
+function ordered<T extends { id: string }>(items: T[], ids?: string[]) {
+  const position = (id: string) => { const index = ids?.indexOf(id) ?? -1; return index < 0 ? Number.MAX_SAFE_INTEGER : index; };
+  return [...items].sort((a, b) => position(a.id) - position(b.id));
 }
 
-function TestQuizWidget({ material }: { material: Material }) {
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [statusLoaded, setStatusLoaded] = useState(false);
-  useEffect(() => {
-    let active = true;
-    getSubmissionStatus(material.id).then(status => { if (active) { setSubmitted(status.isSubmitted); setStatusLoaded(true); } }).catch((reason: Error) => { if (active) setError(reason.message); });
-    return () => { active = false; };
-  }, [material.id]);
-
-  const handleSelect = (questionId: string, answerId: string) => {
-    if (submitted) return;
-    setSelectedAnswers((prev) => ({ ...prev, [questionId]: answerId }));
-  };
-
-  const handleSubmit = async () => {
-    if (!statusLoaded || submitted || !material.questions || material.questions.length === 0) return;
-    setLoading(true);
-    setError("");
-    try {
-      const answersPayload = Object.entries(selectedAnswers).map(([questionId, answerId]) => ({
-        questionId,
-        answerId,
-      }));
-      await submitTest(material.id, answersPayload);
-      setSubmitted(true);
-    } catch (err: unknown) {
-      setError((err as Error)?.message || "Не вдалося надіслати тест");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!material.questions || material.questions.length === 0) {
-    return null;
-  }
-
-  return (
-    <div style={{ marginTop: "20px", background: "#FFFFFF", borderRadius: "16px", padding: "24px", border: "1px solid rgba(10,45,27,0.08)" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-        <h3 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}><UiIcon name="assignment" /> Тестування</h3>
-        {submitted && <span style={{ color: "#215A36", fontWeight: 600, fontSize: "14px" }}><UiIcon name="check" /> Тест надіслано</span>}
-      </div>
-      {material.questions.map((q, qIdx) => (
-        <div key={q.id} style={{ marginBottom: "16px" }}>
-          <div style={{ fontWeight: 600, fontSize: "15px", marginBottom: "8px" }}>
-            {qIdx + 1}. {q.text}
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {q.answers.map((ans) => (
-              <label
-                key={ans.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  padding: "8px 12px",
-                  borderRadius: "8px",
-                  background: selectedAnswers[q.id] === ans.id ? "rgba(19,73,44,0.08)" : "var(--color-bg-sand)",
-                  cursor: submitted ? "default" : "pointer",
-                }}
-              >
-                <input
-                  type="radio"
-                  name={`q-${q.id}`}
-                  value={ans.id}
-                  checked={selectedAnswers[q.id] === ans.id}
-                  onChange={() => handleSelect(q.id, ans.id)}
-                  disabled={submitted || !statusLoaded || loading}
-                />
-                <span style={{ fontSize: "14px" }}>{ans.text}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      ))}
-      {error && <div style={{ color: "#E53E3E", fontSize: "13px", marginBottom: "12px" }}>{error}</div>}
-      {!submitted && (
-        <button
-          type="button"
-          className="std-continue-btn"
-          onClick={handleSubmit}
-          disabled={loading || !statusLoaded || Object.keys(selectedAnswers).length < material.questions.length}
-          style={{ padding: "10px 24px", fontSize: "14px" }}
-        >
-          {loading ? "Надсилання..." : "Завершити тест"}
-        </button>
-      )}
-    </div>
-  );
-}
-
-function AssignmentWidget({ material, courseId, courseTitle }: { material: Material; courseId?: string; courseTitle?: string }) {
-  return (
-    <div style={{ marginTop: "20px", background: "var(--color-bg-card-alt)", borderRadius: "16px", padding: "20px", border: "1px solid rgba(10,45,27,0.08)" }}>
-      <div className="std-badge-tag">[ ПРАКТИЧНЕ ЗАВДАННЯ ]</div>
-      <h3 style={{ fontSize: "18px", fontWeight: 700, margin: "8px 0" }}>{material.title || "Завдання до уроку"}</h3>
-      <p style={{ fontSize: "14px", color: "var(--color-brand-soft)", marginBottom: "16px" }}>
-        {material.description || "Виконайте практичне завдання та завантажте файл на перевірку ментору."}
-      </p>
-      {material.deadline && (
-        <div style={{ fontSize: "13px", color: "#8C6D53", marginBottom: "16px" }}>
-          Дедлайн: {new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(new Date(material.deadline))}
-        </div>
-      )}
-      <Link
-        to={`/student/assignments/${material.id}`}
-        state={{ courseId, courseTitle, assignmentTitle: material.title, description: material.description, deadline: material.deadline }}
-        className="std-continue-btn"
-        style={{ display: "inline-flex", padding: "10px 20px", fontSize: "14px" }}
-      >
-        <span>Здати роботу <UiIcon name="arrow" /></span>
-      </Link>
-    </div>
-  );
+async function loadLesson(courseId?: string, lessonId?: string) {
+  if (!lessonId) throw new Error("Урок не вказано. Оберіть його у програмі курсу.");
+  if (!courseId) return { lesson: { id: lessonId, title: "Урок" } as Lesson, lessons: [] as Lesson[] };
+  const course = await getCourse(courseId);
+  const modules = ordered(await getModules(courseId), course.modules);
+  const groups = await Promise.all(modules.map(async module => {
+    try { return { module, lessons: ordered(await getLessons(module.id), module.lessonsId) }; }
+    catch (reason) { return { module, lessons: [] as Lesson[], error: reason instanceof Error ? reason.message : "Не вдалося отримати уроки." }; }
+  }));
+  const group = groups.find(item => item.lessons.some(lesson => lesson.id === lessonId));
+  if (!group) throw new Error(groups.some(item => item.error) ? "Не вдалося отримати повну програму курсу. Спробуйте ще раз." : "Урок не знайдено у цьому курсі.");
+  return { course, module: group.module, moduleIndex: modules.indexOf(group.module), lesson: group.lessons.find(lesson => lesson.id === lessonId)!, lessons: group.lessons };
 }
 
 export default function LearningPage() {
-  const { courseId, lessonId: paramLessonId } = useParams<{ courseId: string; lessonId?: string }>();
-  const [courseData, setCourseData] = useState<Course | null>(null);
-  const [courseStats, setCourseStats] = useState<CourseStats | null>(null);
-  const [modules, setModules] = useState<Module[]>([]);
-  const [moduleStatsMap, setModuleStatsMap] = useState<Record<string, ModuleStats>>({});
-  const [lessonsByModule, setLessonsByModule] = useState<Record<string, Lesson[]>>({});
-  const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
-  const [activeMaterials, setActiveMaterials] = useState<Material[]>([]);
-  const [openModuleId, setOpenModuleId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { courseId, lessonId } = useParams();
+  return <LessonView key={`${courseId ?? ""}/${lessonId ?? ""}`} courseId={courseId} lessonId={lessonId} />;
+}
 
-  useEffect(() => {
-    if (!courseId) {
-      if (paramLessonId) getMaterials(paramLessonId).then(materials => { setActiveLesson({ id: paramLessonId, title: "Урок" }); setActiveMaterials(materials); }).catch((reason: Error) => setError(reason.message)).finally(() => setLoading(false));
-      return;
-    }
+function LessonView({ courseId, lessonId }: { courseId?: string; lessonId?: string }) {
+  const load = useCallback(() => loadLesson(courseId, lessonId), [courseId, lessonId]);
+  const remote = useRemoteData(load);
+  const data = remote.data;
+  const createdAt = data?.lesson.createdAt ? new Date(data.lesson.createdAt) : undefined;
+  const validDate = createdAt && Number.isFinite(createdAt.getTime()) && createdAt.getFullYear() >= 1970;
+  const lessonPath = (id: string) => courseId ? `/student/learning/${encodeURIComponent(courseId)}/lesson/${encodeURIComponent(id)}` : `/student/lesson/${encodeURIComponent(id)}`;
+  const coursePath = courseId ? `/student/learning/${encodeURIComponent(courseId)}` : "/student/courses";
+  return <div className="lesson-page">
+    <nav className="lp-breadcrumbs" aria-label="Навігаційний шлях"><Link to="/student">Головна</Link><UiIcon name="chevron" /><Link to="/student/courses">Мої курси</Link><UiIcon name="chevron" />{courseId && <><Link to={coursePath}>{data?.course?.title ?? "Програма курсу"}</Link><UiIcon name="chevron" /></>}<span>{data?.lesson.title ?? "Урок"}</span></nav>
+    {remote.loading && <div className="lp-empty" role="status"><UiIcon name="loading" size={32} /><p>Завантаження уроку…</p></div>}
+    {remote.error && <RequestError message={remote.error} retry={remote.reload} />}
+    {data && <>
+      <header className="lp-heading"><div className="lp-heading-meta"><span className="lp-tag">{data.lessons.length ? `Урок ${String(data.lessons.findIndex(item => item.id === lessonId) + 1).padStart(2, "0")}` : "Урок"}</span>{validDate && <time dateTime={data.lesson.createdAt} title="Дата створення уроку">{createdAt.toLocaleDateString("uk-UA", { day: "numeric", month: "long", year: "numeric" })}</time>}</div><h1>{data.lesson.title}</h1>{data.lesson.description && <p>{data.lesson.description}</p>}</header>
+      <LessonContent key={data.lesson.id} lesson={data.lesson} lessons={data.lessons} module={data.module} moduleIndex={data.moduleIndex} courseId={courseId} courseTitle={data.course?.title} lessonPath={lessonPath} />
+    </>}
+  </div>;
+}
 
-    getCourse(courseId).then(setCourseData).catch((reason: Error) => setError(reason.message));
+type LessonContentProps = Pick<Awaited<ReturnType<typeof loadLesson>>, "lesson" | "lessons" | "module" | "moduleIndex"> & { courseId?: string; courseTitle?: string; lessonPath: (id: string) => string };
 
-    getCourseStats(courseId)
-      .then(setCourseStats)
-      .catch((reason: Error) => setError(reason.message));
-
-    getModules(courseId)
-      .then(async (mods) => {
-        setModules(mods);
-        if (mods.length > 0) {
-          setOpenModuleId(mods[0].id);
-          const map: Record<string, Lesson[]> = {};
-          for (const m of mods) {
-            getModuleStats(m.id)
-              .then((ms) => setModuleStatsMap((prev) => ({ ...prev, [m.id]: ms })))
-              .catch(() => {});
-
-            try {
-              map[m.id] = await getLessons(m.id);
-            } catch (reason) {
-              setError((reason as Error).message);
-              map[m.id] = [];
-            }
-          }
-          setLessonsByModule(map);
-
-          let targetLesson: Lesson | null = null;
-          if (paramLessonId) {
-            for (const key of Object.keys(map)) {
-              const found = map[key].find((l) => l.id === paramLessonId);
-              if (found) {
-                targetLesson = found;
-                setOpenModuleId(key);
-                break;
-              }
-            }
-          }
-          if (!targetLesson && mods[0] && map[mods[0].id]?.length > 0) {
-            targetLesson = map[mods[0].id][0];
-          }
-
-          if (targetLesson) {
-            setActiveLesson(targetLesson);
-            getMaterials(targetLesson.id).then(setActiveMaterials).catch((reason: Error) => setError(reason.message));
-          }
-        }
-      })
-      .catch((reason: Error) => {
-        setError(reason.message || "Не вдалося завантажити програму курсу.");
-      })
-      .finally(() => setLoading(false));
-  }, [courseId, paramLessonId]);
-
-  const handleSelectLesson = (lesson: Lesson) => {
-    setActiveLesson(lesson);
-    setActiveMaterials([]);
-    getMaterials(lesson.id).then(setActiveMaterials).catch((reason: Error) => setError(reason.message));
-  };
-
-  const courseDisplayName = courseData?.title || "Курс";
-  const progressVal = Math.round(courseStats?.progressPercentage ?? 0);
-  const activeVideo = activeMaterials.find((m) => m.type === "Video" || m.videoUrl);
-  const activeAssignment = activeMaterials.find((m) => m.type === "Assignment");
-  const otherMaterials = activeMaterials.filter((m) => m.type !== "Video");
-
-  const currentModuleIndex = modules.findIndex((m) => m.id === openModuleId);
-  const currentModule = currentModuleIndex >= 0 ? modules[currentModuleIndex] : modules[0];
-
-  if (loading) {
-    return (
-      <div className="learn-page" style={{ padding: "60px 20px", textAlign: "center" }}>
-        <div style={{ fontSize: "36px", marginBottom: "16px" }}><UiIcon name="loading" size={36} /></div>
-        <h2 style={{ color: "var(--color-brand-dark)", fontSize: "20px" }}>Завантаження матеріалів курсу...</h2>
-      </div>
-    );
-  }
-
-  return (
-    <div className="learn-page">
-      {error && <RequestError message={error} />}
-      <nav className="learn-breadcrumbs" aria-label="breadcrumb">
-        <Link to="/student">Головна</Link>
-        <span>&gt;</span>
-        <Link to="/student/courses">Мої курси</Link>
-        <span>&gt;</span>
-        <span className="active">{courseDisplayName}</span>
-      </nav>
-
-      <div className="learn-hero-card">
-        <div className="learn-hero-info">
-          <span className="std-badge-tag">[ НАВЧАЛЬНИЙ КУРС ]</span>
-          <h1 className="learn-hero-title">{courseDisplayName}</h1>
-          {courseData?.description && <p className="learn-hero-desc">{courseData.description}</p>}
-          <div className="learn-hero-badges">
-            <span className="std-chip">PRO</span>
-            <span className="std-chip">
-              {courseStats?.totalModules ?? modules.length} модулів
-            </span>
-            <span className="std-chip">
-              {courseStats?.totalLessons ?? Object.values(lessonsByModule).reduce((sum, l) => sum + l.length, 0)} уроків
-            </span>
-          </div>
-        </div>
-
-        <div className="learn-hero-col-center">
-          <span className="learn-col-caption">Поточний етап</span>
-          <div className="learn-current-stage">
-            Модуль {(currentModuleIndex >= 0 ? currentModuleIndex + 1 : 1)} із {modules.length || 1}
-          </div>
-          <div className="learn-current-lesson">
-            {activeLesson ? activeLesson.title : (currentModule?.title || "Початок курсу")}
-          </div>
-        </div>
-
-        <div className="learn-hero-col-right">
-          <div className="std-progress-label">
-            <span>Ваш прогрес</span>
-            <span>{progressVal}%</span>
-          </div>
-          <div className="std-progress-bar-bg">
-            <div className="std-progress-bar-fill" style={{ width: `${progressVal}%` }}></div>
-          </div>
-          <Link
-            to={activeAssignment ? `/student/assignments/${activeAssignment.id}` : (courseId ? `/student/learning/${courseId}` : "/student/courses")}
-            state={{ courseId, courseTitle: courseDisplayName, assignmentTitle: activeAssignment?.title }}
-            className="std-continue-btn"
-            style={{ justifyContent: "center" }}
-          >
-            <span>{activeAssignment ? <>Здати завдання <UiIcon name="arrow" /></> : <>Продовжити навчання <UiIcon name="arrow" /></>}</span>
-          </Link>
-        </div>
-      </div>
-
-      {activeLesson && (
-        <div className="learn-viewer-card">
-          <span className="std-badge-tag">[ УРОК ]</span>
-          <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "24px", color: "var(--color-brand-dark)", margin: "8px 0" }}>
-            {activeLesson.title}
-          </h2>
-          <p style={{ fontSize: "15px", color: "var(--color-brand-soft)", margin: "0 0 20px 0" }}>
-            {activeLesson.description || "Перегляньте лекційний матеріал, вивчіть рекомендації та перейдіть до виконання завдань."}
-          </p>
-
-          {activeVideo?.videoUrl && <VideoPlayer url={activeVideo.videoUrl} />}
-
-          {otherMaterials.length > 0 && (
-            <div style={{ marginTop: "24px", paddingTop: "20px", borderTop: "1px solid rgba(10, 45, 27, 0.08)" }}>
-              <h3 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "12px" }}>Матеріали уроку</h3>
-              
-              <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "16px" }}>
-                {otherMaterials.map((mat) => {
-                  if (mat.type === "File" && mat.fileUrl) {
-                    return (
-                      <a
-                        key={mat.id}
-                        href={mat.fileUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        download
-                        style={{
-                          background: "var(--color-bg-sand)",
-                          padding: "10px 16px",
-                          borderRadius: "10px",
-                          fontSize: "13px",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          color: "inherit",
-                          textDecoration: "none",
-                        }}
-                      >
-                        <span><UiIcon name="file" /></span>
-                        <span style={{ fontWeight: 600 }}>{mat.title || mat.description || "Завантажити файл"}</span>
-                        <span><UiIcon name="download" size={18} /></span>
-                      </a>
-                    );
-                  }
-                  if (mat.type === "Link" && mat.url) {
-                    return (
-                      <a
-                        key={mat.id}
-                        href={mat.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{
-                          background: "var(--color-bg-sand)",
-                          padding: "10px 16px",
-                          borderRadius: "10px",
-                          fontSize: "13px",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          color: "inherit",
-                          textDecoration: "none",
-                        }}
-                      >
-                        <span><UiIcon name="external" /></span>
-                        <span style={{ fontWeight: 600 }}>{mat.title || mat.url}</span>
-                        <span><UiIcon name="external" /></span>
-                      </a>
-                    );
-                  }
-                  if (mat.type === "Text" && mat.content) {
-                    return (
-                      <div
-                        key={mat.id}
-                        style={{
-                          width: "100%",
-                          background: "#FFFFFF",
-                          padding: "16px",
-                          borderRadius: "12px",
-                          lineHeight: "1.6",
-                          fontSize: "14px",
-                          whiteSpace: "pre-line",
-                          border: "1px solid rgba(10,45,27,0.08)",
-                        }}
-                      >
-                        {mat.content}
-                      </div>
-                    );
-                  }
-                  return null;
-                })}
-              </div>
-
-              {otherMaterials.filter((m) => m.type === "Assignment").map((m) => (
-                <AssignmentWidget key={m.id} material={m} courseId={courseId} courseTitle={courseDisplayName} />
-              ))}
-
-              {otherMaterials.filter((m) => m.type === "Test").map((m) => (
-                <TestQuizWidget key={m.id} material={m} />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className="learn-body-grid">
-        <div className="learn-curriculum-col">
-          <h2>Програма курсу</h2>
-          <div className="learn-curriculum-sub">
-            Відкривайте модулі послідовно та продовжуйте з поточного уроку.
-          </div>
-
-          {error && <div className="nex-auth-error-box" role="alert">{error}</div>}
-          <div className="learn-modules-list">
-            {modules.map((mod, idx) => {
-              const isOpen = openModuleId === mod.id;
-              const lessons = lessonsByModule[mod.id] || [];
-              const modStat = moduleStatsMap[mod.id];
-              const pctText = modStat ? `${Math.round(modStat.progressPercentage)}%` : (idx === 0 && progressVal > 0 ? `${progressVal}%` : "0%");
-
-              return (
-                <div key={mod.id} className="learn-module-box">
-                  <div
-                    className="learn-module-header"
-                    onClick={() => setOpenModuleId(isOpen ? null : mod.id)}
-                  >
-                    <div className="learn-module-left">
-                      <div className="learn-module-num">{idx + 1}</div>
-                      <div>
-                        <div className="learn-module-title">{mod.title}</div>
-                        <div className="learn-module-summary">{mod.description}</div>
-                      </div>
-                    </div>
-
-                    <div className="learn-module-right">
-                      <div className="learn-module-pct">
-                        {pctText}
-                      </div>
-                      <div className="learn-module-counter">
-                        {lessons.length > 0 ? `${lessons.length} уроків` : "Уроки готуються"}
-                      </div>
-                      <UiIcon name="chevron" size={18} style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
-                    </div>
-                  </div>
-
-                  {isOpen && (
-                    <div className="learn-lessons-table">
-                      {lessons.length > 0 ? (
-                        lessons.map((lesson) => (
-                          <div
-                            key={lesson.id}
-                            className={`learn-lesson-row ${activeLesson?.id === lesson.id ? "active" : ""}`}
-                            onClick={() => handleSelectLesson(lesson)}
-                          >
-                            <div className="learn-lesson-meta-left">
-                              <div className="learn-lesson-check done"><UiIcon name="check" size={18} /></div>
-                              <div className="learn-lesson-info">
-                                <span className="learn-lesson-name">{lesson.title}</span>
-                                <span className="learn-lesson-type">
-                                  {lesson.description || "Урок курсу"}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="learn-lesson-meta-right">
-                              <span className="learn-status-pill">
-                                {activeLesson?.id === lesson.id ? "АКТИВНИЙ" : "ВІДКРИТИ"}
-                              </span>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div style={{ padding: "16px 20px", color: "var(--color-brand-soft)", fontSize: "14px" }}>
-                          Уроки для цього модуля завантажуються або ще не додані.
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <aside className="learn-next-step-panel">
-          <span className="std-badge-tag" style={{ color: "#385546" }}>[ ДАЛІ ]</span>
-          <h3 className="learn-next-step-title">Наступний крок</h3>
-
-          <div className="learn-next-lesson-name">
-            {activeLesson ? activeLesson.title : "Оберіть урок із програми"}
-          </div>
-          <p className="learn-next-lesson-desc">
-            {activeLesson?.description || "Вивчайте матеріали курсу послідовно та переходьте до виконання завдань."}
-          </p>
-
-          <Link
-            to={activeAssignment ? `/student/assignments/${activeAssignment.id}` : (courseId ? `/student/learning/${courseId}` : "/student/courses")}
-            state={{ courseId, courseTitle: courseDisplayName, assignmentTitle: activeAssignment?.title }}
-            className="learn-next-assignment-bar"
-          >
-            <span>Після уроку:</span>
-            <span style={{ color: "var(--color-brand-primary)" }}>
-              {activeAssignment ? <>Здати завдання <UiIcon name="arrow" /></> : <>Наступний урок <UiIcon name="arrow" /></>}
-            </span>
-          </Link>
-        </aside>
-      </div>
+function LessonContent({ lesson, lessons, module, moduleIndex, courseId, courseTitle, lessonPath }: LessonContentProps) {
+  const [progressAttempt, setProgressAttempt] = useState(0);
+  const load = useCallback(() => getMaterials(lesson.id), [lesson.id]);
+  const remote = useRemoteData(load);
+  const materials = remote.data;
+  const videos = materials?.filter(material => material.type === "Video");
+  const texts = materials?.filter(material => material.type === "Text");
+  const resources = materials?.filter(material => !["Video", "Text", "Test", "Assignment"].includes(material.type));
+  const assignments = materials?.filter(material => material.type === "Assignment");
+  return <div className="lp-grid">
+    <div className="lp-main">
+      <section className="lp-media" aria-label="Відео уроку">
+        {remote.loading && <div className="lp-media-empty" role="status"><UiIcon name="loading" size={32} /><p>Завантаження матеріалів…</p></div>}
+        {remote.error && <div className="lp-media-empty"><RequestError message={remote.error} retry={remote.reload} /></div>}
+        {materials && (videos?.length ? videos.map(video => <LessonVideo key={video.id} material={video} />) : <div className="lp-media-empty"><UiIcon name="courses" size={40} /><h2>Відео ще не додано</h2><p>Доступні матеріали й тести розміщено нижче.</p></div>)}
+      </section>
+      <section className="lp-discussion" aria-labelledby="lesson-discussion"><span className="lp-tag">Обговорення уроку</span><h2 id="lesson-discussion">Запитання та обговорення</h2><p>Обговорюйте матеріал уроку з ментором та студентами.</p><label htmlFor={`question-${lesson.id}`} className="lp-question-label">Ваше запитання</label><textarea id={`question-${lesson.id}`} placeholder="Поставити запитання про матеріал уроку…" disabled /><div className="lp-discussion-action"><span>Обговорення поки недоступне.</span><button type="button" disabled>Надіслати<UiIcon name="arrow" /></button></div></section>
+      <section className="lp-card lp-about"><span className="lp-tag">Про цей урок</span><h2>{lesson.title}</h2>{texts?.length ? texts.map(material => <div key={material.id} className="lp-text-material">{material.title && <h3>{material.title}</h3>}<p>{material.content || material.description || "Текст матеріалу ще не додано."}</p></div>) : <p>{lesson.description || "Додатковий опис уроку ще не додано."}</p>}</section>
+      {materials?.filter(material => material.type === "Test").map(material => <LessonQuiz key={material.id} material={material} onSubmitted={() => setProgressAttempt(value => value + 1)} />)}
+      <section className="lp-card lp-resources"><span className="lp-tag">Матеріали до уроку</span><h2>Корисні файли та посилання</h2>{remote.loading && <p role="status">Завантаження матеріалів…</p>}{remote.error && <p>Матеріали недоступні. Спробуйте завантажити їх ще раз вище.</p>}{resources?.length ? <ul>{resources.map(material => <LessonResource key={material.id} material={material} />)}</ul> : materials && <p>Файли та посилання до цього уроку ще не додано.</p>}</section>
     </div>
-  );
+    <aside className="lp-aside" aria-label="Модуль і завдання">
+      {module && <section className="lp-card lp-module"><header><span className="lp-tag">Модуль {String((moduleIndex ?? 0) + 1).padStart(2, "0")}</span><h2>{module.title}</h2>{module.description && <p>{module.description}</p>}<span className="lp-module-count">{lessons.length} {new Intl.PluralRules("uk-UA").select(lessons.length) === "one" ? "урок" : new Intl.PluralRules("uk-UA").select(lessons.length) === "few" ? "уроки" : "уроків"}</span></header><ol>{lessons.map((item, index) => <li key={item.id}><Link to={lessonPath(item.id)} aria-current={item.id === lesson.id ? "page" : undefined}><span className="lp-lesson-title"><span className="lp-lesson-number">{index + 1}</span><strong>{item.title}</strong></span><span className="lp-lesson-description">{item.id === lesson.id ? "Поточний урок" : item.description || "Матеріали уроку"}</span><span className="lp-lesson-action">{item.id === lesson.id ? "Відкрито" : "Перейти до уроку"}</span></Link></li>)}</ol></section>}
+      <ModuleProgress key={`${module?.id ?? lesson.id}/${progressAttempt}`} moduleId={module?.id} moduleIndex={moduleIndex} lessons={lessons} activeLessonId={lesson.id} lessonPath={lessonPath} />
+      {assignments?.length ? assignments.map(material => <section key={material.id} className="lp-card lp-assignment"><span className="lp-tag">Після уроку</span><h2>{material.title || "Практичне завдання"}</h2>{material.description && <p>{material.description}</p>}{material.deadline && Number.isFinite(Date.parse(material.deadline)) && <div className="lp-deadline"><span>Дедлайн</span><time dateTime={material.deadline}>{new Date(material.deadline).toLocaleDateString("uk-UA")}</time></div>}<img src="/courses/curator-character.webp" alt="" /><Link className="lp-button" to={`/student/assignments/${encodeURIComponent(material.id)}`} state={{ courseId, courseTitle, assignmentTitle: material.title, description: material.description, deadline: material.deadline }}>Перейти до завдання<UiIcon name="arrow" /></Link></section>) : materials && <section className="lp-card lp-assignment"><span className="lp-tag">Після уроку</span><h2>Практичне завдання</h2><p>Практичне завдання до цього уроку ще не додано.</p></section>}
+    </aside>
+  </div>;
+}
+
+function ModuleProgress({ moduleId, moduleIndex, lessons, activeLessonId, lessonPath }: { moduleId?: string; moduleIndex?: number; lessons: Lesson[]; activeLessonId: string; lessonPath: (id: string) => string }) {
+  const load = useCallback(async () => ({ stats: moduleId ? await getModuleStats(moduleId) : undefined }), [moduleId]);
+  const remote = useRemoteData(load);
+  const stats = remote.data?.stats;
+  const progress = stats?.progressPercentage;
+  const knownProgress = typeof progress === "number" && Number.isFinite(progress) && progress >= 0 && progress <= 100;
+  const index = lessons.findIndex(lesson => lesson.id === activeLessonId);
+  const previous = index > 0 ? lessons[index - 1] : undefined;
+  const next = index >= 0 ? lessons[index + 1] : undefined;
+  return <section className="lp-card lp-progress"><span className="lp-tag">Прогрес модуля</span><h2>{moduleId ? `Модуль ${(moduleIndex ?? 0) + 1}` : "Прогрес"}</h2>{remote.loading && <p role="status">Завантаження прогресу…</p>}{remote.error && <RequestError message={remote.error} retry={remote.reload} />}{knownProgress ? <><div className="lp-progress-label"><span>{stats?.completedLessons} із {stats?.totalLessons} уроків завершено</span><strong>{Math.round(progress)}%</strong></div><progress max={100} value={progress} aria-label="Прогрес модуля" /></> : !remote.loading && !remote.error && <p>Прогрес поки недоступний.</p>}<button type="button" className="lp-button" disabled>Завершити урок</button><p className="lp-disabled-note">Позначення уроку завершеним поки недоступне.</p><nav aria-label="Перехід між уроками" className="lp-lesson-navigation">{previous ? <Link to={lessonPath(previous.id)}><UiIcon name="left" />Попередній</Link> : <button type="button" disabled><UiIcon name="left" />Попередній</button>}{next ? <Link to={lessonPath(next.id)}>Наступний<UiIcon name="arrow" /></Link> : <button type="button" disabled>Наступний<UiIcon name="arrow" /></button>}</nav></section>;
+}
+
+function LessonVideo({ material }: { material: Material }) {
+  const url = submissionFileUrl(material.videoUrl || material.url);
+  if (!url) return <div className="lp-media-empty"><p>Посилання на відео недоступне.</p></div>;
+  const parsed = new URL(url);
+  const youtubeId = ["www.youtube.com", "youtube.com", "m.youtube.com", "youtu.be"].includes(parsed.hostname) ? parsed.hostname === "youtu.be" ? parsed.pathname.slice(1) : parsed.searchParams.get("v") || parsed.pathname.match(/^\/(?:embed|shorts)\/([^/]+)/)?.[1] : undefined;
+  if (youtubeId && /^[\w-]{11}$/.test(youtubeId)) return <iframe src={`https://www.youtube-nocookie.com/embed/${youtubeId}`} title={material.title || "Відео уроку"} allow="fullscreen; picture-in-picture" allowFullScreen />;
+  if (/\.(mp4|webm|ogg|m4v)$/i.test(parsed.pathname)) return <video controls preload="metadata" src={url} aria-label={material.title || "Відео уроку"}>Ваш браузер не підтримує відео. <a href={url}>Відкрити відео</a></video>;
+  return <div className="lp-media-empty"><h2>{material.title || "Відео уроку"}</h2><p>Перегляньте відео за посиланням.</p><a className="lp-button" href={url} target="_blank" rel="noreferrer">Відкрити відео<UiIcon name="external" /></a></div>;
+}
+
+function LessonResource({ material }: { material: Material }) {
+  const url = submissionFileUrl(material.type === "File" ? material.fileUrl : material.type === "Photo" ? material.photoUrl : material.linkUrl || material.url);
+  const [imageFailed, setImageFailed] = useState(false);
+  const label = material.title || (material.type === "File" ? "Файл уроку" : material.type === "Photo" ? "Зображення уроку" : "Ресурс уроку");
+  return <li>{material.type === "Photo" && url && !imageFailed && <img src={url} alt={label} onError={() => setImageFailed(true)} loading="lazy" />}{url ? <a href={url} target="_blank" rel="noreferrer"><UiIcon name={material.type === "Link" ? "external" : "file"} size={28} /><span><strong>{label}</strong>{material.description && <span>{material.description}</span>}{imageFailed && <span>Не вдалося завантажити зображення.</span>}</span><UiIcon name={material.type === "File" ? "download" : "external"} /></a> : <div className="lp-resource-unavailable"><UiIcon name="file" size={28} /><span><strong>{label}</strong><span>Посилання на матеріал недоступне.</span></span></div>}</li>;
 }

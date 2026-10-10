@@ -78,7 +78,7 @@ export async function getAssignmentContext(id: string): Promise<AssignmentContex
 
 export async function getAssignmentStatus(id: string) {
   const status = await getSubmissionStatus(id);
-  if (!status || [status.isSubmitted, status.hasSubmission, status.needsRevision, status.canResubmit].some(value => typeof value !== "boolean")) throw new Error("Статус роботи поки недоступний.");
+  if (!assignmentStatusKind(status, id)) throw new Error("Статус роботи поки недоступний.");
   return status;
 }
 
@@ -91,10 +91,27 @@ export async function getStudentAssignments(): Promise<{ items: StudentAssignmen
   }), warnings };
 }
 
+export function assignmentStatusKind(status?: SubmissionStatus, materialId?: string): "todo" | "revision" | "review" | "reviewed" | undefined {
+  if (!status || [status.isSubmitted, status.hasSubmission, status.needsRevision, status.canResubmit].some(value => typeof value !== "boolean")) return undefined;
+  const submission = status.submission;
+  if (!status.hasSubmission) {
+    return !status.isSubmitted && !status.needsRevision && !status.canResubmit && submission == null ? "todo" : undefined;
+  }
+  if (typeof submission?.id !== "string" || !submission.id.trim()
+    || typeof submission.relatedMaterialId !== "string" || !submission.relatedMaterialId.trim()
+    || materialId !== undefined && submission.relatedMaterialId !== materialId) return undefined;
+  if (submission.status === "NeedsRevision") {
+    return !status.isSubmitted && status.needsRevision && status.canResubmit ? "revision" : undefined;
+  }
+  if (!status.isSubmitted || status.needsRevision || status.canResubmit) return undefined;
+  if (submission.status === "Reviewed") return "reviewed";
+  if (submission.status === "Submitted" || submission.status === "InReview") return "review";
+  return undefined;
+}
+
 export function canSubmitAssignment(status?: SubmissionStatus) {
-  if (!status || [status.isSubmitted, status.hasSubmission, status.needsRevision, status.canResubmit].some(value => typeof value !== "boolean")) return false;
-  if (status.submission?.status === "NeedsRevision" || status.needsRevision || status.canResubmit) return true;
-  return status.isSubmitted === false && status.hasSubmission === false && !status.submission;
+  const kind = assignmentStatusKind(status);
+  return kind === "todo" || kind === "revision";
 }
 
 export function assignmentDate(value?: string) {
