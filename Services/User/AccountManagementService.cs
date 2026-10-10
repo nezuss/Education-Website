@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
+using System.Net;
 
 namespace Backend.Services.User
 {
@@ -39,6 +40,7 @@ namespace Backend.Services.User
             }
 
             string resetToken = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString());
+            string resetUrl = $"{configuration["Frontend:Url"]?.TrimEnd('/')}/reset-password?resetToken={WebUtility.UrlEncode(resetToken)}";
 
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Nexylva", configuration["Smtp:From"]));
@@ -108,7 +110,7 @@ namespace Backend.Services.User
                             <p>Для зміни паролю перейдіть по посиланню нижче:</p>
 
                             <div class=""code-block"">
-                                <a href=""{configuration["Smtp:User"]}auth/reset-password/{resetToken}"" class=""code"">Змінити пароль</a>
+                                <a href=""{resetUrl}"" class=""code"">Змінити пароль</a>
                             </div>
 
                             <p class=""warning"">Нікому не повідомляйте це посилання. Якщо це булы не ви, просто проігноруйте цей лист.</p>
@@ -149,7 +151,8 @@ namespace Backend.Services.User
             if (!cache.TryGetValue(dTO.ResetToken, out string email))
                 return ServiceResult<string>.Fail("ResetToken is invalid or expired", 400);
 
-            cache.Remove(dTO.ResetToken);
+            if (string.IsNullOrWhiteSpace(dTO.Password))
+                return ServiceResult<string>.Fail("Password is required", 400);
 
             var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
 
@@ -162,9 +165,13 @@ namespace Backend.Services.User
             string salt = BCrypt.Net.BCrypt.GenerateSalt(workFactor: 12);
             user.Password = BCrypt.Net.BCrypt.HashPassword(dTO.Password, salt);
             user.Salt = salt;
+            user.AuthorizedKeyId = Guid.NewGuid().ToString();
+            user.UpdatedAt = DateTime.UtcNow;
 
             db.Users.Update(user);
             await db.SaveChangesAsync();
+
+            cache.Remove(dTO.ResetToken);
 
             return ServiceResult<string>.Ok("Now you can login with new password", "Password successfully changed");
         }
@@ -187,6 +194,8 @@ namespace Backend.Services.User
             string salt = BCrypt.Net.BCrypt.GenerateSalt(workFactor: 12);
             user.Password = BCrypt.Net.BCrypt.HashPassword(dTO.NewPassword, salt);
             user.Salt = salt;
+            user.AuthorizedKeyId = Guid.NewGuid().ToString();
+            user.UpdatedAt = DateTime.UtcNow;
 
             db.Users.Update(user);
             await db.SaveChangesAsync();

@@ -86,8 +86,11 @@ namespace Backend.Services.Profile
                        .Fail("User not found with this id", 404);
             }
           
-            user.Username ??= dTO.Username;
-          
+            if (!string.IsNullOrWhiteSpace(dTO.Username))
+                user.Username = dTO.Username;
+
+            user.UpdatedAt = DateTime.UtcNow;
+
             db.Users.Update(user);
             await db.SaveChangesAsync();
 

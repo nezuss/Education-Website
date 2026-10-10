@@ -88,12 +88,20 @@ namespace Backend.Services.Admin
             if (user == null)
                 return ServiceResult<string>.Fail("User not found with this id", 404);
 
-            string salt = BCrypt.Net.BCrypt.GenerateSalt(workFactor: 12);
+            if (!string.IsNullOrWhiteSpace(dTO.Email))
+                user.Email = dTO.Email;
 
-            user.Email = dTO.Email ?? user.Email;
-            user.Username = (dTO.Username ?? dTO.Email.Split('@')[0]) ?? user.Username;
-            user.Password = BCrypt.Net.BCrypt.HashPassword(dTO.Password, salt) ?? user.Password;
-            user.Salt = salt ?? user.Salt;
+            if (!string.IsNullOrWhiteSpace(dTO.Username))
+                user.Username = dTO.Username;
+
+            if (!string.IsNullOrWhiteSpace(dTO.Password))
+            {
+                string salt = BCrypt.Net.BCrypt.GenerateSalt(workFactor: 12);
+                user.Password = BCrypt.Net.BCrypt.HashPassword(dTO.Password, salt);
+                user.Salt = salt;
+                user.AuthorizedKeyId = Guid.NewGuid().ToString();
+            }
+
             user.UpdatedAt = DateTime.UtcNow;
 
             db.Users.Update(user);
