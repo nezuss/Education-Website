@@ -1,506 +1,150 @@
-import { useState } from "react";
+import { useCallback, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
-import { rateSubmission } from "../../services/mentorService";
-import "../../styles/MentorPortal.css";
+import { rateSubmission, requestSubmissionRevision, saveSubmissionFeedback } from "../../services/mentorService";
+import { getProfile, getProfileById } from "../../services/profileService";
+import { getSubmissionDetails, submissionFileUrl, submissionGrade, type Submission } from "../../services/submissionService";
+import { assignmentDate } from "../../services/assignmentService";
+import { currentFeedbackState, getFeedbackComment, getFeedbackReviewer } from "../../services/studentFeedbackPresentation";
+import { getMentorReviewContext } from "../../services/mentorReviewContextService";
+import DataUnavailable from "../shared/DataUnavailable";
+import useRemoteData from "../shared/useRemoteData";
+import RequestError from "../shared/RequestError";
+import UiIcon from "../../components/ui/Icon/UiIcon";
+import "../../styles/MentorDashboard.css";
+import "../../styles/MentorReview.css";
 
 export default function MentorReviewPage() {
-  const { id } = useParams();
+  const { submissionId } = useParams();
+  return submissionId ? <Review key={submissionId} submissionId={submissionId} /> : <p role="alert">Роботу не знайдено.</p>;
+}
 
-  const [scores, setScores] = useState<{ [key: string]: number }>({
-    cycle: 5,
-    materials: 4,
-    solutions: 4,
-    visual: 5,
-  });
+function Review({ submissionId }: { submissionId: string }) {
+  const load = useCallback(() => getSubmissionDetails(submissionId), [submissionId]);
+  const list = useRemoteData(load);
+  const loadStudent = useCallback(async () => list.data ? getProfileById(list.data.userId) : null, [list.data]);
+  const student = useRemoteData(loadStudent);
+  const profile = useRemoteData(getProfile);
+  const [saved, setSaved] = useState<Submission>();
+  const item = saved ?? list.data;
+  const [rate, setRate] = useState("");
+  const [feedback, setFeedback] = useState<string>();
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [needsRefresh, setNeedsRefresh] = useState(false);
+  const [pendingGrade, setPendingGrade] = useState<number>();
+  const loadContext = useCallback(() => item && profile.data
+    ? getMentorReviewContext(item, profile.data) : Promise.resolve(undefined), [item, profile.data]);
+  const learning = useRemoteData(loadContext);
+  const context = learning.data?.context;
+  const fileUrl = submissionFileUrl(item?.fileUrl);
+  const studentName = student.data?.username?.trim() || "Дані поки недоступні";
+  const fileName = fileUrl ? decodeFileName(fileUrl) : "";
+  const state = currentFeedbackState(item);
+  const comments = item ? getFeedbackComment(item) : {};
+  const reviewer = getFeedbackReviewer(item);
+  const grade = submissionGrade(item?.rate);
+  const submittedAt = assignmentDate(item?.submittedAt ?? undefined);
+  const updatedAt = assignmentDate(item?.updatedAt);
+  const reviewedAt = assignmentDate(item?.reviewerAt ?? undefined);
+  const deadline = assignmentDate(learning.data?.deadline);
+  const materialLabel = item?.type === "Test" ? "Тестування" : item?.type === "Assignment" ? "Практична робота" : "Навчальна робота";
+  const materialTitle = learning.data?.materialTitle || materialLabel;
+  // Current profile responses omit permissions; the server still authorizes every mutation.
+  const permits = (permission: string) => !!profile.data && (!Array.isArray(profile.data.permissions) || profile.data.permissions.includes(permission));
+  const canFeedback = !!item && permits("submission.send.feedback");
+  const canRevise = !!item && permits("submission.request.revision") && item.status !== "Reviewed";
+  const canGrade = !!item && item.rate === -1 && profile.data?.role === "Teacher"
+    && !!profile.data.id && learning.data?.courseTeacherId === profile.data.id && !needsRefresh;
 
-  const [feedback, setFeedback] = useState(
-    "Добре пропрацьована структура циклу. Варто ще сильніше аргументувати вибір матеріалу та показати сценарій повторного використання."
-  );
-  const [notes, setNotes] = useState(
-    "Перевірити аргументацію щодо повторного використання матеріалу. Уточнити рекомендації перед фінальним оцінюванням."
-  );
-  const [submittedStatus, setSubmittedStatus] = useState<string | null>(null);
-
-  const calculateGrade12 = () => {
-    const sum = Object.values(scores).reduce((a, b) => a + b, 0);
-    return Math.min(12, Math.max(1, Math.round((sum / 20) * 12)));
-  };
-
-  const calculateTotal = () => {
-    const sum = Object.values(scores).reduce((a, b) => a + b, 0);
-    return Math.round((sum / 20) * 100);
-  };
-
-  const handleScore = (key: string, val: number) => {
-    setScores((prev) => ({ ...prev, [key]: val }));
-  };
-
-  const handleApprove = async () => {
-    const grade = calculateGrade12();
-    const pct = calculateTotal();
+  async function refreshResult() {
+    if (busy) return;
+    setBusy(true); setError("");
     try {
-      if (id) {
-        await rateSubmission({ submissionId: id, rate: grade });
+      const result = await load();
+      setSaved(result);
+      if (pendingGrade !== undefined && (result.rate !== pendingGrade || result.status !== "Reviewed")) {
+        throw new Error("Сервер поки не підтвердив результат оцінювання. Оновіть дані роботи.");
       }
-      setSubmittedStatus(`Схвалено! Оцінка ${grade}/12 балів (${pct}%) збережена на сервері та надіслана студенту.`);
-    } catch {
-      setSubmittedStatus(`Схвалено! Оцінка ${grade}/12 балів (${pct}%) зафіксована.`);
-    }
-  };
+      setNeedsRefresh(false); setPendingGrade(undefined); setRate("");
+      setNotice("Дані роботи оновлено.");
+    } catch (failure) { setError((failure as Error).message); }
+    finally { setBusy(false); }
+  }
 
-  const handleReturn = () => {
-    setSubmittedStatus("Роботу повернуто на доопрацювання з вашим коментарем.");
-  };
+  async function save(event: FormEvent, action: "rate" | "feedback" | "revision") {
+    event.preventDefault();
+    if (!item || busy || needsRefresh) return;
+    const value = Number(rate);
+    const comment = (feedback ?? item.feedback ?? "").trim();
+    if (action === "rate" && (!canGrade || !Number.isInteger(value) || value < 1 || value > 12)) return;
+    if (action === "feedback" && (!canFeedback || !comment) || action === "revision" && (!canRevise || !reason.trim())) return;
+    if (action === "rate" && !window.confirm(`Зберегти оцінку ${value}/12? Змінити цю оцінку буде неможливо.`)) return;
+    setBusy(true); setNeedsRefresh(true); setError(""); setNotice("");
+    try {
+      if (action === "rate") {
+        await rateSubmission({ submissionId, rate: value });
+        setPendingGrade(value); setRate("");
+        const result = await load();
+        setSaved(result);
+        if (result.rate !== value || result.status !== "Reviewed") throw new Error("Сервер поки не підтвердив результат оцінювання. Оновіть дані роботи.");
+        setNeedsRefresh(false); setPendingGrade(undefined);
+        setNotice("Оцінку збережено.");
+      } else {
+        const result = action === "feedback" ? await saveSubmissionFeedback(submissionId, comment) : await requestSubmissionRevision(submissionId, reason.trim());
+        if (!result || result.id !== submissionId || result.relatedMaterialId !== item.relatedMaterialId || result.userId !== item.userId
+          || typeof result.rate !== "number" || (action === "feedback" ? result.feedback !== comment : result.status !== "NeedsRevision" || result.revisionMessage !== reason.trim())) {
+          throw new Error("Сервер не повернув підтверджений результат. Оновіть дані роботи перед наступною дією.");
+        }
+        setSaved(result); setNeedsRefresh(false);
+        setNotice(action === "feedback" ? "Коментар збережено." : "Роботу повернено на доопрацювання.");
+        if (action === "revision") setReason("");
+      }
+    } catch (failure) { setError((failure as Error).message); }
+    finally { setBusy(false); }
+  }
 
-  const handleSaveNotes = () => {
-    setSubmittedStatus("Особисті нотатки ментора успішно збережено.");
-  };
-
-  const handleSaveDraft = () => {
-    setSubmittedStatus("Поточний стан перевірки збережено як чернетку.");
-  };
-
-  return (
-    <div className="mentor-container">
-      <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "16px" }}>
-        <Link to="/mentor" style={{ color: "inherit", textDecoration: "none" }}>Головна</Link>
-        {" > "}
-        <Link to="/mentor/submissions" style={{ color: "inherit", textDecoration: "none" }}>На перевірці</Link>
-        {" > "}
-        <span style={{ color: "var(--accent-primary)", fontWeight: 600 }}>Анна Коваль / Перевірка роботи</span>
-      </div>
-
-      <header className="mentor-header">
-        <div>
-          <div style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", color: "var(--accent-warm)", letterSpacing: "0.05em", marginBottom: "4px" }}>
-            [ НА ПЕРЕВІРЦІ ]
-          </div>
-          <h1 className="mentor-header-title">
-            Перевірка роботи студента
-          </h1>
-          <p className="mentor-header-sub">
-            Перегляньте матеріали, оцініть роботу за критеріями та залиште feedback.
-          </p>
-        </div>
-        <div className="mentor-date-badge">
-          10 серпня 2026
-        </div>
-      </header>
-
-      <section className="review-student-header-card">
-        <div className="review-student-meta">
-          <img
-            src="/about/team_1.webp"
-            alt="Анна Коваль"
-            style={{ width: "56px", height: "56px", borderRadius: "50%", objectFit: "cover" }}
-          />
-          <div>
-            <div style={{ fontSize: "18px", fontWeight: 700, color: "var(--text-primary)" }}>Анна Коваль</div>
-            <div style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-              Студентка • LCA & Еко-проєктування
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>Аналіз життєвого циклу продукту</div>
-          <div style={{ fontSize: "13px", color: "var(--text-secondary)" }}>Практичне завдання №2 • Модуль 4</div>
-        </div>
-
-        <div>
-          <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>Надіслано</div>
-          <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-primary)" }}>10 серпня • 14:26</div>
-        </div>
-
-        <div>
-          <span className="mentor-status-pill in-review">
-            На перевірці
-          </span>
-        </div>
+  return <div className="mentor-review">
+    <nav className="mr-breadcrumbs" aria-label="Навігаційний шлях"><Link to="/mentor">Головна</Link><UiIcon name="chevron" /><Link to="/mentor/submissions">На перевірці</Link><UiIcon name="chevron" /><span>Перевірка роботи</span></nav>
+    <header className="mr-header"><div><span className="mr-tag">{item ? state.label : "Перевірка роботи"}</span><h1>Перевірка роботи студента</h1><p>Перегляньте матеріали, оцініть роботу та залиште зворотний зв’язок.</p></div>{submittedAt && <time className="mr-header-date" dateTime={item!.submittedAt!}>{submittedAt.toLocaleDateString("uk-UA", { day: "numeric", month: "long", year: "numeric" })}</time>}</header>
+    {list.loading && <p role="status">Завантаження роботи…</p>}
+    {list.error && <RequestError message={list.error} retry={list.reload} />}
+    {profile.error && <RequestError message={profile.error} retry={profile.reload} />}
+    {student.error && <RequestError message={student.error} retry={student.reload} />}
+    {item && <>
+      <section className="mr-student" aria-label="Відомості про роботу">
+        <div className="mr-person"><span className="mr-avatar" aria-hidden="true"><UiIcon name="person" size={32} /></span><div><strong>{student.loading ? "Завантаження студента…" : studentName}</strong><p>{context?.courseTitle || "Дані поки недоступні"}</p></div></div>
+        <div><strong>{materialTitle}</strong><p>{context ? `${context.moduleTitle} · ${context.lessonTitle}` : "Дані поки недоступні"}</p></div>
+        <div><strong>Надіслано</strong><p>{submittedAt ? <time dateTime={item.submittedAt!}>{submittedAt.toLocaleString("uk-UA", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}</time> : "Дані поки недоступні"}</p></div>
+        <span className={`mr-status mr-status-${state.key}`}>{state.label}</span>
       </section>
+      {error && <p role="alert" className="mr-message mr-error">{error}</p>}{notice && <p role="status" className="mr-message">{notice}</p>}
+      {needsRefresh && <div className="mr-message mr-refresh-result"><p>Результат останньої дії поки не підтверджено. Оновіть дані роботи перед наступним збереженням.</p><button type="button" className="mr-button" disabled={busy} onClick={() => void refreshResult()}>Оновити дані роботи<UiIcon name="loading" /></button></div>}
+      <div className="mr-grid"><div className="mr-main">
+        <section className="mr-card mr-task">
+          <span className="mr-tag">Завдання</span><h2>{materialTitle}</h2>
+          {learning.data?.description ? <p className="mr-task-description">{learning.data.description}</p> : <DataUnavailable>{learning.loading ? "Завантаження навчальних матеріалів…" : "Опис завдання поки недоступний."}</DataUnavailable>}
+          {!context && !learning.loading && <div><p className="mr-help">Курс, модуль і урок поки недоступні.</p><button type="button" className="mr-button" onClick={learning.reload}>Оновити навчальні матеріали<UiIcon name="loading" /></button></div>}
+          {learning.error && <RequestError message={learning.error} retry={learning.reload} />}
+          {learning.data?.materialError && <RequestError message={learning.data.materialError} retry={learning.reload} />}
+          <div className="mr-chips">{context && <span>{context.moduleTitle}</span>}<span>Максимальна оцінка: 12</span><span>{deadline ? <>Дедлайн: <time dateTime={learning.data!.deadline!}>{deadline.toLocaleDateString("uk-UA", { day: "numeric", month: "long" })}</time></> : "Дедлайн: Дані поки недоступні"}</span></div>
+        </section>
+        <section className="mr-card mr-files"><span className="mr-tag">Матеріали студента</span><h2>Файли роботи</h2>{fileUrl ? <div className="mr-file"><UiIcon name="file" size={36} /><div><strong>{fileName}</strong><p>Надісланий файл</p></div><a className="mr-button" href={fileUrl} target="_blank" rel="noreferrer">Відкрити <UiIcon name="external" /></a></div> : <DataUnavailable>{item.type === "Test" ? "Для тестової роботи файли не передбачені." : "Файл роботи поки недоступний."}</DataUnavailable>}</section>
+        <section className="mr-card mr-preview"><span className="mr-tag">Прев’ю</span><h2>Швидкий перегляд роботи</h2><DataUnavailable>Попередній перегляд поки недоступний.</DataUnavailable>{fileUrl && <a className="mr-file-link" href={fileUrl} target="_blank" rel="noreferrer">Відкрити {fileName}<UiIcon name="external" /></a>}</section>
+        <section className="mr-card mr-feedback"><span className="mr-tag">Зворотний зв’язок</span><h2>Коментар студенту</h2><form onSubmit={event => void save(event, "feedback")}><fieldset disabled={busy || needsRefresh || !canFeedback}><label htmlFor="mentor-feedback">Коментар ментора</label><textarea id="mentor-feedback" required placeholder="Що вдалося та що варто покращити…" value={feedback ?? item.feedback ?? ""} onChange={event => setFeedback(event.target.value)} /><p className="mr-help">Студент побачить збережений коментар у результаті своєї роботи.</p><button className="mr-button" disabled={!(feedback ?? item.feedback ?? "").trim()} type="submit">Зберегти коментар <UiIcon name="arrow" /></button></fieldset></form></section>
+        <section className="mr-card mr-notes"><span className="mr-tag">Нотатки</span><h2>Нотатки ментора</h2><DataUnavailable>Особисті нотатки поки недоступні.</DataUnavailable><button className="mr-button" type="button" disabled>Зберегти нотатку</button></section>
+      </div><aside className="mr-aside" aria-label="Оцінювання та рішення">
+        <section className="mr-card mr-status-card"><span className="mr-tag">Статус</span><h2>{state.label}</h2><p>Перевірте всі матеріали перед фінальним рішенням.</p><dl className="mr-facts"><div><dt>Дедлайн</dt><dd className={deadline ? "" : "mr-fact-unavailable"}>{deadline ? <time dateTime={learning.data!.deadline!}>{deadline.toLocaleDateString("uk-UA", { day: "numeric", month: "long" })}</time> : "Дані поки недоступні"}</dd></div><div><dt>Спроба</dt><dd className="mr-fact-unavailable">Дані поки недоступні</dd></div><div><dt>Файл</dt><dd className="mr-fact-unavailable">{fileUrl ? "Доступний" : "Дані поки недоступні"}</dd></div><div><dt>Макс. бал</dt><dd>12</dd></div></dl></section>
+        <section className="mr-card mr-grading"><span className="mr-tag">Оцінка</span><h2>Оцінювання</h2><p>Оцініть роботу за шкалою від 1 до 12.</p><p className="mr-help">Оцінки за окремими критеріями: Дані поки недоступні.</p>{item.rate === -1 ? <form id="mentor-grade" onSubmit={event => void save(event, "rate")}><fieldset disabled={busy || !canGrade}><legend>Оцінка (1–12)</legend><div className="mr-grade-options">{Array.from({ length: 12 }, (_, index) => index + 1).map(value => <label key={value}><input type="radio" name="grade" required value={value} checked={rate === String(value)} onChange={event => setRate(event.target.value)} /><span>{value}</span></label>)}</div></fieldset></form> : <p className="mr-help">Повторне оцінювання цієї роботи недоступне.</p>}{item.rate === -1 && !canGrade && !needsRefresh && <p className="mr-help">Виставити оцінку може призначений ментор курсу після перевірки доступу.</p>}<p className="mr-total">{state.key === "returned" && grade !== undefined ? "Попередня оцінка: " : "Оцінка: "}<strong>{needsRefresh ? "Результат поки не підтверджено" : grade !== undefined ? `${grade} / 12` : canGrade && rate ? `${rate} / 12 (не збережено)` : item.rate === -1 ? "Ще не виставлено" : "Дані поки недоступні"}</strong></p></section>
+        <section className="mr-card mr-decision"><span className="mr-tag">Фінальне рішення</span><h2>Завершити перевірку?</h2><p>Збережіть оцінку або поверніть роботу з поясненням.</p><button className="mr-button" type="submit" form="mentor-grade" disabled={busy || !canGrade || !rate}>Зберегти оцінку <UiIcon name="arrow" /></button><form onSubmit={event => void save(event, "revision")}><fieldset disabled={busy || needsRefresh || !canRevise}><label htmlFor="mentor-revision">Що потрібно виправити</label><textarea id="mentor-revision" required placeholder="Поясніть причину повернення…" value={reason} onChange={event => setReason(event.target.value)} /><button className="mr-button mr-return" disabled={!reason.trim()} type="submit">{item.status === "NeedsRevision" ? "Оновити причину повернення" : "Повернути на доопрацювання"}<UiIcon name="arrow" /></button></fieldset></form><p className="mr-help">{item.status === "Reviewed" ? "Повернення вже перевіреної роботи недоступне." : "Студент побачить збережений результат у своїй роботі."}</p></section>
+      </aside></div>
+      <section className="mr-card mr-history"><span className="mr-tag">Історія</span><h2>Історія роботи</h2><dl><div><dt>Роботу надіслано</dt><dd>{submittedAt ? <time dateTime={item.submittedAt!}>{submittedAt.toLocaleString("uk-UA")}</time> : "Дані поки недоступні"}</dd></div><div><dt>Останнє оновлення</dt><dd>{updatedAt ? <time dateTime={item.updatedAt}>{updatedAt.toLocaleString("uk-UA")}</time> : "Дані поки недоступні"}</dd></div><div><dt>Поточний статус</dt><dd>{state.label}</dd></div><div><dt>{reviewer.automatic ? "Автоматична перевірка" : "Перевіряючий"}</dt><dd>{reviewer.name || "Дані поки недоступні"}</dd></div><div><dt>Дата перевірки</dt><dd>{reviewedAt ? <time dateTime={item.reviewerAt!}>{reviewedAt.toLocaleString("uk-UA")}</time> : "Дані поки недоступні"}</dd></div></dl>{comments.revision && <div className="mr-revision-message"><h3>Причина повернення</h3><p>{comments.revision}</p></div>}<p className="mr-help">Детальна історія подій: Дані поки недоступні.</p></section>
+    </>}
+  </div>;
+}
 
-      {submittedStatus && (
-        <div style={{ background: "#E2ECE5", border: "1px solid #557061", color: "#0A2D1B", padding: "16px 24px", borderRadius: "16px", marginBottom: "24px", fontWeight: 600 }}>
-          ✓ {submittedStatus}
-        </div>
-      )}
-
-      <div className="mentor-grid-layout">
-        <div>
-          <div className="review-task-desc-card">
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--accent-secondary)", textTransform: "uppercase" }}>
-              [ ЗАВАНТАЖЕННЯ ПРОЄКТУ ]
-            </div>
-            <h2 className="review-task-title">Аналіз життєвого циклу продукту</h2>
-            <p className="review-task-body">
-              Проаналізуйте життєвий цикл обраного продукту та запропонуйте рішення, які допоможуть зменшити його вплив на довкілля.
-            </p>
-            <div className="review-badges-row">
-              <span className="review-badge">Модуль 4</span>
-              <span className="review-badge">100 балів</span>
-              <span className="review-badge">PDF / JPG</span>
-              <span className="review-badge">Дедлайн 14 серпня</span>
-            </div>
-          </div>
-
-          <div className="review-files-panel">
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--accent-primary)", textTransform: "uppercase", marginBottom: "12px" }}>
-              [ МАТЕРІАЛИ СТУДЕНТА ]
-            </div>
-            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "20px", fontWeight: 700, color: "var(--accent-primary)", margin: "0 0 16px 0" }}>
-              Файли роботи
-            </h3>
-
-            <div className="review-file-item">
-              <div className="review-file-info">
-                <span className="review-file-icon">📄</span>
-                <div>
-                  <div className="review-file-name">Схема життєвого циклу</div>
-                  <div className="review-file-meta">Lifecycle_Scheme.pdf • 6.2 MB</div>
-                </div>
-              </div>
-              <button type="button" className="mentor-action-btn">
-                Відкрити &rarr;
-              </button>
-            </div>
-
-            <div className="review-file-item">
-              <div className="review-file-info">
-                <span className="review-file-icon">📄</span>
-                <div>
-                  <div className="review-file-name">Аналіз матеріалів</div>
-                  <div className="review-file-meta">Material_Analysis.pdf • 4.8 MB</div>
-                </div>
-              </div>
-              <button type="button" className="mentor-action-btn">
-                Відкрити &rarr;
-              </button>
-            </div>
-
-            <div className="review-file-item">
-              <div className="review-file-info">
-                <span className="review-file-icon">📄</span>
-                <div>
-                  <div className="review-file-name">Пропозиція покращення</div>
-                  <div className="review-file-meta">Improvement_Proposal.pdf • 2.4 MB</div>
-                </div>
-              </div>
-              <button type="button" className="mentor-action-btn">
-                Відкрити &rarr;
-              </button>
-            </div>
-          </div>
-
-          <div className="review-preview-panel">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--accent-primary)", textTransform: "uppercase" }}>
-                  [ ПРЕВ'Ю ]
-                </div>
-                <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "20px", fontWeight: 700, color: "var(--accent-primary)", margin: "4px 0 0 0" }}>
-                  Швидкий перегляд роботи
-                </h3>
-              </div>
-              <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
-                3 сторінки • Lifecycle_Scheme.pdf
-              </span>
-            </div>
-
-            <div className="review-slides-grid">
-              <div className="review-slide-card">
-                <div className="review-slide-title">Аналіз життєвого циклу</div>
-                <div className="review-slide-sub">Матеріали та виробництво</div>
-                <img src="/community/featured_chair.webp" alt="Slide 1" />
-              </div>
-
-              <div className="review-slide-card">
-                <div className="review-slide-title">Етапи життєвого циклу</div>
-                <div className="review-slide-sub">Виробництво &rarr; використання</div>
-                <img src="/community/work_biocomposite.webp" alt="Slide 2" />
-              </div>
-
-              <div className="review-slide-card">
-                <div className="review-slide-title">Висновки</div>
-                <div className="review-slide-sub">Можливості повторного використання</div>
-                <img src="/community/work_lamp.webp" alt="Slide 3" />
-              </div>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "14px", fontSize: "12px", color: "var(--text-secondary)" }}>
-              <span>Аналіз_життєвого_циклу.pdf • 6,2 МБ</span>
-              <a href="#pdf" style={{ color: "var(--accent-primary)", fontWeight: 600, textDecoration: "none" }}>
-                Відкрити повний PDF ↗
-              </a>
-            </div>
-          </div>
-
-          <div className="review-feedback-panel">
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--accent-secondary)", textTransform: "uppercase" }}>
-              [ FEEDBACK ]
-            </div>
-            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "22px", fontWeight: 700, color: "var(--accent-primary)", margin: "4px 0 12px 0" }}>
-              Коментар студенту
-            </h3>
-            <textarea
-              className="review-feedback-textarea"
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              placeholder="Напишіть конструктивний фідбек студенту..."
-            />
-            <div className="review-feedback-actions">
-              <button type="button" className="review-feedback-link-btn">
-                🔗 Посилання на відео-feedback ↗
-              </button>
-              <button type="button" className="review-feedback-link-btn">
-                📎 Додатковий матеріал / URL ↗
-              </button>
-            </div>
-          </div>
-
-          <div className="review-task-desc-card">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-              <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--accent-warm)", textTransform: "uppercase" }}>
-                [ НОТАТКИ ]
-              </span>
-              <span style={{ fontSize: "12px", color: "var(--text-secondary)", background: "#F5EFEB", padding: "4px 10px", borderRadius: "12px" }}>
-                🔒 Видно лише Вам
-              </span>
-            </div>
-            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "20px", fontWeight: 700, color: "var(--accent-primary)", margin: "0 0 12px 0" }}>
-              Нотатки ментора
-            </h3>
-            <textarea
-              className="review-feedback-textarea"
-              style={{ background: "#FAF8F5" }}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-            />
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "12px" }}>
-              <button
-                type="button"
-                className="mentor-action-btn"
-                onClick={handleSaveNotes}
-              >
-                Зберегти нотатку
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <aside className="review-right-column">
-          <div className="review-status-card">
-            <div className="review-status-tag">[ СТАТУС ]</div>
-            <h3 className="review-status-title">Робота на перевірці</h3>
-            <p className="review-status-desc">
-              Перевірте всі матеріали перед фінальним рішенням.
-            </p>
-            <div className="review-status-stats-grid">
-              <div className="review-status-stat-box">
-                <div className="review-status-stat-label">Дедлайн</div>
-                <div className="review-status-stat-val">14 серпня</div>
-              </div>
-              <div className="review-status-stat-box">
-                <div className="review-status-stat-label">Спроба</div>
-                <div className="review-status-stat-val">1</div>
-              </div>
-              <div className="review-status-stat-box">
-                <div className="review-status-stat-label">Файлів</div>
-                <div className="review-status-stat-val">3</div>
-              </div>
-              <div className="review-status-stat-box">
-                <div className="review-status-stat-label">Макс. бал</div>
-                <div className="review-status-stat-val">12</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="review-criteria-card">
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--accent-secondary)", textTransform: "uppercase" }}>
-              [ КРИТЕРІЇ ]
-            </div>
-            <h3 className="review-criteria-heading">
-              Оцінювання
-            </h3>
-
-            <div className="review-criterion-item">
-              <div className="review-criterion-title">Аналіз життєвого циклу</div>
-              <div className="review-criterion-desc">Логіка етапів, повнота та аргументація.</div>
-              <div className="review-score-buttons">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <button
-                    key={n}
-                    type="button"
-                    className={`review-score-btn ${scores.cycle === n ? "selected" : ""}`}
-                    onClick={() => handleScore("cycle", n)}
-                  >
-                    {n}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="review-criterion-item">
-              <div className="review-criterion-title">Робота з матеріалами</div>
-              <div className="review-criterion-desc">Походження, властивості та повторне використання.</div>
-              <div className="review-score-buttons">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <button
-                    key={n}
-                    type="button"
-                    className={`review-score-btn ${scores.materials === n ? "selected" : ""}`}
-                    onClick={() => handleScore("materials", n)}
-                  >
-                    {n}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="review-criterion-item">
-              <div className="review-criterion-title">Якість запропонованих рішень</div>
-              <div className="review-criterion-desc">Реалістичність і екологічний ефект.</div>
-              <div className="review-score-buttons">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <button
-                    key={n}
-                    type="button"
-                    className={`review-score-btn ${scores.solutions === n ? "selected" : ""}`}
-                    onClick={() => handleScore("solutions", n)}
-                  >
-                    {n}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="review-criterion-item">
-              <div className="review-criterion-title">Візуальна подача</div>
-              <div className="review-criterion-desc">Структура, читабельність та оформлення.</div>
-              <div className="review-score-buttons">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <button
-                    key={n}
-                    type="button"
-                    className={`review-score-btn ${scores.visual === n ? "selected" : ""}`}
-                    onClick={() => handleScore("visual", n)}
-                  >
-                    {n}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="review-total-score-box">
-              <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--accent-primary)" }}>
-                Підсумкова оцінка:
-              </span>
-              <span className="review-total-score-val">
-                {calculateGrade12()} / 12 балів ({calculateTotal()}%)
-              </span>
-            </div>
-          </div>
-
-          <div className="review-decision-card">
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "#C2D1C9", textTransform: "uppercase" }}>
-              [ ФІНАЛЬНЕ РІШЕННЯ ]
-            </div>
-            <h3 className="review-decision-title">Завершити перевірку?</h3>
-            <p className="review-decision-desc">
-              Після відправлення студент отримає ваш feedback та новий статус роботи.
-            </p>
-
-            <div className="review-decision-buttons">
-              <button
-                type="button"
-                className="review-decision-btn-primary"
-                onClick={handleApprove}
-              >
-                <span>Схвалити роботу</span>
-                <span>&rarr;</span>
-              </button>
-              <button
-                type="button"
-                className="review-decision-btn-danger"
-                onClick={handleReturn}
-              >
-                <span>Повернути на доопрацювання</span>
-                <span>&rarr;</span>
-              </button>
-              <button
-                type="button"
-                className="review-decision-btn-outline"
-                onClick={handleSaveDraft}
-              >
-                <span>Зберегти як чернетку</span>
-                <span>&rarr;</span>
-              </button>
-            </div>
-
-            <div style={{ marginTop: "24px", paddingTop: "18px", borderTop: "1px solid rgba(255, 255, 255, 0.15)", fontSize: "12px", color: "#AABDB3" }}>
-              <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "16px" }}>
-                <span>📅</span>
-                <span>Після завершення перевірки студент отримає сповіщення</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", textAlign: "center" }}>
-                <div>
-                  <div style={{ fontWeight: 700, color: "#FFFFFF" }}>1</div>
-                  <div style={{ fontSize: "10px" }}>ПЕРЕВІРКА</div>
-                </div>
-                <div style={{ borderTop: "1px solid #557061", flex: 1, margin: "8px 8px 0" }}></div>
-                <div>
-                  <div style={{ fontWeight: 700, color: "#FFFFFF" }}>2</div>
-                  <div style={{ fontSize: "10px" }}>FEEDBACK</div>
-                </div>
-                <div style={{ borderTop: "1px solid #557061", flex: 1, margin: "8px 8px 0" }}></div>
-                <div>
-                  <div style={{ fontWeight: 700, color: "#FFFFFF" }}>3</div>
-                  <div style={{ fontSize: "10px" }}>ГОТОВО</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </aside>
-      </div>
-
-      <section className="review-history-card">
-        <div style={{ fontSize: "11px", fontWeight: 700, color: "#C2D1C9", textTransform: "uppercase" }}>
-          [ ІСТОРІЯ ]
-        </div>
-        <h3 className="review-history-heading">Історія роботи</h3>
-        <div className="review-history-timeline">
-          <div className="review-history-step">
-            <div className="review-history-step-num">1</div>
-            <div>
-              <div className="review-history-step-text">Роботу надіслано</div>
-              <div className="review-history-step-sub">10 серпня • 14:26</div>
-            </div>
-          </div>
-
-          <div className="review-history-step">
-            <div className="review-history-step-num">2</div>
-            <div>
-              <div className="review-history-step-text">Відкрито ментором</div>
-              <div className="review-history-step-sub">Сьогодні • 16:05</div>
-            </div>
-          </div>
-
-          <div className="review-history-step">
-            <div className="review-history-step-num">3</div>
-            <div>
-              <div className="review-history-step-text">Очікує рішення</div>
-              <div className="review-history-step-sub">Поточний статус</div>
-            </div>
-          </div>
-
-          <div className="review-history-step">
-            <div className="review-history-step-num">4</div>
-            <div>
-              <div className="review-history-step-text">Роботу перевірено</div>
-              <div className="review-history-step-sub">Оцінка: {calculateTotal()}/100</div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
+function decodeFileName(url: string) {
+  const name = new URL(url).pathname.split("/").pop() || "Файл роботи";
+  try { return decodeURIComponent(name); } catch { return name; }
 }
