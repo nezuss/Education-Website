@@ -65,6 +65,8 @@ namespace Backend.Services.Cource
             var testMaterial = await db.Materials.FirstOrDefaultAsync(m => m.Id == dTO.TestId);
             if (testMaterial == null)
                 return ServiceResult<object>.Fail("Test material not found", 404);
+            if (testMaterial is not TestMaterialModel)
+                return ServiceResult<object>.Fail("This material is not a test", 400);
 
             // * Check if user is enrolled to the course
             var lesson = await db.Lessons.FirstOrDefaultAsync(l => l.MaterialsId != null && l.MaterialsId.Contains(dTO.TestId));
@@ -100,32 +102,52 @@ namespace Backend.Services.Cource
                     .ThenInclude(q => q.Answers)
                 .FirstOrDefaultAsync(m => m.Id == dTO.TestId);
 
-            int totalQuestions = testWithQuestions?.Questions?.Count ?? 0;
+            if (testWithQuestions == null || testWithQuestions.Questions == null || testWithQuestions.Questions.Count == 0)
+                return ServiceResult<object>.Fail("This test has no questions", 400);
+
+            if (testWithQuestions.Questions.Any(q => q.Answers == null || q.Answers.Count == 0))
+                return ServiceResult<object>.Fail("This test has questions without answers", 400);
+
+            if (dTO.Answers == null || dTO.Answers.Count == 0)
+                return ServiceResult<object>.Fail("Answers are required", 400);
+
+            var questionsMap = testWithQuestions.Questions.ToDictionary(q => q.Id);
+            var submittedAnswersMap = new Dictionary<string, string>();
+
+            // * Validate submitted question and answer ids
+            foreach (var submittedAnswer in dTO.Answers)
+            {
+                if (submittedAnswer == null ||
+                    string.IsNullOrEmpty(submittedAnswer.QuestionId) ||
+                    string.IsNullOrEmpty(submittedAnswer.AnswerId))
+                {
+                    return ServiceResult<object>.Fail("Question id and answer id are required", 400);
+                }
+
+                if (!questionsMap.TryGetValue(submittedAnswer.QuestionId, out var question))
+                    return ServiceResult<object>.Fail($"Question '{submittedAnswer.QuestionId}' does not belong to this test", 400);
+
+                if (!question.Answers.Any(a => a.Id == submittedAnswer.AnswerId))
+                    return ServiceResult<object>.Fail($"Answer '{submittedAnswer.AnswerId}' does not belong to question '{submittedAnswer.QuestionId}'", 400);
+
+                if (!submittedAnswersMap.TryAdd(submittedAnswer.QuestionId, submittedAnswer.AnswerId))
+                    return ServiceResult<object>.Fail($"Duplicate answer for question '{submittedAnswer.QuestionId}'", 400);
+            }
+
+            int totalQuestions = testWithQuestions.Questions.Count;
             int correctCount = 0;
 
-            var submittedAnswersMap = dTO.Answers?
-                .GroupBy(a => a.QuestionId)
-                .ToDictionary(g => g.Key, g => g.First().AnswerId)
-                ?? new Dictionary<string, string>();
+            foreach (var question in testWithQuestions.Questions)
+                if (submittedAnswersMap.TryGetValue(question.Id, out var answerId))
+                {
+                    var answer = question.Answers.FirstOrDefault(a => a.Id == answerId);
+                    if (answer != null && answer.IsCorrect) correctCount++;
+                }
 
-            if (testWithQuestions?.Questions != null)
-                foreach (var question in testWithQuestions.Questions)
-                    if (submittedAnswersMap.TryGetValue(question.Id, out var answerId))
-                    {
-                        var answer = question.Answers?.FirstOrDefault(a => a.Id == answerId);
-                        if (answer != null && answer.IsCorrect) correctCount++;
-                    }
-
-            int calculatedRate = totalQuestions > 0 
-                ? (int)Math.Round((double)correctCount / totalQuestions * 12) 
-                : 12;
-
-            if (calculatedRate < 1 && correctCount > 0)
-                calculatedRate = 1;
-
-            double percentage = totalQuestions > 0 
-                ? Math.Round((double)correctCount / totalQuestions * 100, 1) 
-                : 100;
+            // * Calculating the rate for the test
+            int calculatedRate = correctCount == 0
+                ? 0
+                : Math.Clamp((int)Math.Round((double)correctCount / totalQuestions * 12), 1, 12);
 
             string autoFeedback = $"Automatic check: correct {correctCount} from {totalQuestions}. Rate: {calculatedRate}/12.";
 
@@ -144,12 +166,12 @@ namespace Backend.Services.Cource
                 SubmittedAt = DateTime.UtcNow,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                Answers = dTO.Answers?.Select(a => new TestQuestionAnswerModel
+                Answers = submittedAnswersMap.Select(a => new TestQuestionAnswerModel
                 {
                     Id = Guid.NewGuid().ToString(),
-                    QuestionId = a.QuestionId,
-                    AnswerId = a.AnswerId
-                }).ToList() ?? new List<TestQuestionAnswerModel>()
+                    QuestionId = a.Key,
+                    AnswerId = a.Value
+                }).ToList()
             };
 
             db.MaterialSubmissions.Add(submission);
@@ -180,6 +202,8 @@ namespace Backend.Services.Cource
             var assignmentMaterial = await db.Materials.FirstOrDefaultAsync(m => m.Id == assignmentId);
             if (assignmentMaterial == null)
                 return ServiceResult<object>.Fail("Assignment material not found", 404);
+            if (assignmentMaterial is not AssignmentMaterialModel)
+                return ServiceResult<object>.Fail("This material is not an assignment", 400);
 
             // * Check if user is enrolled to the course
             var lesson = await db.Lessons.FirstOrDefaultAsync(l => l.MaterialsId != null && l.MaterialsId.Contains(assignmentId));
