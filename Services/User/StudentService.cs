@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Backend.Models;
 using Backend.Models.Cource.MaterialAnswers;
+using Backend.Responses.Cource;
 using Backend.Utils;
 
 namespace Backend.Services.User
@@ -17,13 +18,13 @@ namespace Backend.Services.User
             db = _db;
         }
 
-        public async Task<ServiceResult<List<MaterialSubmissionModel>>> GetSubmissions(string Id)
+        public async Task<ServiceResult<List<SubmissionResponse>>> GetSubmissions(string Id)
         {
             var user = await db.Users.FirstOrDefaultAsync(u => u.Id == Id);
 
             if (user == null)
             {
-                return ServiceResult<List<MaterialSubmissionModel>>
+                return ServiceResult<List<SubmissionResponse>>
                        .Fail("User not found with this id", 404);
             }
 
@@ -34,11 +35,13 @@ namespace Backend.Services.User
 
             if (submissions == null || (submissions.Count() <= 0))
             {
-                return ServiceResult<List<MaterialSubmissionModel>>
+                return ServiceResult<List<SubmissionResponse>>
                        .Fail("You don't have any submissions", 404);
             }
 
-            return ServiceResult<List<MaterialSubmissionModel>>.Ok(submissions, "Submissions successfully get");
+            var response = await SubmissionResponseBuilder.Build(db, submissions);
+
+            return ServiceResult<List<SubmissionResponse>>.Ok(response, "Submissions successfully get");
         }
     }
 }

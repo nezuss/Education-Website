@@ -188,14 +188,15 @@ namespace Backend.Services.Mentor
                                          .Where(u => studentIds.Contains(u.Id))
                                          .ToDictionaryAsync(u => u.Id);
 
-            var groupedSubmissions = submissions.GroupBy(s => s.UserId);
+            var submissionResponses = await SubmissionResponseBuilder.Build(db, submissions);
+            var groupedSubmissions = submissionResponses.GroupBy(s => s.UserId);
             var response = new List<SubmissionsResponse>();
 
             foreach (var group in groupedSubmissions)
             {
                 students.TryGetValue(group.Key, out var student);
                 var studentSubmissionList = group.ToList();
-                materialToCourceMap.TryGetValue(studentSubmissionList.First().RelatedMaterialId, out var cId);
+                materialToCourceMap.TryGetValue(studentSubmissionList.First().MaterialId, out var cId);
 
                 response.Add(new SubmissionsResponse
                 {

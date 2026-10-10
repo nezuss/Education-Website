@@ -28,25 +28,26 @@ namespace Backend.Services.Cource
             return Path.Combine(contentRootPath, "PrivateUploads", "submissions");
         }
 
-        public async Task<ServiceResult<MaterialSubmissionModel>> GetDetails(string Id, string UserId)
+        public async Task<ServiceResult<SubmissionResponse>> GetDetails(string Id, string UserId)
         {
             if (string.IsNullOrEmpty(Id))
             {
-                return ServiceResult<MaterialSubmissionModel>
+                return ServiceResult<SubmissionResponse>
                        .Fail("Submission id is required", 400);
             }
 
             if (string.IsNullOrEmpty(UserId))
             {
-                return ServiceResult<MaterialSubmissionModel>
+                return ServiceResult<SubmissionResponse>
                        .Fail("User id is required", 401);
             }
 
-            var submission = await db.MaterialSubmissions.FirstOrDefaultAsync(ms => ms.Id == Id);
+            var submission = await db.MaterialSubmissions.AsNoTracking()
+                                   .FirstOrDefaultAsync(ms => ms.Id == Id);
 
             if (submission == null)
             {
-                return ServiceResult<MaterialSubmissionModel>
+                return ServiceResult<SubmissionResponse>
                        .Fail("There are no submission with this id", 404);
             }
 
@@ -54,16 +55,13 @@ namespace Backend.Services.Cource
 
             if (!hasAccess)
             {
-                return ServiceResult<MaterialSubmissionModel>
+                return ServiceResult<SubmissionResponse>
                        .Fail("You do not have permission to view this submission", 403);
             }
 
-            if (submission is TestSubmissionModel testSubmission)
-            {
-                await db.Entry(testSubmission).Collection(t => t.Answers).LoadAsync();
-            }
+            var response = await SubmissionResponseBuilder.Build(db, new List<MaterialSubmissionModel> { submission });
 
-            return ServiceResult<MaterialSubmissionModel>.Ok(submission, "Submission details get successfully");
+            return ServiceResult<SubmissionResponse>.Ok(response[0], "Submission details get successfully");
         }
 
         public async Task<ServiceResult<SubmissionFileResponse>> GetFile(string Id, string UserId)

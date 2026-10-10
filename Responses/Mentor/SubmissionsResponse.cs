@@ -1,12 +1,12 @@
 using Backend.Models;
-using Backend.Models.Cource.MaterialAnswers;
+using Backend.Responses.Cource;
 
 namespace Backend.Responses.Mentor
 {
     public class SubmissionsResponse
     {
         public StudentModel Student { get; set; }
-        public List<MaterialSubmissionModel> Submissions { get; set; } = new List<MaterialSubmissionModel>();
+        public List<SubmissionResponse> Submissions { get; set; } = new List<SubmissionResponse>();
     }
 
     public class StudentModel
