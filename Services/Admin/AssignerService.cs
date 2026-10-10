@@ -56,11 +56,13 @@ namespace Backend.Services.Admin
 
             if (cource == null)
                 return ServiceResult<string>.Fail("There is no cource with this id", 404);
+
+            cource.ModulesId ??= new List<string>();
+
             if (cource.ModulesId.Contains(dTO.ModuleId))
                 return ServiceResult<string>.Fail("This module already assigned to this cource", 400);
 
             cource.ModulesId.Add(dTO.ModuleId);
-            cource.ModulesId ??= new List<string>();
 
             db.Cources.Update(cource);
             await db.SaveChangesAsync();
@@ -80,12 +82,14 @@ namespace Backend.Services.Admin
 
             if (module == null)
                 return ServiceResult<string>.Fail("There is no module with this id", 404);
+
+            module.LessonsId ??= new List<string>();
+
             if (module.LessonsId.Contains(dTO.LessonId))
                 return ServiceResult<string>.Fail("This lesson already assigned to this module", 400);
 
             module.LessonsId.Add(dTO.LessonId);
-            module.LessonsId ??= new List<string>();
-          
+
             db.Modules.Update(module);
             await db.SaveChangesAsync();
 
@@ -104,11 +108,13 @@ namespace Backend.Services.Admin
 
             if (lesson == null)
                 return ServiceResult<string>.Fail("There is no lesson with this id", 404);
+
+            lesson.MaterialsId ??= new List<string>();
+
             if (lesson.MaterialsId.Contains(dTO.MaterialId))
                 return ServiceResult<string>.Fail("This material already assigned to this lesson", 400);
 
             lesson.MaterialsId.Add(dTO.MaterialId);
-            lesson.MaterialsId ??= new List<string>();
 
             db.Lessons.Update(lesson);
             await db.SaveChangesAsync();

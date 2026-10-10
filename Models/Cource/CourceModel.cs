@@ -13,7 +13,7 @@ namespace Backend.Models.Cource
         public int TotalLearningPeriodWeeks { get; set; }
         public int ProjectsReadyForPortfolio { get; set; }
         public string? AssignedTeacherId { get; set; }
-        public List<string>? ModulesId { get; set; }
+        public List<string>? ModulesId { get; set; } = new List<string>();
 
         public DateTime UpdatedAt { get; set; }
         public DateTime CreatedAt { get; set; }
