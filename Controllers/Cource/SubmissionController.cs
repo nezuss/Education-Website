@@ -44,6 +44,26 @@ namespace Backend.Controllers.Cource
             });
         }
 
+        [HttpGet("{id}/file")]
+        [Authorize]
+        public async Task<IActionResult> GetFile(string id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await submissionService.GetFile(id, userId);
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+
+            return PhysicalFile(result.Data.FilePath, result.Data.ContentType, result.Data.FileName);
+        }
+
         [HttpPost("{id}/feedback")]
         [Permission(Permissions.SendSubmissionFeedback)]
         public async Task<IActionResult> SendFeedback(string id, SendFeedbackDTO dTO)

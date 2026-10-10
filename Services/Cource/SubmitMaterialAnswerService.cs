@@ -158,7 +158,7 @@ namespace Backend.Services.Cource
             return ServiceResult<object>.Ok(submission, "Test answers have been submitted and automatically checked");
         }
 
-        public async Task<ServiceResult<object>> SubmitAssignment(IFormFile file, string assignmentId, string userId, string webRootPath, string scheme, string host)
+        public async Task<ServiceResult<object>> SubmitAssignment(IFormFile file, string assignmentId, string userId, string storageFolder, string scheme, string host)
         {
             if (string.IsNullOrEmpty(userId))
                 return ServiceResult<object>.Fail("User Id is required", 401);
@@ -224,22 +224,21 @@ namespace Backend.Services.Cource
                        .Fail($"File extension '{extension}' is not allowed. Please upload a project archive (.zip, .rar, .7z) or document/image.", 400);
             }
 
-            string uploadsFolder = Path.Combine(webRootPath, "uploads");
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
+            if (!Directory.Exists(storageFolder))
+                Directory.CreateDirectory(storageFolder);
 
+            string submissionId = Guid.NewGuid().ToString();
             string safeFileName = Path.GetFileName(file.FileName);
-            string uniqueFileName = Guid.NewGuid().ToString() + "_" + safeFileName;
-            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+            string filePath = Path.Combine(storageFolder, submissionId + "_" + safeFileName);
 
             using (var fileStream = new FileStream(filePath, FileMode.Create))
                 await file.CopyToAsync(fileStream);
 
-            string fileUrl = $"{scheme}://{host}/api/uploads/{uniqueFileName}";
+            string fileUrl = $"{scheme}://{host}/submissions/{submissionId}/file";
 
             var submission = new AssignmentSubmissionModel
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = submissionId,
                 RelatedMaterialId = assignmentId,
                 UserId = userId,
                 FileUrl = fileUrl,

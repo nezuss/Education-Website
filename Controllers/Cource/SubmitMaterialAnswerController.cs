@@ -84,10 +84,10 @@ namespace Backend.Controllers.Cource
                 });
             }
 
-            string webRootPath = env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            string storageFolder = SubmissionService.GetStorageFolder(env.ContentRootPath);
             var request = HttpContext.Request;
 
-            var result = await submitMaterialAnswerService.SubmitAssignment(file, assignmentId, userId, webRootPath, request.Scheme, request.Host.ToString());
+            var result = await submitMaterialAnswerService.SubmitAssignment(file, assignmentId, userId, storageFolder, request.Scheme, request.Host.ToString());
 
             if (!result.Success)
             {
