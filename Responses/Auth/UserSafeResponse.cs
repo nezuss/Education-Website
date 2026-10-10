@@ -1,0 +1,14 @@
+namespace Backend.Responses.Auth
+{
+    public class UserSafeResponse
+    {
+        public string Id { get; set; }
+        public string Email { get; set; }
+        public string Username { get; set; }
+        public List<string> EnrolledCourcesId { get; set; }
+        public string? RoleId { get; set; }
+        public bool IsEmailConfirmed { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+}

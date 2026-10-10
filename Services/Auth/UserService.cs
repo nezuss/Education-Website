@@ -1,6 +1,7 @@
 using Backend.Services.JWT;
 using Backend.Models;
 using Backend.DTO.Auth;
+using Backend.Responses.Auth;
 using Backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -29,13 +30,13 @@ namespace Backend.Services.Auth
             configuration = _configuration;
         }
 
-        public async Task<ServiceResult<UserModel>> SignUp(SignUpDTO dTO)
+        public async Task<ServiceResult<UserSafeResponse>> SignUp(SignUpDTO dTO)
         {
             if (string.IsNullOrEmpty(dTO.Email) ||
                 string.IsNullOrEmpty(dTO.Username) ||
                 string.IsNullOrEmpty(dTO.Password))
             {
-                return ServiceResult<UserModel>
+                return ServiceResult<UserSafeResponse>
                        .Fail("All fields are required", 400);
             }
 
@@ -44,15 +45,9 @@ namespace Backend.Services.Auth
 
             if (existedUserEmail != null)
             {
-                return ServiceResult<UserModel>
+                return ServiceResult<UserSafeResponse>
                        .Fail("User already exists with this email", 400);
             }
-
-            var code = new Random().Next(100000, 1000000).ToString();
-
-            SendCode(code, dTO.Email);
-
-            cache.Set(code, dTO.Email, TimeSpan.FromMinutes(30));
 
             string salt = BCrypt.Net.BCrypt.GenerateSalt(workFactor: 12);
             UserModel user = new UserModel
@@ -63,21 +58,36 @@ namespace Backend.Services.Auth
                 Password = BCrypt.Net.BCrypt.HashPassword(dTO.Password, salt),
                 AuthorizedKeyId = "",
                 Salt = salt,
+                EnrolledCourcesId = new List<string>(),
                 RoleId = "",
                 IsEmailConfirmed = false,
                 UpdatedAt = DateTime.UtcNow,
                 CreatedAt = DateTime.UtcNow,
             };
 
-            db.Entry(user).State = EntityState.Detached;
-
-            user.Password = "";
-            user.Salt = "";
-
             await db.Users.AddAsync(user);
             await db.SaveChangesAsync();
 
-            return ServiceResult<UserModel>.Ok(user, "User registered successfully, code sent to email");
+            var response = new UserSafeResponse
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+                EnrolledCourcesId = user.EnrolledCourcesId,
+                RoleId = user.RoleId,
+                IsEmailConfirmed = user.IsEmailConfirmed,
+                UpdatedAt = user.UpdatedAt,
+                CreatedAt = user.CreatedAt,
+            };
+
+            var code = new Random().Next(100000, 1000000).ToString();
+
+            if (!await SendCode(code, dTO.Email))
+                return ServiceResult<UserSafeResponse>.Ok(response, "User registered successfully, but verification code could not be sent. Please request a new code");
+
+            cache.Set(code, dTO.Email, TimeSpan.FromMinutes(30));
+
+            return ServiceResult<UserSafeResponse>.Ok(response, "User registered successfully, code sent to email");
         }
 
         public async Task<ServiceResult<string>> ConfirmEmail(string code)
@@ -113,7 +123,11 @@ namespace Backend.Services.Auth
 
             var code = new Random().Next(100000, 1000000).ToString();
 
-            SendCode(code, dTO.Email);
+            if (!await SendCode(code, dTO.Email))
+            {
+                return ServiceResult<string>
+                       .Fail("Failed to send verification code, please try again later", 503);
+            }
 
             cache.Set(code, dTO.Email, TimeSpan.FromMinutes(30));
 
@@ -257,7 +271,7 @@ namespace Backend.Services.Auth
             return saveUser;
         }
 
-        private async void SendCode(string code, string email)
+        private async Task<bool> SendCode(string code, string email)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Nexylva", configuration["Smtp:From"]));
@@ -342,21 +356,31 @@ namespace Backend.Services.Auth
 
             message.Body = bodyBuilder.ToMessageBody();
 
-            using var client = new SmtpClient();
+            try
+            {
+                using var client = new SmtpClient();
 
-            await client.ConnectAsync(
-                configuration["Smtp:Host"],
-                int.Parse(configuration["Smtp:Port"]),
-                SecureSocketOptions.Auto
-            );
+                await client.ConnectAsync(
+                    configuration["Smtp:Host"],
+                    int.Parse(configuration["Smtp:Port"]),
+                    SecureSocketOptions.Auto
+                );
 
-            await client.AuthenticateAsync(
-                configuration["Smtp:User"],
-                configuration["Smtp:Password"]
-            );
+                await client.AuthenticateAsync(
+                    configuration["Smtp:User"],
+                    configuration["Smtp:Password"]
+                );
 
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send verification code to {email}: {ex.Message}");
+                return false;
+            }
         }
 
         public async Task<string> GetRoleName(string RoleId)
