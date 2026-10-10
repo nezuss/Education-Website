@@ -1,268 +1,114 @@
-import { useState } from "react";
+import { useCallback, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
-import "../../styles/MentorPortal.css";
+import UiIcon from "../../components/ui/Icon/UiIcon";
+import { getMentorSubmissions, type MentorSubmission } from "../../services/mentorService";
+import { submissionGrade } from "../../services/submissionService";
+import { currentFeedbackState } from "../../services/studentFeedbackPresentation";
+import { assignmentDate } from "../../services/assignmentService";
+import { getProfile } from "../../services/profileService";
+import { getMentorQueueContexts } from "../../services/mentorQueueContextService";
+import useRemoteData from "../shared/useRemoteData";
+import RequestError from "../shared/RequestError";
+import "../../styles/MentorDashboard.css";
+import "../../styles/MentorQueue.css";
 
-interface SubmissionItem {
-  id: string;
-  num: string;
-  studentName: string;
-  studentRole: string;
-  avatar: string;
-  workTitle: string;
-  assignmentName: string;
-  courseName: string;
-  module: string;
-  dateStr: string;
-  status: "reviewed" | "new" | "in-review" | "returned";
-  statusText: string;
-  actionText: string;
-  actionType: "primary" | "secondary";
-}
+const filters = [["all", "Усі"], ["new", "Нові"], ["in-review", "На перевірці"], ["returned", "Повернено"], ["reviewed", "Перевірені"]];
+const pageSize = 10;
 
 export default function MentorSubmissionsPage() {
-  const [filter, setFilter] = useState<string>("all");
-  const [search, setSearch] = useState<string>("");
+  const { data, loading, error, reload } = useRemoteData(getMentorSubmissions);
+  const profile = useRemoteData(getProfile);
+  const loadContext = useCallback(() => data?.length && profile.data
+    ? getMentorQueueContexts(data, profile.data) : Promise.resolve(undefined), [data, profile.data]);
+  const learning = useRemoteData(loadContext);
+  const contexts = learning.data?.contexts;
+  const contextLoading = !!data?.length && (profile.loading || learning.loading);
+  const contextUnavailable = !!data?.length && !contextLoading && (learning.error || learning.data?.unavailable || !learning.data);
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+  const [course, setCourse] = useState("all");
+  const [sort, setSort] = useState("newest");
+  const [page, setPage] = useState(1);
+  const unknownCount = data?.filter(item => currentFeedbackState(item).key === "unknown").length;
+  const count = (key: string) => data && unknownCount === 0 ? data.filter(item => currentFeedbackState(item).key === key).length : undefined;
+  const newCount = count("new"), inReviewCount = count("in-review"), reviewedCount = count("reviewed"), returnedCount = count("returned");
+  const pendingCount = newCount !== undefined && inReviewCount !== undefined ? newCount + inReviewCount : undefined;
+  const reviewedPercent = data?.length && reviewedCount !== undefined ? Math.round(reviewedCount / data.length * 100) : undefined;
+  const returnedPercent = data?.length && returnedCount !== undefined ? Math.round(returnedCount / data.length * 100) : undefined;
+  const courses = Array.from(new Map(Array.from(contexts?.values() ?? [], context => [context.courseId, context.courseTitle])).entries())
+    .sort((a, b) => a[1].localeCompare(b[1], "uk"));
+  const hasUnknownCourse = !!data?.some(item => !contexts?.has(item.relatedMaterialId.trim()));
+  const selectedCourse = course === "all" || (course === "unavailable" && hasUnknownCourse) || courses.some(([id]) => id === course) ? course : "all";
+  const filtered = (data ?? []).filter(item => {
+    const context = contexts?.get(item.relatedMaterialId.trim());
+    return (filter === "all" || currentFeedbackState(item).key === filter)
+      && (selectedCourse === "all" || (selectedCourse === "unavailable" ? !context : context?.courseId === selectedCourse))
+      && [item.student.username, item.student.email, item.id, item.relatedMaterialId, materialLabel(item), context?.materialTitle, context?.courseTitle, context?.moduleTitle, context?.lessonTitle]
+        .filter(Boolean).join(" ").toLowerCase().includes(search.trim().toLowerCase());
+  }).sort((a, b) => sort === "student" ? studentName(a).localeCompare(studentName(b), "uk") || a.id.localeCompare(b.id) : compareSubmitted(a, b, sort === "oldest"));
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const metrics = [{ value: pendingCount, label: "очікують перевірки" }, { value: newCount, label: "нові роботи" }, { value: inReviewCount, label: "у роботі" }];
 
-  const submissions: SubmissionItem[] = [
-    {
-      id: "1",
-      num: "1",
-      studentName: "Анна Коваль",
-      studentRole: "Студентка",
-      avatar: "/about/team_1.webp",
-      workTitle: "Аналіз життєвого циклу продукту",
-      assignmentName: "Практичне завдання №2",
-      courseName: "LCA & Еко-проєктування",
-      module: "Модуль 4",
-      dateStr: "10 серпня • 14:26",
-      status: "reviewed",
-      statusText: "Перевірено",
-      actionText: "Переглянути",
-      actionType: "secondary"
-    },
-    {
-      id: "2",
-      num: "2",
-      studentName: "Марія Іванова",
-      studentRole: "Студентка",
-      avatar: "/about/team_2.webp",
-      workTitle: "Матеріальна карта продукту",
-      assignmentName: "Практичне завдання №1",
-      courseName: "LCA & Еко-проєктування",
-      module: "Модуль 4",
-      dateStr: "9 серпня • 18:40",
-      status: "new",
-      statusText: "Нова робота",
-      actionText: "Перевірити",
-      actionType: "primary"
-    },
-    {
-      id: "3",
-      num: "3",
-      studentName: "Олексій Бондар",
-      studentRole: "Студент",
-      avatar: "/about/team_3.webp",
-      workTitle: "Zero-Waste Packaging Concept",
-      assignmentName: "Проєктна робота",
-      courseName: "Zero-Waste Пакування",
-      module: "Модуль 5",
-      dateStr: "8 серпня • 12:15",
-      status: "in-review",
-      statusText: "На перевірці",
-      actionText: "Продовжити",
-      actionType: "secondary"
-    },
-    {
-      id: "4",
-      num: "4",
-      studentName: "Наталія Савчук",
-      studentRole: "Студентка",
-      avatar: "/about/team_4.webp",
-      workTitle: "Аудит сталих комунікацій бренду",
-      assignmentName: "Практичне завдання №3",
-      courseName: "Циркулярний брендинг",
-      module: "Модуль 2",
-      dateStr: "7 серпня • 09:10",
-      status: "returned",
-      statusText: "Повернено",
-      actionText: "Відкрити",
-      actionType: "primary"
-    }
-  ];
-
-  const filtered = submissions.filter((item) => {
-    if (filter === "new" && item.status !== "new") return false;
-    if (filter === "in-review" && item.status !== "in-review") return false;
-    if (filter === "returned" && item.status !== "returned") return false;
-    if (search) {
-      const q = search.toLowerCase();
-      return (
-        item.studentName.toLowerCase().includes(q) ||
-        item.workTitle.toLowerCase().includes(q) ||
-        item.courseName.toLowerCase().includes(q)
-      );
-    }
-    return true;
-  });
-
-  return (
-    <div className="mentor-container">
-      
-      <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "16px" }}>
-        <Link to="/mentor" style={{ color: "inherit", textDecoration: "none" }}>Головна</Link>
-        {" > "}
-        <span style={{ color: "var(--accent-primary)", fontWeight: 600 }}>На перевірці</span>
-      </div>
-
-      <header className="mentor-header">
-        <div>
-          <h1 className="mentor-header-title">
-            Завдання на перевірці
-          </h1>
-          <p className="mentor-header-sub">
-            Перевіряйте роботи студентів, залишайте feedback та відстежуйте статус перевірки.
-          </p>
-        </div>
-        <div className="mentor-date-badge">
-          {new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(new Date())}
-        </div>
-      </header>
-
-      <section className="queue-stats-row">
-        <div className="queue-banner-card">
-          <div className="queue-tag">[ Огляд ]</div>
-          <h2 className="queue-banner-title">Черга перевірки</h2>
-          <p className="queue-banner-sub">
-            Усі роботи, які зараз потребують вашої уваги.
-          </p>
-        </div>
-
-        <div className="mentor-metric-card">
-          <div className="mentor-metric-value">3</div>
-          <div className="mentor-metric-label">очікують перевірки</div>
-        </div>
-
-        <div className="mentor-metric-card">
-          <div className="mentor-metric-value">1</div>
-          <div className="mentor-metric-label">нова робота</div>
-        </div>
-
-        <div className="mentor-metric-card">
-          <div className="mentor-metric-value">2</div>
-          <div className="mentor-metric-label">у роботі</div>
-        </div>
-      </section>
-
-      <div className="mentor-toolbar">
-        <div className="mentor-filter-group">
-          <button
-            type="button"
-            className={`mentor-filter-pill ${filter === "all" ? "active" : ""}`}
-            onClick={() => setFilter("all")}
-          >
-            Усі
-          </button>
-          <button
-            type="button"
-            className={`mentor-filter-pill ${filter === "new" ? "active" : ""}`}
-            onClick={() => setFilter("new")}
-          >
-            Нові
-          </button>
-          <button
-            type="button"
-            className={`mentor-filter-pill ${filter === "in-review" ? "active" : ""}`}
-            onClick={() => setFilter("in-review")}
-          >
-            На перевірці
-          </button>
-          <button
-            type="button"
-            className={`mentor-filter-pill ${filter === "returned" ? "active" : ""}`}
-            onClick={() => setFilter("returned")}
-          >
-            Повернено
-          </button>
-        </div>
-
-        <div className="mentor-search-controls">
-          <div className="mentor-search-input-wrap">
-            <span className="mentor-search-icon">🔍</span>
-            <input
-              type="text"
-              placeholder="Знайти роботу..."
-              className="mentor-search-input"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-
-          <select className="mentor-select" aria-label="Фільтр курсів">
-            <option>Усі курси</option>
-            <option>LCA & Еко-проєктування</option>
-            <option>Zero-Waste Пакування</option>
-            <option>Циркулярний брендинг</option>
-          </select>
-
-          <select className="mentor-select" aria-label="Сортування">
-            <option>Сортувати: Спочатку нові</option>
-            <option>Сортувати: За дедлайном</option>
-            <option>Сортувати: За студентом</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="mentor-table-wrap">
-        <div className="mentor-table-header">
-          <span>№</span>
-          <span>Студент</span>
-          <span>Робота</span>
-          <span>Курс / модуль / надіслано</span>
-          <span>Статус</span>
-          <span>Дія</span>
-        </div>
-
-        {filtered.map((item) => (
-          <div key={item.id} className="mentor-table-row">
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: "18px", fontWeight: 700, color: "var(--accent-warm)" }}>
-              {item.num}
-            </span>
-
-            <div className="mentor-student-col">
-              <img src={item.avatar} alt={item.studentName} className="mentor-avatar-img" />
-              <div>
-                <div className="mentor-student-name">{item.studentName}</div>
-                <div className="mentor-student-role">{item.studentRole}</div>
-              </div>
-            </div>
-
-            <div>
-              <div className="mentor-work-title">{item.workTitle}</div>
-              <div className="mentor-work-sub">{item.assignmentName}</div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-primary)" }}>{item.courseName}</div>
-              <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>{item.module} • {item.dateStr}</div>
-            </div>
-
-            <div>
-              <span className={`mentor-status-pill ${item.status}`}>
-                {item.statusText}
-              </span>
-            </div>
-
-            <div>
-              <Link
-                to={`/mentor/review/${item.id}`}
-                className={`mentor-action-btn ${item.actionType === "secondary" ? "secondary" : ""}`}
-              >
-                {item.actionText} &rarr;
-              </Link>
-            </div>
-          </div>
-        ))}
+  return <div className="mentor-queue">
+    <nav className="mq-breadcrumbs" aria-label="Хлібні крихти"><Link to="/mentor">Головна</Link><UiIcon name="chevron" size={14} /><span>На перевірці</span></nav>
+    <header className="mq-header"><div><h1>Завдання на перевірці</h1><p>Перевіряйте роботи студентів, залишайте feedback та відстежуйте статуси перевірки.</p></div><time dateTime={new Date().toISOString()}>{new Date().toLocaleDateString("uk-UA", { day: "numeric", month: "long", year: "numeric" })}</time></header>
+    <section className="mq-overview" aria-label="Огляд черги">
+      <div className="mq-overview-intro"><span className="mq-tag">[ ОГЛЯД ]</span><h2>Черга перевірки</h2><p>Усі роботи, які зараз потребують вашої уваги.</p></div>
+      <dl className="mq-metrics">{metrics.map(({ value, label }) => <div key={label}><dt>{label}</dt><dd className={value === undefined ? "mq-unavailable" : ""}>{value ?? "Дані поки недоступні"}</dd></div>)}</dl>
+    </section>
+    <div className="mq-toolbar"><div className="mq-filters" aria-label="Статус роботи">{filters.map(([key, label]) => <button key={key} type="button" aria-pressed={filter === key} onClick={() => { setFilter(key); setPage(1); }}>{label}</button>)}</div>
+      <div className="mq-controls"><label className="mq-search"><input aria-label="Пошук за студентом, роботою або курсом" placeholder="Знайти роботу…" value={search} onChange={event => { setSearch(event.target.value); setPage(1); }} /><UiIcon name="search" size={22} /></label>
+        <select aria-label="Фільтр за курсом" disabled={!data?.length || contextLoading} value={selectedCourse} onChange={event => { setCourse(event.target.value); setPage(1); }}><option value="all">Усі курси</option>{courses.map(([id, title]) => <option key={id} value={id}>{title}</option>)}{hasUnknownCourse && !contextLoading && <option value="unavailable">Курс недоступний</option>}</select>
+        <select aria-label="Сортування робіт" value={sort} onChange={event => { setSort(event.target.value); setPage(1); }}><option value="newest">Спочатку нові</option><option value="oldest">Спочатку давні</option><option value="student">За студентом</option></select>
+        <button type="button" className="mq-refresh" disabled={loading} onClick={reload} aria-label="Оновити роботи" title="Оновити роботи"><UiIcon name="loading" size={20} /></button>
       </div>
     </div>
-  );
+    {error && <RequestError message={error} retry={reload} />}
+    <div className="mq-table-wrap" aria-busy={loading}><table className="mq-table"><caption className="mq-sr-only">Роботи студентів{data ? `: ${filtered.length}` : ""}</caption><thead><tr><th scope="col">№</th><th scope="col">Студент</th><th scope="col">Робота</th><th scope="col">Курс / модуль / надіслано</th><th scope="col">Статус</th><th scope="col">Дія</th></tr></thead><tbody>
+      {filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((item, index) => {
+        const state = currentFeedbackState(item);
+        const name = studentName(item);
+        const context = contexts?.get(item.relatedMaterialId.trim());
+        const title = context?.materialTitle || materialLabel(item);
+        const date = assignmentDate(item.submittedAt ?? undefined);
+        const grade = submissionGrade(item.rate);
+        const action = state.key === "reviewed" ? "Переглянути" : state.key === "new" ? "Перевірити" : state.key === "in-review" ? "Продовжити" : "Відкрити";
+        return <tr key={item.id}>
+          <td className="mq-row-number">{(currentPage - 1) * pageSize + index + 1}</td>
+          <td><div className="mq-student"><span className="mq-avatar" aria-hidden="true"><UiIcon name="person" size={28} /></span><div><strong>{name}</strong><small>{item.student.email || "Студент"}</small></div></div></td>
+          <td data-label="Робота"><strong>{title}</strong><small>{context?.lessonTitle || (contextLoading ? "Завантаження даних…" : "Дані поки недоступні")}</small></td>
+          <td data-label="Курс / модуль / надіслано">{context ? <><strong>{context.courseTitle}</strong><small>{context.moduleTitle}</small></> : <span className="mq-muted">{contextLoading ? "Завантаження даних…" : "Дані поки недоступні"}</span>}<small>{date ? <time dateTime={item.submittedAt!}>{date.toLocaleString("uk-UA", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}</time> : "Надіслано: Дані поки недоступні"}</small></td>
+          <td data-label="Статус"><span className={`mq-status ${state.key}`}>{state.key === "new" ? "Нова робота" : state.key === "returned" ? "Повернено" : state.label}</span>{grade !== undefined ? <small>{state.key === "returned" ? "Попередня оцінка: " : "Оцінка: "}{grade} / 12</small> : item.rate !== -1 && <small>Оцінка: Дані поки недоступні</small>}</td>
+          <td><Link to={`/mentor/review/${encodeURIComponent(item.id)}`} className={`mq-action ${state.key}`} aria-label={`${action}: ${name}, ${title}`}>{action}<UiIcon name="arrow" size={18} /></Link></td>
+        </tr>;
+      })}
+      {!filtered.length && <tr><td colSpan={6} className="mq-empty"><p role="status">{loading ? "Завантаження робіт…" : error ? "Не вдалося завантажити роботи." : contextLoading && search.trim() ? "Завантаження даних курсів…" : data?.length ? "За вибраними умовами робіт немає." : "Надісланих робіт ще немає."}</p></td></tr>}
+    </tbody></table></div>
+    {!!unknownCount && <p className="mq-note" role="status">У {unknownCount} робіт статус поки недоступний. Вони відображаються у вкладці «Усі». Показники за статусами: Дані поки недоступні.</p>}
+    {contextUnavailable && <div className="mq-note"><p>Частина даних про курси або назви робіт: Дані поки недоступні.</p><button type="button" onClick={profile.error ? profile.reload : learning.reload}>Оновити дані курсів</button></div>}
+    {pageCount > 1 && <nav className="mq-pagination" aria-label="Сторінки робіт"><button disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>Назад</button><span>{currentPage} / {pageCount}</span><button disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}>Далі</button></nav>}
+    <section className="mq-bottom" aria-label="Стан перевірок">
+      <aside className="mq-tip"><h2>Підказка</h2><p>Роботи зі статусом «Нова робота» варто перевірити першими. «Повернено» означає, що студент отримав коментар і має оновити матеріали.</p></aside>
+      <section className="mq-summary"><h2>Швидкий огляд</h2><p>{pendingCount === undefined ? "Робіт, що очікують перевірки: Дані поки недоступні." : `Робіт, що очікують перевірки: ${pendingCount}.`}</p><p>Почніть із нових надсилань або продовжте розпочаті перевірки.</p><div className="mq-summary-tags">{data && <span>{data.length} усього</span>}{newCount !== undefined && <span>{newCount} нових</span>}{inReviewCount !== undefined && <span>{inReviewCount} у роботі</span>}</div></section>
+      <section className="mq-review-stats"><h2>Статус перевірок</h2><div className="mq-review-stats-body"><div className={`mq-ring${reviewedPercent === undefined ? " is-unavailable" : ""}`} style={reviewedPercent === undefined ? undefined : { "--reviewed": `${reviewedPercent}%` } as CSSProperties} aria-label={reviewedPercent === undefined ? "Частка перевірених робіт недоступна" : `Перевірено ${reviewedPercent}% робіт`}><span>{reviewedPercent === undefined ? "Дані поки недоступні" : `${reviewedPercent}%`}</span></div><ul><li>Очікують: {pendingCount ?? "Дані поки недоступні"}</li><li>Повернено: {returnedCount ?? "Дані поки недоступні"}</li><li>Перевірено: {reviewedCount ?? "Дані поки недоступні"}</li></ul><dl><div><dt>Середній час перевірки</dt><dd className="mq-unavailable">Дані поки недоступні</dd></div><div><dt>Повернено студентам</dt><dd className={returnedPercent === undefined ? "mq-unavailable" : ""}>{returnedPercent === undefined ? "Дані поки недоступні" : `${returnedPercent}%`}</dd></div></dl></div></section>
+    </section>
+    <section className="mq-deadlines"><h2><UiIcon name="assignment" size={32} />Найближчі дедлайни</h2><p>Дані поки недоступні. Тут з’являться терміни здачі робіт ваших курсів.</p></section>
+  </div>;
+}
+
+function materialLabel(item: MentorSubmission) {
+  return item.type === "Test" ? "Тестування" : item.type === "Assignment" ? "Практична робота" : "Навчальна робота";
+}
+
+function studentName(item: MentorSubmission) {
+  const name = item.student.username?.trim();
+  return name && name !== "Unknown" ? name : "Дані поки недоступні";
+}
+
+function compareSubmitted(left: MentorSubmission, right: MentorSubmission, oldest: boolean) {
+  const a = assignmentDate(left.submittedAt ?? undefined)?.getTime();
+  const b = assignmentDate(right.submittedAt ?? undefined)?.getTime();
+  if (a === undefined || b === undefined) return a === b ? left.id.localeCompare(right.id) : a === undefined ? 1 : -1;
+  return (oldest ? a - b : b - a) || left.id.localeCompare(right.id);
 }
