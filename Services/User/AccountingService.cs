@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Backend.Models;
 using Backend.Utils;
 using Backend.DTO.User.Accounting;
+using Backend.DTO.Payment;
+using Backend.Responses.Payment;
 using Stripe.Checkout;
 using Microsoft.Extensions.Configuration;
 
@@ -88,6 +90,72 @@ namespace Backend.Services.User
             Session session = await service.CreateAsync(options);
 
             return ServiceResult<string>.Ok(session.Url, "Payment session created successfully");
+        }
+
+        public async Task<ServiceResult<QuoteResponse>> Quote(QuoteDTO dTO)
+        {
+            if (dTO == null || string.IsNullOrWhiteSpace(dTO.CourseId))
+            {
+                return ServiceResult<QuoteResponse>
+                       .Fail("Course id is required", 400);
+            }
+
+            return await CalculateQuote(dTO.CourseId, dTO.Promocode);
+        }
+
+        // * Price breakdown in minor units, without creating orders or Stripe sessions
+        private async Task<ServiceResult<QuoteResponse>> CalculateQuote(string courseId, string? promocodeValue)
+        {
+            var course = await db.Cources.AsNoTracking()
+                                         .FirstOrDefaultAsync(c => c.Id == courseId);
+
+            if (course == null)
+            {
+                return ServiceResult<QuoteResponse>
+                       .Fail("Course not found with this id", 404);
+            }
+
+            decimal discountPercent = 0m;
+            string? appliedPromocode = null;
+
+            if (!string.IsNullOrWhiteSpace(promocodeValue))
+            {
+                string code = promocodeValue.Trim();
+                var promocode = await db.Promocodes.AsNoTracking()
+                                                   .FirstOrDefaultAsync(p => p.Promocode == code);
+
+                if (promocode == null)
+                {
+                    return ServiceResult<QuoteResponse>
+                           .Fail("There is no such promocode", 404);
+                }
+
+                if (promocode.WillExpireAt <= DateTime.UtcNow)
+                {
+                    return ServiceResult<QuoteResponse>
+                           .Fail("This promocode has expired", 400);
+                }
+
+                discountPercent = Math.Clamp(promocode.Discount ?? 0m, 0m, 100m);
+                appliedPromocode = promocode.Promocode;
+            }
+
+            long originalAmountMinor = (long)Math.Round((decimal)course.Price * 100m, MidpointRounding.AwayFromZero);
+            long discountAmountMinor = (long)Math.Round(originalAmountMinor * discountPercent / 100m, MidpointRounding.AwayFromZero);
+
+            var quote = new QuoteResponse
+            {
+                CourseId = course.Id,
+                CourseTitle = course.Title,
+                Promocode = appliedPromocode,
+                DiscountPercent = discountPercent,
+                OriginalAmountMinor = originalAmountMinor,
+                DiscountAmountMinor = discountAmountMinor,
+                TotalAmountMinor = Math.Max(0, originalAmountMinor - discountAmountMinor),
+                Currency = "uah",
+            };
+
+            return ServiceResult<QuoteResponse>.Ok(quote, "Price calculated successfully");
         }
 
         public async Task<ServiceResult<string>> CheckStatus(CheckStatusDTO dTO)

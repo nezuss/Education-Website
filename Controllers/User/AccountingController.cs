@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Backend.Services.User;
 using Backend.DTO.User.Accounting;
+using Backend.DTO.Payment;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
@@ -25,6 +26,29 @@ namespace Backend.Controllers.User
         public async Task<IActionResult> CheckStatus(CheckStatusDTO dTO)
         {
             var result = await accountingService.CheckStatus(dTO);
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data
+            });
+        }
+
+        [HttpPost("/payments/quote")]
+        [Authorize]
+        public async Task<IActionResult> Quote(QuoteDTO dTO)
+        {
+            var result = await accountingService.Quote(dTO);
 
             if (!result.Success)
             {
