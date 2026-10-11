@@ -36,6 +36,7 @@ const AssignmentPage = lazy(() => import("../../pages/Student/AssignmentPage"));
 const AssignmentsPage = lazy(() => import("../../pages/Student/AssignmentsPage"));
 const UploadProjectPage = lazy(() => import("../../pages/Student/UploadProjectPage"));
 const ProfilePage = lazy(() => import("../../pages/Student/ProfilePage"));
+const ProgressPage = lazy(() => import("../../pages/Student/ProgressPage"));
 const SubmissionsPage = lazy(() => import("../../pages/Student/SubmissionsPage"));
 const SubmissionDetailsPage = lazy(() => import("../../pages/Student/SubmissionDetailsPage"));
 
@@ -125,7 +126,7 @@ export default function AppRouter() {
                         <Route path="/student/assignments/:assignmentId" element={<AssignmentPage />} />
                             <Route path="/student/upload/:assignmentId" element={<UploadProjectPage />} />
                             <Route path="/student/profile" element={<ProfilePage />} />
-                            <Route path="/student/progress" element={<Navigate to="/student" replace />} />
+                            <Route path="/student/progress" element={<ProgressPage />} />
                             <Route path="/student/schedule" element={<Navigate to="/student" replace />} />
                             <Route path="/student/reviews" element={<SubmissionsPage />} />
                             <Route path="/student/submissions" element={<SubmissionsPage />} />

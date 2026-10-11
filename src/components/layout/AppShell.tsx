@@ -104,9 +104,9 @@ export default function AppShell() {
                 <span className="lms-nav-icon"><UiIcon name="assignment" /></span>
                 <span>Завдання</span>
               </NavLink>
-              <button type="button" className="lms-nav-item lms-nav-unavailable" disabled title="Прогрес поки недоступний">
+              <NavLink to="/student/progress" aria-label="Прогрес" className={({ isActive }) => `lms-nav-item ${isActive ? "active" : ""}`} onClick={closeSidebar}>
                 <span className="lms-nav-icon"><UiIcon name="progress" /></span><span>Прогрес</span>
-              </button>
+              </NavLink>
               <button type="button" className="lms-nav-item lms-nav-unavailable" disabled title="Розклад поки недоступний">
                 <span className="lms-nav-icon"><UiIcon name="calendar" /></span><span>Розклад</span>
               </button>
