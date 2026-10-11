@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Backend.Services.Cource;
 using Backend.DTO.Cource;
+using Backend.DTO.Payment;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Backend.Attributes.Auth;
 
 namespace Backend.Controllers.Cource
@@ -90,10 +92,11 @@ namespace Backend.Controllers.Cource
 
         [HttpPost("enrol/{id}")]
         [Authorize]
-        public async Task<IActionResult> EnrolToCource(string id, [FromServices] Backend.Services.User.AccountingService accountingService)
+        public async Task<IActionResult> EnrolToCource(string id, [FromServices] Backend.Services.User.AccountingService accountingService,
+                                                       [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] EnrolDTO? dTO)
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await accountingService.Pay(new Backend.DTO.User.Accounting.PayDTO { CourceId = id }, userId);
+            var result = await accountingService.Pay(new Backend.DTO.User.Accounting.PayDTO { CourceId = id, Promocode = dTO?.Promocode }, userId);
 
             if (!result.Success)
             {

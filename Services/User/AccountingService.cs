@@ -4,6 +4,7 @@ using Backend.Utils;
 using Backend.DTO.User.Accounting;
 using Backend.DTO.Payment;
 using Backend.Responses.Payment;
+using Backend.Models.Order;
 using Stripe.Checkout;
 using Microsoft.Extensions.Configuration;
 
@@ -25,41 +26,69 @@ namespace Backend.Services.User
             Stripe.StripeConfiguration.ApiKey = configuration["Stripe:SecretKey"];
         }
 
-        public async Task<ServiceResult<string>> Pay(PayDTO dTO, string Id)
+        public async Task<ServiceResult<CheckoutResponse>> Pay(PayDTO dTO, string Id)
         {
+            if (dTO == null || string.IsNullOrWhiteSpace(dTO.CourceId))
+            {
+                return ServiceResult<CheckoutResponse>
+                       .Fail("Course id is required", 400);
+            }
+
             var user = await db.Users.FirstOrDefaultAsync(u => u.Id == Id);
 
             if (user == null)
             {
-                return ServiceResult<string>
+                return ServiceResult<CheckoutResponse>
                        .Fail("User not found with this id", 404);
             }
 
-            var course = await db.Cources.FirstOrDefaultAsync(c => c.Id == dTO.CourceId);
-
-            if (course == null)
+            if (user.EnrolledCourcesId != null && user.EnrolledCourcesId.Contains(dTO.CourceId))
             {
-                return ServiceResult<string>
-                       .Fail("Course not found with this id", 404);
+                return ServiceResult<CheckoutResponse>
+                       .Fail("You are already enrolled in this course", 409);
             }
 
-            decimal discount = 0m;
+            var quoteResult = await CalculateQuote(dTO.CourceId, dTO.Promocode);
 
-            if (!string.IsNullOrWhiteSpace(dTO.Promocode))
+            if (!quoteResult.Success)
             {
-                var promocode = await db.Promocodes.FirstOrDefaultAsync(p => p.Promocode == dTO.Promocode);
+                return ServiceResult<CheckoutResponse>
+                       .Fail(quoteResult.Message, quoteResult.StatusCode);
+            }
 
-                if (promocode == null)
+            var quote = quoteResult.Data!;
+
+            var order = new OrderModel
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = user.Id,
+                CourseId = quote.CourseId,
+                AmountMinor = quote.TotalAmountMinor,
+                OriginalAmountMinor = quote.OriginalAmountMinor,
+                DiscountAmountMinor = quote.DiscountAmountMinor,
+                Currency = quote.Currency,
+                Promocode = quote.Promocode,
+                Status = OrderStatus.Pending,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            await db.Orders.AddAsync(order);
+
+            // * Free course or 100% discount: enroll immediately without Stripe
+            if (order.AmountMinor == 0)
+            {
+                var fulfillResult = await FulfillOrder(order);
+
+                if (!fulfillResult.Success)
                 {
-                    return ServiceResult<string>
-                           .Fail("There is no such promocode", 404);
+                    return ServiceResult<CheckoutResponse>
+                           .Fail(fulfillResult.Message, fulfillResult.StatusCode);
                 }
 
-                discount = promocode.Discount ?? 0m;
+                return ServiceResult<CheckoutResponse>.Ok(ToCheckoutResponse(order, null), "You enrolled successfully");
             }
 
-            decimal finalPrice = (decimal)course.Price * (1.0m - (discount / 100.0m));
-            long unitAmountInCents = (long)Math.Round(finalPrice * 100m, MidpointRounding.AwayFromZero);
+            await db.SaveChangesAsync();
 
             var options = new SessionCreateOptions
             {
@@ -70,26 +99,43 @@ namespace Backend.Services.User
                     {
                         PriceData = new SessionLineItemPriceDataOptions
                         {
-                            UnitAmount = unitAmountInCents,
-                            Currency = "uah",
+                            UnitAmount = order.AmountMinor,
+                            Currency = order.Currency,
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
-                                Name = course.Title,
+                                Name = quote.CourseTitle,
                             },
                         },
                         Quantity = 1,
                     },
                 },
                 Mode = "payment",
-                SuccessUrl = configuration["Stripe:Url"] + $"/success?session_id={{CHECKOUT_SESSION_ID}}&course_id={course.Id}",
+                SuccessUrl = configuration["Stripe:Url"] + $"/success?session_id={{CHECKOUT_SESSION_ID}}&course_id={order.CourseId}",
                 CancelUrl = configuration["Stripe:Url"] + $"/cancel",
-                ClientReferenceId = $"{Id}_{course.Id}"
+                ClientReferenceId = order.Id,
+                Metadata = new Dictionary<string, string> { { "orderId", order.Id } },
             };
 
-            var service = new SessionService();
-            Session session = await service.CreateAsync(options);
+            Session session;
 
-            return ServiceResult<string>.Ok(session.Url, "Payment session created successfully");
+            try
+            {
+                var service = new SessionService();
+                session = await service.CreateAsync(options);
+            }
+            catch (Stripe.StripeException ex)
+            {
+                order.Status = OrderStatus.Failed;
+                await db.SaveChangesAsync();
+
+                return ServiceResult<CheckoutResponse>
+                       .Fail($"Failed to create payment session: {ex.Message}", 502);
+            }
+
+            order.StripeSessionId = session.Id;
+            await db.SaveChangesAsync();
+
+            return ServiceResult<CheckoutResponse>.Ok(ToCheckoutResponse(order, session.Url), "Payment session created successfully");
         }
 
         public async Task<ServiceResult<QuoteResponse>> Quote(QuoteDTO dTO)
@@ -179,18 +225,28 @@ namespace Backend.Services.User
                        .Fail("Payment not completed", 400);
             }
 
-            var parts = session.ClientReferenceId.Split('_');
+            var order = await db.Orders.FirstOrDefaultAsync(o => o.StripeSessionId == session.Id ||
+                                                                 o.Id == session.ClientReferenceId);
 
-            if (parts.Length != 2)
+            if (order == null)
             {
                 return ServiceResult<string>
-                       .Fail("Invalid client reference data", 400);
+                       .Fail("Order not found for this session", 404);
             }
 
-            string userId = parts[0];
-            string courseId = parts[1];
+            return await FulfillOrder(order);
+        }
 
-            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        // * Marks order as paid and enrolls the user
+        private async Task<ServiceResult<string>> FulfillOrder(OrderModel order)
+        {
+            if (order.Status == OrderStatus.Paid)
+            {
+                return ServiceResult<string>
+                       .Ok("Already enrolled", "Order already paid");
+            }
+
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == order.UserId);
 
             if (user == null)
             {
@@ -198,15 +254,7 @@ namespace Backend.Services.User
                        .Fail("Profile not found", 404);
             }
 
-            user.EnrolledCourcesId ??= new List<string>();
-
-            if (user.EnrolledCourcesId.Contains(courseId))
-            {
-                return ServiceResult<string>
-                       .Ok("Already enrolled", "You already enrolled into this cource");
-            }
-
-            var cource = await db.Cources.FirstOrDefaultAsync(c => c.Id == courseId);
+            var cource = await db.Cources.FirstOrDefaultAsync(c => c.Id == order.CourseId);
 
             if (cource == null)
             {
@@ -214,14 +262,35 @@ namespace Backend.Services.User
                        .Fail("There is no cource with this id", 404);
             }
 
-            cource.StudentsCount++;
+            order.Status = OrderStatus.Paid;
+            order.PaidAt = DateTime.UtcNow;
 
-            user.EnrolledCourcesId.Add(courseId);
-            db.Cources.Update(cource);
-            db.Users.Update(user);
+            user.EnrolledCourcesId ??= new List<string>();
+
+            if (!user.EnrolledCourcesId.Contains(order.CourseId))
+            {
+                user.EnrolledCourcesId.Add(order.CourseId);
+                cource.StudentsCount++;
+            }
+
             await db.SaveChangesAsync();
 
             return ServiceResult<string>.Ok("Success", "You enrolled successfully");
+        }
+
+        private static CheckoutResponse ToCheckoutResponse(OrderModel order, string? checkoutUrl)
+        {
+            return new CheckoutResponse
+            {
+                OrderId = order.Id,
+                Status = order.Status,
+                IsEnrolled = order.Status == OrderStatus.Paid,
+                CheckoutUrl = checkoutUrl,
+                OriginalAmountMinor = order.OriginalAmountMinor,
+                DiscountAmountMinor = order.DiscountAmountMinor,
+                TotalAmountMinor = order.AmountMinor,
+                Currency = order.Currency,
+            };
         }
     }
 }
