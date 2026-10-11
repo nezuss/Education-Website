@@ -50,6 +50,7 @@ export default function PopularCourses() {
                                 {course.bannerUrl ? (
                                     <img 
                                         src={course.bannerUrl} 
+                                        onError={event => { if (!event.currentTarget.src.endsWith("/course-placeholder.svg")) event.currentTarget.src = "/course-placeholder.svg"; }}
                                         alt={course.title} 
                                         className="course-card-photo"
                                         loading="lazy"

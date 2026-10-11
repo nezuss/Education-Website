@@ -1,3 +1,4 @@
+import UiIcon from "../ui/Icon/UiIcon";
 import DataUnavailable from "../../pages/shared/DataUnavailable";
 import { Link } from "react-router-dom";
 
@@ -60,10 +61,7 @@ export default function CommunitySection() {
                         </p>
                         <Link to="/courses" className="movement-cta-btn">
                             <span>Обрати курс</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="5" y1="12" x2="19" y2="12"/>
-                                <polyline points="12 5 19 12 12 19"/>
-                            </svg>
+                            <UiIcon name="arrow" size={16} />
                         </Link>
                     </div>
                 </div>
@@ -73,10 +71,7 @@ export default function CommunitySection() {
                         <h3 className="journal-title">Еко-журнал</h3>
                         <a href="/journal" className="journal-all-link">
                             <span>Всі статті</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="5" y1="12" x2="19" y2="12"/>
-                                <polyline points="12 5 19 12 12 19"/>
-                            </svg>
+                            <UiIcon name="arrow" size={14} />
                         </a>
                     </div>
 

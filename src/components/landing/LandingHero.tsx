@@ -1,3 +1,4 @@
+import UiIcon from "../ui/Icon/UiIcon";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -71,10 +72,7 @@ export default function LandingHero() {
                         <Link to="/courses" className="hero-btn-primary">
                             <span>Обрати курс</span>
                             <span className="btn-arrow-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <line x1="5" y1="12" x2="19" y2="12"/>
-                                    <polyline points="12 5 19 12 12 19"/>
-                                </svg>
+                                <UiIcon name="arrow" size={18} />
                             </span>
                         </Link>
 
@@ -115,7 +113,7 @@ export default function LandingHero() {
                             onClick={() => setIsVideoModalOpen(false)}
                             aria-label="Закрити"
                         >
-                            &times;
+                            <UiIcon name="close" />
                         </button>
                         <div className="video-responsive-container">
                             <iframe 

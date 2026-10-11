@@ -1,3 +1,4 @@
+import UiIcon from "../ui/Icon/UiIcon";
 import { Link } from "react-router-dom";
 
 export default function PopularDirections() {
@@ -7,10 +8,7 @@ export default function PopularDirections() {
                 <h2 className="section-title">Популярні напрями</h2>
                 <Link to="/courses" className="section-view-all">
                     <span>Всі напрями</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                        <polyline points="12 5 19 12 12 19"/>
-                    </svg>
+                    <UiIcon name="arrow" size={16} />
                 </Link>
             </div>
 
@@ -32,10 +30,7 @@ export default function PopularDirections() {
                         </p>
                     </div>
                     <Link to="/courses" className="direction-arrow-btn" aria-label="Перейти до Sustainable Design">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                            <polyline points="12 5 19 12 12 19"/>
-                        </svg>
+                        <UiIcon name="arrow" size={16} />
                     </Link>
                 </article>
 
@@ -55,10 +50,7 @@ export default function PopularDirections() {
                         </p>
                     </div>
                     <Link to="/courses" className="direction-arrow-btn" aria-label="Перейти до Eco Branding">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                            <polyline points="12 5 19 12 12 19"/>
-                        </svg>
+                        <UiIcon name="arrow" size={16} />
                     </Link>
                 </article>
 
@@ -78,10 +70,7 @@ export default function PopularDirections() {
                         </p>
                     </div>
                     <Link to="/courses" className="direction-arrow-btn" aria-label="Перейти до Creative Upcycling">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                            <polyline points="12 5 19 12 12 19"/>
-                        </svg>
+                        <UiIcon name="arrow" size={16} />
                     </Link>
                 </article>
 
