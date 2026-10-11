@@ -5,6 +5,7 @@ using Backend.DTO.User.Accounting;
 using Backend.DTO.Payment;
 using Backend.Responses.Payment;
 using Backend.Models.Order;
+using Backend.Responses.Order;
 using Stripe.Checkout;
 using Microsoft.Extensions.Configuration;
 
@@ -287,6 +288,181 @@ namespace Backend.Services.User
             order.StripeSessionId ??= session.Id;
 
             return await FulfillOrder(order);
+        }
+
+        public async Task<ServiceResult<OrdersPageResponse>> GetStudentOrders(string userId, int page, int pageSize)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                return ServiceResult<OrdersPageResponse>
+                       .Fail("User Id is required", 401);
+            }
+
+            if (page < 1 || pageSize < 1 || pageSize > 100)
+            {
+                return ServiceResult<OrdersPageResponse>
+                       .Fail("Page must be >= 1 and pageSize between 1 and 100", 400);
+            }
+
+            var query = db.Orders.AsNoTracking()
+                                 .Where(o => o.UserId == userId);
+
+            int totalCount = await query.CountAsync();
+
+            var orders = await query.OrderByDescending(o => o.CreatedAt)
+                                    .Skip((page - 1) * pageSize)
+                                    .Take(pageSize)
+                                    .ToListAsync();
+
+            var courseTitles = await GetCourseTitles(orders);
+
+            var response = new OrdersPageResponse
+            {
+                Items = orders.Select(o => FillOrderResponse(new OrderResponse(), o, courseTitles)).ToList(),
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+            };
+
+            return ServiceResult<OrdersPageResponse>.Ok(response, "Orders get successfully");
+        }
+
+        public async Task<ServiceResult<AdminOrdersResponse>> GetAdminOrders(string? status, int page, int pageSize)
+        {
+            if (page < 1 || pageSize < 1 || pageSize > 100)
+            {
+                return ServiceResult<AdminOrdersResponse>
+                       .Fail("Page must be >= 1 and pageSize between 1 and 100", 400);
+            }
+
+            var statuses = new[] { OrderStatus.Pending, OrderStatus.Paid, OrderStatus.Failed, OrderStatus.Cancelled };
+            string? statusFilter = null;
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                statusFilter = statuses.FirstOrDefault(s => s.Equals(status.Trim(), StringComparison.OrdinalIgnoreCase));
+
+                if (statusFilter == null)
+                {
+                    return ServiceResult<AdminOrdersResponse>
+                           .Fail($"Unknown status '{status}'. Allowed: {string.Join(", ", statuses)}", 400);
+                }
+            }
+
+            var query = db.Orders.AsNoTracking();
+
+            if (statusFilter != null)
+                query = query.Where(o => o.Status == statusFilter);
+
+            int totalCount = await query.CountAsync();
+
+            var orders = await query.OrderByDescending(o => o.CreatedAt)
+                                    .Skip((page - 1) * pageSize)
+                                    .Take(pageSize)
+                                    .ToListAsync();
+
+            var statusStats = await db.Orders.AsNoTracking()
+                                             .GroupBy(o => o.Status)
+                                             .Select(g => new
+                                             {
+                                                 Status = g.Key,
+                                                 Count = g.Count(),
+                                                 Amount = g.Sum(o => o.AmountMinor),
+                                                 Discount = g.Sum(o => o.DiscountAmountMinor)
+                                             })
+                                             .ToListAsync();
+
+            var paidStats = statusStats.FirstOrDefault(s => s.Status == OrderStatus.Paid);
+
+            var summary = new AdminOrdersSummaryResponse
+            {
+                TotalRevenueMinor = paidStats?.Amount ?? 0,
+                TotalDiscountMinor = paidStats?.Discount ?? 0,
+                TotalOrders = statusStats.Sum(s => s.Count),
+                PaidCount = paidStats?.Count ?? 0,
+                PendingCount = statusStats.FirstOrDefault(s => s.Status == OrderStatus.Pending)?.Count ?? 0,
+                FailedCount = statusStats.FirstOrDefault(s => s.Status == OrderStatus.Failed)?.Count ?? 0,
+                CancelledCount = statusStats.FirstOrDefault(s => s.Status == OrderStatus.Cancelled)?.Count ?? 0,
+            };
+
+            var response = new AdminOrdersResponse
+            {
+                Items = await ToAdminOrderResponses(orders),
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                Summary = summary,
+            };
+
+            return ServiceResult<AdminOrdersResponse>.Ok(response, "Orders get successfully");
+        }
+
+        public async Task<ServiceResult<AdminOrderResponse>> GetAdminOrder(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return ServiceResult<AdminOrderResponse>
+                       .Fail("Order id is required", 400);
+            }
+
+            var order = await db.Orders.AsNoTracking()
+                                       .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (order == null)
+            {
+                return ServiceResult<AdminOrderResponse>
+                       .Fail("There is no order with this id", 404);
+            }
+
+            var response = await ToAdminOrderResponses(new List<OrderModel> { order });
+
+            return ServiceResult<AdminOrderResponse>.Ok(response[0], "Order get successfully");
+        }
+
+        private async Task<Dictionary<string, string>> GetCourseTitles(List<OrderModel> orders)
+        {
+            var courseIds = orders.Select(o => o.CourseId).Distinct().ToList();
+
+            return await db.Cources.AsNoTracking()
+                                   .Where(c => courseIds.Contains(c.Id))
+                                   .ToDictionaryAsync(c => c.Id, c => c.Title);
+        }
+
+        private async Task<List<AdminOrderResponse>> ToAdminOrderResponses(List<OrderModel> orders)
+        {
+            var courseTitles = await GetCourseTitles(orders);
+            var userIds = orders.Select(o => o.UserId).Distinct().ToList();
+            var users = await db.Users.AsNoTracking()
+                                      .Where(u => userIds.Contains(u.Id))
+                                      .ToDictionaryAsync(u => u.Id);
+
+            return orders.Select(o =>
+            {
+                users.TryGetValue(o.UserId, out var user);
+
+                var item = FillOrderResponse(new AdminOrderResponse(), o, courseTitles);
+                item.UserId = o.UserId;
+                item.Username = user?.Username;
+                item.UserEmail = user?.Email;
+                item.StripeSessionId = o.StripeSessionId;
+                return item;
+            }).ToList();
+        }
+
+        private static T FillOrderResponse<T>(T response, OrderModel order, Dictionary<string, string> courseTitles) where T : OrderResponse
+        {
+            response.Id = order.Id;
+            response.CourseId = order.CourseId;
+            response.CourseTitle = courseTitles.GetValueOrDefault(order.CourseId);
+            response.AmountMinor = order.AmountMinor;
+            response.OriginalAmountMinor = order.OriginalAmountMinor;
+            response.DiscountAmountMinor = order.DiscountAmountMinor;
+            response.Currency = order.Currency;
+            response.Promocode = order.Promocode;
+            response.Status = order.Status;
+            response.CreatedAt = order.CreatedAt;
+            response.PaidAt = order.PaidAt;
+            return response;
         }
 
         // * Marks order as paid and enrolls the user

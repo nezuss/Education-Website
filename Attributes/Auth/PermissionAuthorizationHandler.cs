@@ -93,6 +93,9 @@ namespace Backend.Attributes.Auth
                 case Permissions.GetMentorsCoursesStats: hasPermission = role.CanGetMentorsCoursesStats; break;
                 case Permissions.GetMentorsSubmissionsStats: hasPermission = role.CanGetMentorsSubmissionsStats; break;
 
+                // ? Orders
+                case Permissions.GetOrders: hasPermission = role.CanGetOrders; break;
+
                 default:
                     hasPermission = false;
                     break;

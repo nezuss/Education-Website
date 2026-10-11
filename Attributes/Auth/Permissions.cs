@@ -51,5 +51,8 @@ namespace Backend.Attributes.Auth
         public const string RequestSubmissionRevision = "submission.request.revision";
         public const string GetMentorsCoursesStats = "mentor.courses.stats";
         public const string GetMentorsSubmissionsStats = "mentor.submissions.stats";
+
+        // ? Orders
+        public const string GetOrders = "admin.get.orders";
     }
 }

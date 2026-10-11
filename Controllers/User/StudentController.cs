@@ -10,13 +10,40 @@ namespace Backend.Controllers.User
     public class StudentController : ControllerBase
     {
         private readonly StudentService studentService;
+        private readonly AccountingService accountingService;
 
         public StudentController
         (
-            StudentService _studentService
+            StudentService _studentService,
+            AccountingService _accountingService
         )
         {
             studentService = _studentService;
+            accountingService = _accountingService;
+        }
+
+        [HttpGet("orders")]
+        [Authorize]
+        public async Task<IActionResult> GetOrders([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await accountingService.GetStudentOrders(userId, page, pageSize);
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data
+            });
         }
 
         [HttpGet("submissions")]

@@ -55,6 +55,9 @@ namespace Backend.Models
         public bool CanGetMentorsCoursesStats { get; set; }
         public bool CanGetMentorsSubmissionsStats { get; set; }
 
+        // ? Orders
+        public bool CanGetOrders { get; set; }
+
         public DateTime UpdatedAt { get; set; }
         public DateTime CreatedAt { get; set; }
     }
