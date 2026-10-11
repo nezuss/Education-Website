@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Backend.Models.Cource;
 using Backend.Models.Cource.Materials;
 using Backend.Models.Cource.MaterialAnswers;
+using Backend.Models.Order;
 
 namespace Backend.Models
 {
@@ -25,6 +26,9 @@ namespace Backend.Models
         public DbSet<TestQuestionAnswerModel> TestQuestionAnswers { get; set; }
         public DbSet<LessonCompletionModel> LessonCompletions { get; set; }
 
+        // ? Orders
+        public DbSet<OrderModel> Orders { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -46,6 +50,12 @@ namespace Backend.Models
             modelBuilder.Entity<LessonCompletionModel>()
                 .HasIndex(lc => new { lc.UserId, lc.LessonId })
                 .IsUnique();
+
+            modelBuilder.Entity<OrderModel>()
+                .HasIndex(o => o.StripeSessionId);
+
+            modelBuilder.Entity<OrderModel>()
+                .HasIndex(o => new { o.UserId, o.CreatedAt });
         }
     }
 }
