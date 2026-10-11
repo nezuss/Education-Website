@@ -42,5 +42,29 @@ namespace Backend.Controllers.User
                 data = result.Data
             });
         }
+
+        [HttpPost("lessons/{id}/complete")]
+        [Authorize]
+        public async Task<IActionResult> CompleteLesson(string id)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await studentService.CompleteLesson(id, userId);
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data
+            });
+        }
     }
 }

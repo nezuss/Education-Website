@@ -84,15 +84,23 @@ namespace Backend.Services.Cource
                 .Select(s => s.RelatedMaterialId)
                 .ToHashSet();
 
+            var completedLessonIds = (await db.LessonCompletions
+                .Where(lc => lc.UserId == userId && lessonIds.Contains(lc.LessonId))
+                .Select(lc => lc.LessonId)
+                .ToListAsync())
+                .ToHashSet();
+
             int completedModules = 0;
             int completedLessons = 0;
             int totalSubmittable = 0;
             int completedSubmittable = 0;
+            int totalTheoryLessons = 0;
+            int completedTheoryLessons = 0;
 
             foreach (var module in modules)
             {
                 bool moduleCompleted = true;
-                bool moduleHasSubmittable = false;
+                bool moduleHasLessons = false;
 
                 if (module.LessonsId != null && module.LessonsId.Any())
                 {
@@ -102,6 +110,7 @@ namespace Backend.Services.Cource
                     {
                         bool lessonCompleted = true;
                         bool lessonHasSubmittable = false;
+                        moduleHasLessons = true;
 
                         if (lesson.MaterialsId != null && lesson.MaterialsId.Any())
                         {
@@ -112,7 +121,6 @@ namespace Backend.Services.Cource
                                 {
                                     totalSubmittable++;
                                     lessonHasSubmittable = true;
-                                    moduleHasSubmittable = true;
 
                                     if (completedMaterialIds.Contains(material.Id))
                                         completedSubmittable++;
@@ -120,16 +128,25 @@ namespace Backend.Services.Cource
                                 }
                         }
 
-                        if (lessonHasSubmittable && lessonCompleted) completedLessons++;
-                        if (!lessonCompleted) moduleCompleted = false;
+                        // * Theory lesson (no tests or assignments) completes via endpoint
+                        if (!lessonHasSubmittable)
+                        {
+                            totalTheoryLessons++;
+                            lessonCompleted = completedLessonIds.Contains(lesson.Id);
+                            if (lessonCompleted) completedTheoryLessons++;
+                        }
+
+                        if (lessonCompleted) completedLessons++;
+                        else moduleCompleted = false;
                     }
                 }
 
-                if (moduleHasSubmittable && moduleCompleted) completedModules++;
+                if (moduleHasLessons && moduleCompleted) completedModules++;
             }
 
-            double progress = totalSubmittable > 0
-                ? Math.Round((double)completedSubmittable / totalSubmittable * 100, 2)
+            int totalProgressUnits = totalSubmittable + totalTheoryLessons;
+            double progress = totalProgressUnits > 0
+                ? Math.Round((double)(completedSubmittable + completedTheoryLessons) / totalProgressUnits * 100, 2)
                 : 0;
 
             var stats = new CourceStatsDTO
@@ -211,9 +228,17 @@ namespace Backend.Services.Cource
                 .Select(s => s.RelatedMaterialId)
                 .ToHashSet();
 
+            var completedLessonIds = (await db.LessonCompletions
+                .Where(lc => lc.UserId == userId && module.LessonsId.Contains(lc.LessonId))
+                .Select(lc => lc.LessonId)
+                .ToListAsync())
+                .ToHashSet();
+
             int completedLessons = 0;
             int totalSubmittable = 0;
             int completedSubmittable = 0;
+            int totalTheoryLessons = 0;
+            int completedTheoryLessons = 0;
 
             foreach (var lesson in lessons)
             {
@@ -235,11 +260,20 @@ namespace Backend.Services.Cource
                         }
                 }
 
-                if (lessonHasSubmittable && lessonCompleted) completedLessons++;
+                // * Theory lesson (no tests or assignments) completes via endpoint
+                if (!lessonHasSubmittable)
+                {
+                    totalTheoryLessons++;
+                    lessonCompleted = completedLessonIds.Contains(lesson.Id);
+                    if (lessonCompleted) completedTheoryLessons++;
+                }
+
+                if (lessonCompleted) completedLessons++;
             }
 
-            double progress = totalSubmittable > 0
-                ? Math.Round((double)completedSubmittable / totalSubmittable * 100, 2)
+            int totalProgressUnits = totalSubmittable + totalTheoryLessons;
+            double progress = totalProgressUnits > 0
+                ? Math.Round((double)(completedSubmittable + completedTheoryLessons) / totalProgressUnits * 100, 2)
                 : 0;
 
             var stats = new ModuleStatsDTO

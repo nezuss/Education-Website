@@ -23,6 +23,7 @@ namespace Backend.Models
         public DbSet<PromocodeModel> Promocodes { get; set; }
         public DbSet<MaterialSubmissionModel> MaterialSubmissions { get; set; }
         public DbSet<TestQuestionAnswerModel> TestQuestionAnswers { get; set; }
+        public DbSet<LessonCompletionModel> LessonCompletions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -41,6 +42,10 @@ namespace Backend.Models
                 .HasDiscriminator<string>("Type")
                 .HasValue<AssignmentSubmissionModel>("Assignment")
                 .HasValue<TestSubmissionModel>("Test");
+
+            modelBuilder.Entity<LessonCompletionModel>()
+                .HasIndex(lc => new { lc.UserId, lc.LessonId })
+                .IsUnique();
         }
     }
 }
