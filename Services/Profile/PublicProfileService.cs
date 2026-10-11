@@ -32,11 +32,45 @@ namespace Backend.Services.Profile
                        .Fail("Profile not found with this id", 404);
             }
 
-            ProfileResponse profile = new ProfileResponse {
-                Username = user.Username
+            ProfileResponse profile = new ProfileResponse
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Role = await GetRoleName(user.RoleId),
+                IsEmailConfirmed = user.IsEmailConfirmed,
+                CreatedAt = user.CreatedAt,
+                AvatarUrl = user.AvatarUrl,
+                Bio = user.Bio,
             };
 
             return ServiceResult<ProfileResponse>
+                   .Ok(profile, "Profile found successfuly");
+        }
+
+        public async Task<ServiceResult<PublicProfileResponse>> GetPublicProfile(string Id)
+        {
+            var user = await db.Users
+                               .AsNoTracking()
+                               .FirstOrDefaultAsync(u => u.Id == Id);
+
+            if (user == null)
+            {
+                return ServiceResult<PublicProfileResponse>
+                       .Fail("Profile not found with this id", 404);
+            }
+
+            PublicProfileResponse profile = new PublicProfileResponse
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Role = await GetRoleName(user.RoleId),
+                CreatedAt = user.CreatedAt,
+                AvatarUrl = user.AvatarUrl,
+                Bio = user.Bio,
+            };
+
+            return ServiceResult<PublicProfileResponse>
                    .Ok(profile, "Profile found successfuly");
         }
 
@@ -89,6 +123,12 @@ namespace Backend.Services.Profile
             if (!string.IsNullOrWhiteSpace(dTO.Username))
                 user.Username = dTO.Username;
 
+            if (dTO.AvatarUrl != null)
+                user.AvatarUrl = string.IsNullOrWhiteSpace(dTO.AvatarUrl) ? null : dTO.AvatarUrl;
+
+            if (dTO.Bio != null)
+                user.Bio = string.IsNullOrWhiteSpace(dTO.Bio) ? null : dTO.Bio;
+
             user.UpdatedAt = DateTime.UtcNow;
 
             db.Users.Update(user);
@@ -96,6 +136,17 @@ namespace Backend.Services.Profile
 
             return ServiceResult<string>
                    .Ok("Profile updated", "Profile updated successfuly");
+        }
+
+        private async Task<string> GetRoleName(string? RoleId)
+        {
+            if (string.IsNullOrEmpty(RoleId)) return "User";
+
+            var role = await db.Roles
+                               .AsNoTracking()
+                               .FirstOrDefaultAsync(r => r.Id == RoleId);
+
+            return role?.Name ?? "User";
         }
     }
 }

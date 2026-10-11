@@ -1,5 +1,6 @@
 using Backend.Models;
 using Backend.DTO.Admin;
+using Backend.Responses.Admin;
 using Backend.Utils;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,37 +18,33 @@ namespace Backend.Services.Admin
             db = _db;
         }
 
-        public async Task<ServiceResult<UserModel>> GetUser(string Id)
+        public async Task<ServiceResult<AdminUserResponse>> GetUser(string Id)
         {
             var user = await db.Users
                              .AsNoTracking()
                              .FirstOrDefaultAsync(u => u.Id == Id);
 
             if (user == null)
-                return ServiceResult<UserModel>.Fail("There is no user with this id", 404);
+                return ServiceResult<AdminUserResponse>.Fail("There is no user with this id", 404);
 
-            user.Password = "";
-            user.Salt = "";
-          
-            return ServiceResult<UserModel>.Ok(user, "User get successfully");
+            var roleNames = await GetRoleNames();
+
+            return ServiceResult<AdminUserResponse>.Ok(ToResponse(user, roleNames), "User get successfully");
         }
 
-        public async Task<ServiceResult<List<UserModel>>> GetAllUsers()
+        public async Task<ServiceResult<List<AdminUserResponse>>> GetAllUsers()
         {
             var users = await db.Users
                               .AsNoTracking()
                               .ToListAsync();
 
             if (users == null)
-                return ServiceResult<List<UserModel>>.Fail("There is no users yet", 404);
+                return ServiceResult<List<AdminUserResponse>>.Fail("There is no users yet", 404);
 
-            users.ForEach(u => 
-            {
-                u.Password = ""; 
-                u.Salt = "";
-            });
-          
-            return ServiceResult<List<UserModel>>.Ok(users,
+            var roleNames = await GetRoleNames();
+            var response = users.Select(u => ToResponse(u, roleNames)).ToList();
+
+            return ServiceResult<List<AdminUserResponse>>.Ok(response,
                                             "Users get successfully");
         }
 
@@ -123,6 +120,35 @@ namespace Backend.Services.Admin
 
             return ServiceResult<string>.Ok("User deleted",
                                             "User deleted successfully");
+        }
+
+        private async Task<Dictionary<string, string>> GetRoleNames()
+        {
+            return await db.Roles
+                           .AsNoTracking()
+                           .ToDictionaryAsync(r => r.Id, r => r.Name);
+        }
+
+        private static AdminUserResponse ToResponse(UserModel user, Dictionary<string, string> roleNames)
+        {
+            string roleName = "User";
+            if (!string.IsNullOrEmpty(user.RoleId) && roleNames.TryGetValue(user.RoleId, out var name))
+                roleName = name;
+
+            return new AdminUserResponse
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+                RoleId = user.RoleId,
+                RoleName = roleName,
+                IsEmailConfirmed = user.IsEmailConfirmed,
+                EnrolledCourcesId = user.EnrolledCourcesId ?? new List<string>(),
+                AvatarUrl = user.AvatarUrl,
+                Bio = user.Bio,
+                UpdatedAt = user.UpdatedAt,
+                CreatedAt = user.CreatedAt,
+            };
         }
     }
 }

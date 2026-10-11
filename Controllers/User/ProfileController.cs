@@ -71,7 +71,7 @@ namespace Backend.Controllers.User
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProfileById(string id)
         {
-            var result = await publicProfileService.GetProfile(id);
+            var result = await publicProfileService.GetPublicProfile(id);
 
             if (!result.Success)
             {

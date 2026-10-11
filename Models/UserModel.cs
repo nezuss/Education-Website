@@ -9,6 +9,8 @@ namespace Backend.Models {
         public List<string>? EnrolledCourcesId { get; set; }
         public string? RoleId { get; set; }
         public bool IsEmailConfirmed { get; set; }
+        public string? AvatarUrl { get; set; }
+        public string? Bio { get; set; }
         public DateTime UpdatedAt { get; set; }
         public DateTime CreatedAt { get; set; }
     }
