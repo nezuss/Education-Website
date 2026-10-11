@@ -1,4 +1,5 @@
 import type { Course } from "../types/course";
+import { validateCheckoutResult, type CheckoutResult } from "./paymentService";
 import { request } from "./api/apiClient";
 import { getProfileById } from "./profileService";
 import { requestCollection } from "./api/collection";
@@ -80,8 +81,9 @@ export async function getEnrolledCourses() {
     return resolveMentors((courses ?? []).map(mapCourse));
 }
 
-export async function enrollToCourse(courseId: string, promocode?: string): Promise<string | undefined> {
-    return request<string>(`/api/cource/enrol/${encodeURIComponent(courseId)}`, { method: "POST", body: JSON.stringify({ ...(promocode?.trim() ? { promocode: promocode.trim() } : {}) }) });
+export async function enrollToCourse(courseId: string, promocode?: string): Promise<CheckoutResult> {
+    const result = await request<CheckoutResult>(`/api/cource/enrol/${encodeURIComponent(courseId)}`, { method: "POST", body: JSON.stringify({ ...(promocode?.trim() ? { promocode: promocode.trim() } : {}) }) });
+    return validateCheckoutResult(result);
 }
 
 export async function createCourse(data: CreateCourseData) {

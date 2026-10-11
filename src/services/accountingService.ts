@@ -6,8 +6,10 @@ export type CheckStatusData = {
 };
 
 export async function checkPaymentStatus(data: CheckStatusData) {
-    return request<string>("/account/accounting/check-status", {
+    const result = await request<string>("/account/accounting/check-status", {
         method: "POST",
         body: JSON.stringify({ sessionId: data.sessionId, courceId: data.courceId }),
     });
+    if (result !== "Success" && result !== "Already enrolled") throw new Error("Сервер ще не підтвердив оплату. Перевірте статус ще раз.");
+    return result;
 }

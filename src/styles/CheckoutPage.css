@@ -142,6 +142,7 @@
 }
 
 .promo-input {
+    min-width: 0;
     flex: 1;
     background: #f1ede8;
     border: 1px solid rgba(85, 112, 97, 0.2);

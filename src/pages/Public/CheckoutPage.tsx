@@ -1,7 +1,8 @@
 import UiIcon from "../../components/ui/Icon/UiIcon";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { enrollToCourse, getCourse } from "../../services/courseService";
+import { formatPaymentAmount, getPaymentQuote, type PaymentQuote } from "../../services/paymentService";
 import type { Course } from "../../types/course";
 import "../../styles/CheckoutPage.css";
 
@@ -16,6 +17,28 @@ function CheckoutDetails({ courseId }: { courseId?: string }) {
     const [paying, setPaying] = useState(false);
     const [error, setError] = useState(courseId ? "" : "Курс не вказано. Оберіть курс у каталозі.");
     const [paymentError, setPaymentError] = useState("");
+    const [promo, setPromo] = useState("");
+    const [appliedPromo, setAppliedPromo] = useState("");
+    const [quote, setQuote] = useState<PaymentQuote>();
+    const [quoteError, setQuoteError] = useState("");
+    const [quoting, setQuoting] = useState(Boolean(courseId));
+    const [quoteAttempt, setQuoteAttempt] = useState(0);
+    const [enrolled, setEnrolled] = useState(false);
+    const sending = useRef(false);
+    const quoteCurrent = !!quote && promo.trim() === appliedPromo && !quoting;
+    useEffect(() => {
+        let active = true;
+        if (!courseId) return;
+        getPaymentQuote(courseId, appliedPromo).then(value => { if (active) setQuote(value); })
+            .catch((reason: Error) => { if (active) setQuoteError(reason.message === "There is no such promocode" ? "Промокод не знайдено." : reason.message === "This promocode has expired" ? "Термін дії промокоду минув." : reason.message); })
+            .finally(() => { if (active) setQuoting(false); });
+        return () => { active = false; };
+    }, [courseId, appliedPromo, quoteAttempt]);
+    function applyPromo() {
+        if (paying || quoting) return;
+        setQuote(undefined); setQuoteError(""); setQuoting(true);
+        setAppliedPromo(promo.trim()); setQuoteAttempt(value => value + 1);
+    }
     useEffect(() => {
         let active = true;
         if (!courseId) return;
@@ -25,18 +48,20 @@ function CheckoutDetails({ courseId }: { courseId?: string }) {
         return () => { active = false; };
     }, [courseId]);
     async function pay() {
-        if (!course) return;
+        if (!course || !quoteCurrent || sending.current || enrolled) return;
+        sending.current = true;
         setPaying(true); setPaymentError("");
         try {
-            const redirect = await enrollToCourse(course.id);
-            if (!redirect || !/^https?:\/\//i.test(redirect)) throw new Error("Сервер не повернув посилання для оплати.");
-            window.location.assign(redirect);
+            const result = await enrollToCourse(course.id, appliedPromo);
+            if (result.isEnrolled) { setEnrolled(true); setPaying(false); }
+            else window.location.assign(result.checkoutUrl!);
         } catch (reason) {
             const status = (reason as { status?: number }).status;
             setPaymentError(status && status >= 500
                 ? `Не вдалося відкрити сторінку оплати: платіжний сервіс тимчасово недоступний (HTTP ${status}). Спробуйте пізніше.`
                 : `Не вдалося відкрити сторінку оплати. ${(reason as Error).message}`);
             setPaying(false);
+            sending.current = false;
         }
     }
     return <div className="checkout-page-root">
@@ -55,12 +80,14 @@ function CheckoutDetails({ courseId }: { courseId?: string }) {
                 </div>
             </section>
             <section className="checkout-summary-card">
-                <div className="promo-row"><input className="promo-input" aria-label="Промокод" placeholder="Промокоди поки недоступні" disabled /></div>
-                <p>Застосування промокодів очікує підключення на сервері.</p>
-                <div className="price-subtotal-row"><span className="subtotal-label">Ціна:</span><span className="subtotal-val">{course ? course.price.toLocaleString("uk-UA") + " грн" : "—"}</span></div>
-                <div className="total-due-row"><span className="total-label">Разом до сплати:</span><span className="total-val">{course ? course.price.toLocaleString("uk-UA") + " грн" : "—"}</span></div>
+                <div className="promo-row"><input className="promo-input" aria-label="Промокод" placeholder="Промокод" value={promo} disabled={paying || enrolled} onChange={event => setPromo(event.target.value)} /><button type="button" className="promo-apply-btn" disabled={quoting || paying || enrolled || !courseId} onClick={applyPromo}>{quoting ? "Розрахунок…" : "Застосувати"}</button></div>
+                {quoteError && <p role="alert" className="checkout-error-box">{quoteError}</p>}
+                {!quoteCurrent && !quoting && !quoteError && <p>Застосуйте промокод, щоб оновити суму.</p>}
+                <div className="price-subtotal-row"><span className="subtotal-label">Ціна:</span><span className="subtotal-val">{quoteCurrent ? formatPaymentAmount(quote.originalAmountMinor, quote.currency) : "—"}</span></div>
+                {quoteCurrent && quote.discountAmountMinor > 0 && <div className="price-subtotal-row"><span>Знижка{quote.promocode ? ` (${quote.promocode})` : ""}:</span><span>−{formatPaymentAmount(quote.discountAmountMinor, quote.currency)}</span></div>}
+                <div className="total-due-row"><span className="total-label">Разом до сплати:</span><span className="total-val">{quoteCurrent ? formatPaymentAmount(quote.totalAmountMinor, quote.currency) : "—"}</span></div>
                 <p className="payment-method-selector">Банківська картка · Stripe Checkout</p>
-                <button className="checkout-pay-btn" type="button" disabled={!course || loading || paying} onClick={pay}>{paying ? "Обробка платежу…" : "Перейти до оплати"} <UiIcon name="arrow" /></button>
+                {enrolled ? <div role="status"><p>Зарахування підтверджено. Курс доступний у вашому кабінеті.</p><Link className="checkout-pay-btn" to={`/student/learning/${encodeURIComponent(courseId!)}`}>Перейти до навчання</Link></div> : <button className="checkout-pay-btn" type="button" disabled={!course || loading || paying || !quoteCurrent} onClick={pay}>{paying ? "Обробка замовлення…" : quoteCurrent && quote.totalAmountMinor === 0 ? "Отримати доступ без оплати" : "Перейти до оплати"} <UiIcon name="arrow" /></button>}
                 {error && <div className="checkout-error-box" role="alert">Не вдалося завантажити курс. {error} <Link to="/courses">До каталогу</Link></div>}
                 {paymentError && <div className="checkout-error-box" role="alert">{paymentError}</div>}
             </section>
