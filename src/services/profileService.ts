@@ -23,6 +23,9 @@ export async function getProfile(): Promise<UserProfile> {
 export async function getProfileById(id: string): Promise<UserProfile> {
     return request<UserProfile>("/profile/" + encodeURIComponent(id));
 }
+export async function updateProfile(data: { username?: string }): Promise<string> {
+    return request<string>("/profile/update", { method: "PATCH", body: JSON.stringify({ username: data.username }) });
+}
 export async function getProfileStats(): Promise<{ cources: unknown[]; submissions: unknown[] }> {
     const data = await request<{ cources: unknown[]; submissions: unknown[] }>("/profile/stats");
     if (!data || !Array.isArray(data.cources) || !Array.isArray(data.submissions)) throw new Error("Сервер не повернув статистику профілю.");

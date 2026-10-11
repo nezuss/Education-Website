@@ -1,6 +1,7 @@
 import { request } from "./api/apiClient";
 import { requestCollection } from "./api/collection";
-import type { Submission } from "./submissionService";
+import { submissionFileError } from "./submissionUpload";
+import { normalizeSubmission, submissionGrade, type Submission } from "./submissionService";
 
 export type Module = { id: string; title: string; description?: string; lessonsId?: string[] };
 export type Lesson = { id: string; title: string; description?: string; materialsId?: string[]; createdAt?: string; updatedAt?: string };
@@ -48,12 +49,24 @@ export const assignLessonToModule = (moduleId: string, lessonId: string) => requ
 export const assignMaterialToLesson = (lessonId: string, materialId: string) => request("/admin/assign/material-to-lesson", { method: "POST", body: JSON.stringify({ lessonId, materialId }) });
 
 export async function submitAssignment(assignmentId: string, file: File) {
+    const fileError = submissionFileError(file);
+    if (fileError) throw new Error(fileError);
     const formData = new FormData();
     formData.append("assignmentId", assignmentId);
     formData.append("file", file);
     return request<SubmissionDetail>("/api/cource/submit-material/assignment", { method: "POST", body: formData });
 }
 
-export async function submitTest(testId: string, answers: { questionId: string; answerId: string }[]) {
-    await request("/api/cource/submit-material/test", { method: "POST", body: JSON.stringify({ testId, answers }) });
+export async function submitTest(testId: string, answers: { questionId: string; answerId: string }[]): Promise<SubmissionDetail> {
+    const data = await request<unknown>("/api/cource/submit-material/test", { method: "POST", body: JSON.stringify({ testId, answers }) });
+    try {
+        const result = normalizeSubmission(data);
+        if (result.relatedMaterialId !== testId || result.type !== "Test" || result.status !== "Reviewed" || submissionGrade(result.rate, result.type) === undefined) {
+            throw new Error("Сервер не повернув підтверджений результат цього тесту.");
+        }
+        return result;
+    } catch (reason) {
+        // A successful POST may have saved the attempt even when its response cannot be confirmed.
+        throw Object.assign(new Error(reason instanceof Error ? reason.message : "Результат тесту поки недоступний."), { status: 200 });
+    }
 }

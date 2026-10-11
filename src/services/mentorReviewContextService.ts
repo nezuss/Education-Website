@@ -3,11 +3,11 @@ import { getEnrolledCourses } from "./courseService";
 import { getMaterials } from "./learningService";
 import { getMentorCourses } from "./mentorService";
 import type { UserProfile } from "./profileService";
-import { getFeedbackContexts, type FeedbackContext } from "./studentFeedbackContextService";
+import { getFeedbackContexts, getSubmissionContext, type SubmissionContext } from "./studentFeedbackContextService";
 import type { Submission } from "./submissionService";
 
 export type MentorReviewContext = {
-  context?: FeedbackContext;
+  context?: SubmissionContext;
   materialTitle?: string;
   description?: string;
   deadline?: string;
@@ -23,7 +23,7 @@ function nonblank(value: unknown): string | undefined {
 }
 
 export async function getMentorReviewContext(
-  item: Pick<Submission, "relatedMaterialId" | "type" | "userId">,
+  item: Pick<Submission, "relatedMaterialId" | "type" | "userId" | "courseId" | "courseTitle" | "lessonId" | "lessonTitle">,
   profile: UserProfile,
 ): Promise<MentorReviewContext> {
   const materialId = nonblank(item.relatedMaterialId);
@@ -62,14 +62,15 @@ export async function getMentorReviewContext(
   }
 
   const resolved = await getFeedbackContexts([materialId], loadCourses);
-  const context = resolved.contexts.get(materialId);
+  const verifiedContext = resolved.contexts.get(materialId);
+  const context = verifiedContext || getSubmissionContext(item);
   if (!context) return { unavailable: true };
-  const teacherIds = new Set(courses.filter(course => course?.id === context.courseId)
+  const teacherIds = new Set(courses.filter(course => verifiedContext && course?.id === verifiedContext.courseId)
     .map(course => nonblank(course.assignedTeacherId)).filter((id): id is string => Boolean(id)));
   const result: MentorReviewContext = {
     context,
     courseTeacherId: teacherIds.size === 1 ? Array.from(teacherIds)[0] : undefined,
-    unavailable: incomplete || resolved.unavailable || teacherIds.size > 1,
+    unavailable: incomplete || resolved.unavailable || !verifiedContext || teacherIds.size > 1,
   };
   if (item.type !== "Assignment" && item.type !== "Test") return result;
 

@@ -1,21 +1,21 @@
 import { getMaterials } from "./learningService";
-import { getStudentFeedbackContexts, type FeedbackContext } from "./studentFeedbackContextService";
+import { getStudentFeedbackContexts, getSubmissionContext, type SubmissionContext } from "./studentFeedbackContextService";
 import type { Submission } from "./submissionService";
 
-export interface SubmissionLearningContext extends FeedbackContext {
+export interface SubmissionLearningContext extends SubmissionContext {
   materialTitle?: string;
   description?: string;
   materialError?: string;
 }
 
 export async function getSubmissionLearningContext(
-  item: Pick<Submission, "relatedMaterialId" | "type">,
+  item: Pick<Submission, "relatedMaterialId" | "type" | "courseId" | "courseTitle" | "lessonId" | "lessonTitle">,
 ): Promise<SubmissionLearningContext> {
   const materialId = typeof item.relatedMaterialId === "string" ? item.relatedMaterialId.trim() : "";
   if (!materialId) throw new Error("У роботі відсутній ідентифікатор навчального матеріалу.");
 
   const { contexts } = await getStudentFeedbackContexts([materialId]);
-  const context = contexts.get(materialId);
+  const context = contexts.get(materialId) || getSubmissionContext(item);
   if (!context) throw new Error("Не вдалося однозначно визначити курс, модуль і урок для цієї роботи.");
   if (item.type !== "Assignment") return context;
 

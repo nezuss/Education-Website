@@ -48,7 +48,7 @@
 .sfl-comment blockquote { border-left: 4px solid #0a2d1b; margin: 0; padding: 4px 0 4px 20px; color: #7f5d41; white-space: pre-wrap; }
 .sfl-comment-empty { margin-top: 24px !important; font-size: 14px; }
 .sfl-secondary-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 24px; margin-top: 20px; font-size: 14px; }
-.sfl-secondary-actions a { display: inline-flex; align-items: center; gap: 8px; color: #385546; text-underline-offset: 4px; }
+.sfl-secondary-actions a, .sfl-secondary-actions .submission-download-button { display: inline-flex; align-items: center; gap: 8px; color: #385546; text-underline-offset: 4px; }
 .sfl-secondary-actions .ui-icon { flex-shrink: 0; }
 .sfl-history { margin-top: 24px; border-top: 1px solid #d7dfda; padding-top: 16px; }
 .sfl-history > summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; list-style: none; cursor: pointer; color: #385546; font-size: 14px; }

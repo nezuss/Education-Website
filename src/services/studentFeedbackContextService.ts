@@ -1,5 +1,6 @@
 import { getEnrolledCourses } from "./courseService";
 import { getLessons, getModules } from "./learningService";
+import type { Submission } from "./submissionService";
 
 export type FeedbackContext = {
   courseId: string;
@@ -9,6 +10,13 @@ export type FeedbackContext = {
   lessonId: string;
   lessonTitle: string;
 };
+
+export type SubmissionContext = Omit<FeedbackContext, "moduleId" | "moduleTitle"> & Partial<Pick<FeedbackContext, "moduleId" | "moduleTitle">>;
+
+export function getSubmissionContext(item?: Pick<Submission, "courseId" | "courseTitle" | "lessonId" | "lessonTitle">): SubmissionContext | undefined {
+  if (!item || ![item.courseId, item.courseTitle, item.lessonId, item.lessonTitle].every(usableText)) return undefined;
+  return { courseId: item.courseId!.trim(), courseTitle: item.courseTitle!.trim(), lessonId: item.lessonId!.trim(), lessonTitle: item.lessonTitle!.trim() };
+}
 
 type NamedItem = { id: string; title: string; materialsId?: unknown };
 

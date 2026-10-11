@@ -1,3 +1,4 @@
+import { getFeedbackReviewer } from "../../services/studentFeedbackPresentation";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import UiIcon from "../../components/ui/Icon/UiIcon";
@@ -50,7 +51,7 @@ export default function StudentDashboardPage() {
   const coverUrl = submissionFileUrl(activeCourse?.bannerUrl);
   const latestFeedback = summary?.latestFeedback;
   const feedbackText = latestFeedback?.status === "NeedsRevision" ? latestFeedback.revisionMessage?.trim() || latestFeedback.feedback?.trim() : latestFeedback?.feedback?.trim() || latestFeedback?.revisionMessage?.trim();
-  const grade = submissionGrade(latestFeedback?.rate);
+  const grade = submissionGrade(latestFeedback?.rate, latestFeedback?.type);
   const submissionsUnavailable = !!submissions.error || (!!submissions.data && summary?.projects === undefined);
   const eventsUnavailable = submissionsUnavailable || (!!submissions.data?.length && !summary?.events.length);
   const pending = task?.assignment;
@@ -95,9 +96,9 @@ export default function StudentDashboardPage() {
         <p className="sfd-assignment-description">{pending?.description || (pending ? pending.moduleTitle + " / " + pending.lessonTitle : !assignments.data || assignments.data.warnings.length ? "Дані поки недоступні. Спробуйте оновити список завдань." : "У ваших курсах зараз немає практичних завдань, які потрібно надіслати.")}</p>
         <footer>{pending ? <Link to={"/student/assignments/" + pending.id}>Дедлайн: {shortDate(pending.deadline)}</Link> : <Link to="/student/assignments">Усі завдання<UiIcon name="arrow" size={16} /></Link>}{assignmentDate(pending?.createdAt) && <time className="sfd-date" dateTime={pending!.createdAt}>{shortDate(pending!.createdAt)}</time>}{(assignments.error || !!assignments.data?.warnings.length) && <button type="button" onClick={assignments.reload} disabled={assignments.loading}>Оновити дані</button>}</footer>
       </section>
-      <section className="sfd-feedback" aria-labelledby="sfd-feedback-title"><header><Tag>МЕНТОР</Tag><h2 id="sfd-feedback-title">Останній фідбек</h2></header>
+      <section className="sfd-feedback" aria-labelledby="sfd-feedback-title"><header><Tag>{getFeedbackReviewer(latestFeedback).automatic ? "АВТОПЕРЕВІРКА" : "МЕНТОР"}</Tag><h2 id="sfd-feedback-title">Останній фідбек</h2></header>
         <p className="sfd-feedback-copy" role={submissions.loading ? "status" : undefined}>{submissions.loading ? "Завантаження відгуків…" : feedbackText || (submissionsUnavailable ? "Відгуки поки недоступні. Спробуйте оновити дані." : "Коментарів ментора ще немає.")}</p>
-        <div className="sfd-feedback-meta"><span className="sfd-feedback-symbol"><UiIcon name="feedback" size={28} /></span><div>{latestFeedback ? <><Link to={"/student/submissions/" + latestFeedback.id}>{latestFeedback.status === "NeedsRevision" ? "Повернуто на доопрацювання" : latestFeedback.type === "Test" ? "Коментар до тесту" : "Коментар до проєкту"}<UiIcon name="arrow" size={16} /></Link><span>{grade ? "Оцінка: " + grade + " / 12" : "Оцінку ще не виставлено"}</span></> : <Link to="/student/submissions">Мої роботи та результати перевірки<UiIcon name="arrow" size={16} /></Link>}</div>{submissionsUnavailable && <button type="button" onClick={submissions.reload}>Оновити</button>}</div>
+        <div className="sfd-feedback-meta"><span className="sfd-feedback-symbol"><UiIcon name="feedback" size={28} /></span><div>{latestFeedback ? <><Link to={"/student/submissions/" + latestFeedback.id}>{latestFeedback.status === "NeedsRevision" ? "Повернуто на доопрацювання" : latestFeedback.type === "Test" ? "Коментар до тесту" : "Коментар до проєкту"}<UiIcon name="arrow" size={16} /></Link><span>{grade !== undefined ? "Оцінка: " + grade + " / 12" : "Оцінку ще не виставлено"}</span></> : <Link to="/student/submissions">Мої роботи та результати перевірки<UiIcon name="arrow" size={16} /></Link>}</div>{submissionsUnavailable && <button type="button" onClick={submissions.reload}>Оновити</button>}</div>
       </section>
     </div>
     <div className="sfd-bottom">

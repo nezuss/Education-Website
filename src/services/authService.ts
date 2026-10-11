@@ -73,10 +73,12 @@ export async function requestPasswordReset(email: string) {
 }
 
 export async function changePassword(resetToken: string, password: string) {
-    return request<string>("/account/management/reset-password", {
+    const result = await request<string>("/account/management/reset-password", {
         method: "POST",
         body: JSON.stringify({ resetToken, password }),
     }, false);
+    clearAuthSession();
+    return result;
 }
 
 export async function confirmEmail(code: string) {
@@ -87,17 +89,23 @@ export function resendVerification(email: string) {
     return request<string>("/auth/resend-verefication", { method: "POST", body: JSON.stringify({ email }) }, false);
 }
 
-export function updateAccountPassword(oldPassword: string, newPassword: string) {
-    return request<string>("/account/management/change-password", { method: "POST", body: JSON.stringify({ oldPassword, newPassword }) }, true, true);
+export function clearAuthSession() {
+    localStorage.removeItem("token");
+    if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("auth:unauthorized"));
+    }
+}
+
+export async function updateAccountPassword(oldPassword: string, newPassword: string) {
+    const result = await request<string>("/account/management/change-password", { method: "POST", body: JSON.stringify({ oldPassword, newPassword }) }, true, true);
+    clearAuthSession();
+    return result;
 }
 
 export async function signOut() {
     try {
         await request("/auth/sign-out", { method: "POST" });
     } finally {
-        localStorage.removeItem("token");
-        if (typeof window !== "undefined") {
-            window.dispatchEvent(new Event("auth:unauthorized"));
-        }
+        clearAuthSession();
     }
 }

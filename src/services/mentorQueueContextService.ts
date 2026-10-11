@@ -2,9 +2,9 @@ import { request } from "./api/apiClient";
 import { getMaterials } from "./learningService";
 import { getMentorCourses, type MentorSubmission } from "./mentorService";
 import type { UserProfile } from "./profileService";
-import { getFeedbackContexts, type FeedbackContext } from "./studentFeedbackContextService";
+import { getFeedbackContexts, getSubmissionContext, type SubmissionContext } from "./studentFeedbackContextService";
 
-export type MentorQueueContext = FeedbackContext & { materialTitle?: string };
+export type MentorQueueContext = SubmissionContext & { materialTitle?: string };
 export type MentorQueueContexts = { contexts: Map<string, MentorQueueContext>; unavailable: boolean };
 type AssignedCourse = { id: string; title: string; assignedTeacherId?: string };
 
@@ -27,6 +27,11 @@ async function mapLimited<T, R>(items: T[], load: (item: T) => Promise<R>): Prom
 export async function getMentorQueueContexts(items: MentorSubmission[], profile: UserProfile): Promise<MentorQueueContexts> {
   const contexts = new Map<string, MentorQueueContext>();
   if (!items.length) return { contexts, unavailable: false };
+  for (const item of items) {
+    const id = nonblank(item.relatedMaterialId);
+    const context = getSubmissionContext(item);
+    if (id && context) contexts.set(id, context);
+  }
   const profileId = nonblank(profile.id);
   if (profile.role !== "Teacher" || !profileId) return { contexts, unavailable: true };
 

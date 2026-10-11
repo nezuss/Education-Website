@@ -14,7 +14,8 @@
 .mfp-intro h1 { font-size: 36px; font-weight: 600; line-height: 43px; margin-bottom: 8px; }
 .mfp-intro-copy p { color: #13492c; font-size: 16px; font-weight: 500; line-height: 24px; }
 .mfp-edit { flex-shrink: 0; align-self: flex-end; position: relative; padding-bottom: 23px; }
-.mfp-edit-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 191px; min-height: 52px; padding: 16px; border: 1px solid #13492c26; border-radius: 8px; background: #0a2d1b; color: #e8c2a4; font: 400 14px/20px var(--font-body); cursor: not-allowed; }
+.mfp-edit-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 191px; min-height: 52px; padding: 16px; border: 1px solid #13492c26; border-radius: 8px; background: #0a2d1b; color: #e8c2a4; font: 400 14px/20px var(--font-body); cursor: pointer; text-decoration: none; }
+.mfp-edit-button:disabled { cursor: not-allowed; }
 .mfp-edit p { position: absolute; left: 0; right: 0; bottom: 0; color: #13492c; text-align: center; font-size: 11px; line-height: 16px; }
 .mfp-request-errors { display: grid; gap: 16px; margin: -36px 0 48px; }
 .mfp-request-errors .request-error { margin: 0; }

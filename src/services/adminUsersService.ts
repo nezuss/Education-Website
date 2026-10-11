@@ -1,5 +1,7 @@
 import { request } from "./api/apiClient";
 import { getRoleDisplayName } from "./roleNames";
+import { clearAuthSession } from "./authService";
+import { parseJwtPayload } from "./profileService";
 export type AdminUser = {
     id: string;
     username: string;
@@ -33,6 +35,9 @@ export function createAdminUser(data: {
     password: string;
 }) { return request("/admin/users/create", { method: "POST", body: JSON.stringify(data) }); }
 export function deleteAdminUser(id: string) { return request(`/admin/users/delete/${encodeURIComponent(id)}`, { method: "POST" }); }
-export function updateAdminUser(data: { id: string; username?: string; email?: string; password?: string }) {
-    return request<string>("/admin/users/update", { method: "POST", body: JSON.stringify(data) });
+export async function updateAdminUser(data: { id: string; username?: string; email?: string; password?: string }) {
+    const changesOwnPassword = !!data.password?.trim() && parseJwtPayload(localStorage.getItem("token") ?? "")?.id === data.id;
+    const result = await request<string>("/admin/users/update", { method: "POST", body: JSON.stringify(data) });
+    if (changesOwnPassword) clearAuthSession();
+    return result;
 }

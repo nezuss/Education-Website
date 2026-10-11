@@ -1,3 +1,4 @@
+import ProfileNameForm from "../shared/ProfileNameForm";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import UiIcon from "../../components/ui/Icon/UiIcon";
@@ -19,7 +20,7 @@ function latestWorks(submissions?: unknown[]): ProfileWork[] | undefined {
   for (const value of submissions) {
     if (!value || typeof value !== "object") return undefined;
     const item = value as Partial<ProfileWork>;
-    if (typeof item.relatedMaterialId !== "string" || !item.relatedMaterialId || typeof item.type !== "string" || !["Assignment", "Test"].includes(item.type) || typeof item.rate !== "number" || (item.rate !== -1 && submissionGrade(item.rate) === undefined) || typeof item.createdAt !== "string" || !Number.isFinite(Date.parse(item.createdAt))) return undefined;
+    if (typeof item.relatedMaterialId !== "string" || !item.relatedMaterialId || typeof item.type !== "string" || !["Assignment", "Test"].includes(item.type) || typeof item.rate !== "number" || (item.rate !== -1 && submissionGrade(item.rate, item.type) === undefined) || typeof item.createdAt !== "string" || !Number.isFinite(Date.parse(item.createdAt))) return undefined;
     const previous = latest.get(item.relatedMaterialId);
     if (!previous || Date.parse(item.createdAt) > Date.parse(previous.createdAt)) latest.set(item.relatedMaterialId, item as ProfileWork);
   }
@@ -65,24 +66,24 @@ export default function ProfilePage() {
     const total = stats.reduce((sum, item) => sum + item.totalSubmittableMaterials, 0);
     const completed = stats.reduce((sum, item) => sum + item.completedSubmittableMaterials, 0);
     const works = latestWorks(data.submissions);
-    const graded = works?.filter(item => item.status !== "NeedsRevision" && submissionGrade(item.rate) !== undefined);
+    const graded = works?.filter(item => item.status === "Reviewed" && submissionGrade(item.rate, item.type) !== undefined);
     return {
       activeCourses: allStatsAvailable ? stats.filter(item => item.progressPercentage < 100).length : undefined,
       progress: allStatsAvailable && total > 0 ? Math.round(completed / total * 100) : undefined,
-      projects: works?.filter(item => item.type === "Assignment" && item.status !== "NeedsRevision" && submissionGrade(item.rate) !== undefined).length,
+      projects: works?.filter(item => item.type === "Assignment" && item.status === "Reviewed" && submissionGrade(item.rate, item.type) !== undefined).length,
       averageGrade: graded?.length ? Math.round(graded.reduce((sum, item) => sum + item.rate, 0) / graded.length * 10) / 10 : undefined,
     };
   }, [data]);
 
   const name = loading ? "Завантаження…" : data.profile?.username || data.profile?.name || "Дані недоступні";
   const email = loading ? "Завантаження…" : data.profile?.email || "Дані недоступні";
-  const editReason = "Редагування профілю тимчасово недоступне.";
+  const editReason = "Ім’я можна змінити нижче. Інші дані профілю поки недоступні.";
 
   return <div className="student-figma-profile" aria-busy={loading}>
     <nav className="sfp-breadcrumb" aria-label="Навігаційний шлях"><Link to="/student">Головна</Link><UiIcon name="chevron" size={16} /><span>Профіль</span><UiIcon name="chevron" size={16} /><span aria-current="page">Профіль студента</span></nav>
     <section className="sfp-intro">
       <div className="sfp-intro-copy"><span className="sfp-tag">[ ПРОФІЛЬ СТУДЕНТА ]</span><div><h1>Профіль студента</h1><p>Керуй інформацією про себе, відстежуй навчальний шлях і збирай найкращі проєкти в одному місці.</p></div></div>
-      <button className="sfp-edit-button" type="button" disabled title={editReason} aria-describedby="sfp-edit-note">Редагувати профіль <UiIcon name="arrow" size={18} /></button>
+      {data.profile ? <a className="sfp-edit-button" href="#profile-name-editor">Редагувати ім’я <UiIcon name="arrow" size={18} /></a> : <button className="sfp-edit-button" type="button" disabled>Редагувати ім’я <UiIcon name="arrow" size={18} /></button>}
     </section>
     <p className="sfp-edit-note" id="sfp-edit-note">{editReason}</p>
     {error && <RequestError message={error} />}
@@ -101,6 +102,7 @@ export default function ProfilePage() {
       <aside className="sfp-certificates"><div className="sfp-section-heading"><h2>Сертифікати</h2><button type="button" disabled title="Сертифікати поки недоступні">Переглянути всі <UiIcon name="arrow" size={16} /></button></div><div className="sfp-certificate-empty"><UiIcon name="file" size={40} /><h3>Сертифікати поки недоступні</h3><p>Дані про отримані сертифікати ще не доступні.</p></div><div className="sfp-certificate-decoration"><img src="/ui/profile-mascot.png" width={283} height={245} alt="" /></div></aside>
     </section>
     <section className="sfp-personal"><div className="sfp-section-heading"><h2>Особиста інформація</h2><span className="sfp-heading-line" /><button type="button" disabled title={editReason}>Редагувати <UiIcon name="arrow" size={16} /></button></div><dl className="sfp-personal-grid"><ProfileField label="Email" value={email} /><ProfileField label="Телефон" value="Дані недоступні" /><ProfileField label="Місто" value="Дані недоступні" /><ProfileField label="Статус профілю" value="Дані недоступні" /></dl></section>
+    <ProfileNameForm username={data.profile?.username} disabled={loading || !data.profile} onSaved={profile => setData(previous => ({ ...previous, profile }))} />
     <details className="sfp-security"><summary>Безпека акаунта <UiIcon name="chevron" size={18} /></summary><PasswordChangeForm /></details>
   </div>;
 }

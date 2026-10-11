@@ -1,8 +1,14 @@
-import { request } from "./api/apiClient";
+import { request, requestFile } from "./api/apiClient";
 
 export type Submission = {
   id: string;
   relatedMaterialId: string;
+  materialId?: string;
+  courseId?: string | null;
+  courseTitle?: string | null;
+  lessonId?: string | null;
+  lessonTitle?: string | null;
+  answers?: { questionId: string; answerId: string }[] | null;
   userId: string;
   type?: string;
   rate: number;
@@ -31,20 +37,38 @@ export async function submissionCollection<T>(path: string, emptyMessages: strin
   }
 }
 
-export const getStudentSubmissions = () => submissionCollection<Submission>("/student/submissions", ["You don't have any submissions"]);
+export function normalizeSubmission(value: unknown): Submission {
+  if (!value || typeof value !== "object" || typeof (value as Submission).id !== "string" || !(value as Submission).id.trim()) {
+    throw new Error("Дані робіт поки недоступні. Сервер не повернув ідентифікатор роботи.");
+  }
+  const item = value as Submission;
+  const materialId = typeof item.materialId === "string" ? item.materialId.trim() : undefined;
+  const legacyId = typeof item.relatedMaterialId === "string" ? item.relatedMaterialId.trim() : undefined;
+  if (materialId && legacyId && materialId !== legacyId) throw new Error("Сервер повернув суперечливі ідентифікатори матеріалу роботи.");
+  return { ...item, relatedMaterialId: materialId || legacyId || "" };
+}
+
+export async function getStudentSubmissions() {
+  return (await submissionCollection<unknown>("/student/submissions", ["You don't have any submissions"])).map(normalizeSubmission);
+}
 
 export async function getSubmissionDetails(id: string): Promise<Submission> {
   const data = await request<Submission>(`/submissions/${encodeURIComponent(id)}`);
   if (!data || data.id !== id) throw new Error("Сервер не повернув запитану роботу.");
-  return data;
+  return normalizeSubmission(data);
 }
+
+export const getSubmissionFile = (id: string) => {
+  if (!id.trim()) return Promise.reject(new Error("Роботу не знайдено."));
+  return requestFile(`/submissions/${encodeURIComponent(id)}/file`, `submission-${id.replace(/[^a-zA-Z0-9_-]/g, "_")}`);
+};
 
 export function submissionState(item: Submission) {
   if (item.status === "NeedsRevision") return { key: "returned", label: "На доопрацюванні" };
-  if (item.status === "Reviewed" || item.rate > 0) return { key: "reviewed", label: "Перевірено" };
+  if (item.status === "Reviewed") return { key: "reviewed", label: "Перевірено" };
   if (item.status === "InReview") return { key: "in-review", label: "На перевірці" };
-  if (!item.status || item.status === "Submitted") return { key: "new", label: "Надіслано" };
-  return { key: "unknown", label: item.status };
+  if (item.status === "Submitted") return { key: "new", label: "Надіслано" };
+  return { key: "unknown", label: "Статус поки недоступний" };
 }
 
 export function submissionDate(value?: string) {
@@ -52,8 +76,8 @@ export function submissionDate(value?: string) {
   return date && Number.isFinite(date.getTime()) ? date.toLocaleString("uk-UA") : "—";
 }
 
-export function submissionGrade(value?: number) {
-  return typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 12 ? value : undefined;
+export function submissionGrade(value?: number, type?: string) {
+  return typeof value === "number" && Number.isInteger(value) && value >= (type === "Test" ? 0 : 1) && value <= 12 ? value : undefined;
 }
 
 export function submissionFileUrl(value?: string) {

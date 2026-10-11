@@ -1,3 +1,4 @@
+import SubmissionDownload from "../shared/SubmissionDownload";
 import { useCallback, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { rateSubmission, requestSubmissionRevision, saveSubmissionFeedback } from "../../services/mentorService";
@@ -40,11 +41,11 @@ function Review({ submissionId }: { submissionId: string }) {
   const context = learning.data?.context;
   const fileUrl = submissionFileUrl(item?.fileUrl);
   const studentName = student.data?.username?.trim() || "Дані поки недоступні";
-  const fileName = fileUrl ? decodeFileName(fileUrl) : "";
+  const fileName = "Файл роботи";
   const state = currentFeedbackState(item);
   const comments = item ? getFeedbackComment(item) : {};
   const reviewer = getFeedbackReviewer(item);
-  const grade = submissionGrade(item?.rate);
+  const grade = submissionGrade(item?.rate, item?.type);
   const submittedAt = assignmentDate(item?.submittedAt ?? undefined);
   const updatedAt = assignmentDate(item?.updatedAt);
   const reviewedAt = assignmentDate(item?.reviewerAt ?? undefined);
@@ -97,7 +98,7 @@ function Review({ submissionId }: { submissionId: string }) {
           || typeof result.rate !== "number" || (action === "feedback" ? result.feedback !== comment : result.status !== "NeedsRevision" || result.revisionMessage !== reason.trim())) {
           throw new Error("Сервер не повернув підтверджений результат. Оновіть дані роботи перед наступною дією.");
         }
-        setSaved(result); setNeedsRefresh(false);
+        setSaved({ ...item, ...result }); setNeedsRefresh(false);
         setNotice(action === "feedback" ? "Коментар збережено." : "Роботу повернено на доопрацювання.");
         if (action === "revision") setReason("");
       }
@@ -115,7 +116,7 @@ function Review({ submissionId }: { submissionId: string }) {
     {item && <>
       <section className="mr-student" aria-label="Відомості про роботу">
         <div className="mr-person"><span className="mr-avatar" aria-hidden="true"><UiIcon name="person" size={32} /></span><div><strong>{student.loading ? "Завантаження студента…" : studentName}</strong><p>{context?.courseTitle || "Дані поки недоступні"}</p></div></div>
-        <div><strong>{materialTitle}</strong><p>{context ? `${context.moduleTitle} · ${context.lessonTitle}` : "Дані поки недоступні"}</p></div>
+        <div><strong>{materialTitle}</strong><p>{context ? `${context.moduleTitle || "Дані поки недоступні"} · ${context.lessonTitle}` : "Дані поки недоступні"}</p></div>
         <div><strong>Надіслано</strong><p>{submittedAt ? <time dateTime={item.submittedAt!}>{submittedAt.toLocaleString("uk-UA", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}</time> : "Дані поки недоступні"}</p></div>
         <span className={`mr-status mr-status-${state.key}`}>{state.label}</span>
       </section>
@@ -128,10 +129,10 @@ function Review({ submissionId }: { submissionId: string }) {
           {!context && !learning.loading && <div><p className="mr-help">Курс, модуль і урок поки недоступні.</p><button type="button" className="mr-button" onClick={learning.reload}>Оновити навчальні матеріали<UiIcon name="loading" /></button></div>}
           {learning.error && <RequestError message={learning.error} retry={learning.reload} />}
           {learning.data?.materialError && <RequestError message={learning.data.materialError} retry={learning.reload} />}
-          <div className="mr-chips">{context && <span>{context.moduleTitle}</span>}<span>Максимальна оцінка: 12</span><span>{deadline ? <>Дедлайн: <time dateTime={learning.data!.deadline!}>{deadline.toLocaleDateString("uk-UA", { day: "numeric", month: "long" })}</time></> : "Дедлайн: Дані поки недоступні"}</span></div>
+          <div className="mr-chips">{context && <span>{context.moduleTitle || "Дані поки недоступні"}</span>}<span>Максимальна оцінка: 12</span><span>{deadline ? <>Дедлайн: <time dateTime={learning.data!.deadline!}>{deadline.toLocaleDateString("uk-UA", { day: "numeric", month: "long" })}</time></> : "Дедлайн: Дані поки недоступні"}</span></div>
         </section>
-        <section className="mr-card mr-files"><span className="mr-tag">Матеріали студента</span><h2>Файли роботи</h2>{fileUrl ? <div className="mr-file"><UiIcon name="file" size={36} /><div><strong>{fileName}</strong><p>Надісланий файл</p></div><a className="mr-button" href={fileUrl} target="_blank" rel="noreferrer">Відкрити <UiIcon name="external" /></a></div> : <DataUnavailable>{item.type === "Test" ? "Для тестової роботи файли не передбачені." : "Файл роботи поки недоступний."}</DataUnavailable>}</section>
-        <section className="mr-card mr-preview"><span className="mr-tag">Прев’ю</span><h2>Швидкий перегляд роботи</h2><DataUnavailable>Попередній перегляд поки недоступний.</DataUnavailable>{fileUrl && <a className="mr-file-link" href={fileUrl} target="_blank" rel="noreferrer">Відкрити {fileName}<UiIcon name="external" /></a>}</section>
+        <section className="mr-card mr-files"><span className="mr-tag">Матеріали студента</span><h2>Файли роботи</h2>{fileUrl ? <div className="mr-file"><UiIcon name="file" size={36} /><div><strong>{fileName}</strong><p>Надісланий файл</p></div><SubmissionDownload id={item.id} className="mr-button">Завантажити <UiIcon name="download" /></SubmissionDownload></div> : <DataUnavailable>{item.type === "Test" ? "Для тестової роботи файли не передбачені." : "Файл роботи поки недоступний."}</DataUnavailable>}</section>
+        <section className="mr-card mr-preview"><span className="mr-tag">Прев’ю</span><h2>Швидкий перегляд роботи</h2><DataUnavailable>Попередній перегляд поки недоступний.</DataUnavailable>{fileUrl && <SubmissionDownload id={item.id} className="mr-file-link">Завантажити файл роботи<UiIcon name="download" /></SubmissionDownload>}</section>
         <section className="mr-card mr-feedback"><span className="mr-tag">Зворотний зв’язок</span><h2>Коментар студенту</h2><form onSubmit={event => void save(event, "feedback")}><fieldset disabled={busy || needsRefresh || !canFeedback}><label htmlFor="mentor-feedback">Коментар ментора</label><textarea id="mentor-feedback" required placeholder="Що вдалося та що варто покращити…" value={feedback ?? item.feedback ?? ""} onChange={event => setFeedback(event.target.value)} /><p className="mr-help">Студент побачить збережений коментар у результаті своєї роботи.</p><button className="mr-button" disabled={!(feedback ?? item.feedback ?? "").trim()} type="submit">Зберегти коментар <UiIcon name="arrow" /></button></fieldset></form></section>
         <section className="mr-card mr-notes"><span className="mr-tag">Нотатки</span><h2>Нотатки ментора</h2><DataUnavailable>Особисті нотатки поки недоступні.</DataUnavailable><button className="mr-button" type="button" disabled>Зберегти нотатку</button></section>
       </div><aside className="mr-aside" aria-label="Оцінювання та рішення">
@@ -142,9 +143,4 @@ function Review({ submissionId }: { submissionId: string }) {
       <section className="mr-card mr-history"><span className="mr-tag">Історія</span><h2>Історія роботи</h2><dl><div><dt>Роботу надіслано</dt><dd>{submittedAt ? <time dateTime={item.submittedAt!}>{submittedAt.toLocaleString("uk-UA")}</time> : "Дані поки недоступні"}</dd></div><div><dt>Останнє оновлення</dt><dd>{updatedAt ? <time dateTime={item.updatedAt}>{updatedAt.toLocaleString("uk-UA")}</time> : "Дані поки недоступні"}</dd></div><div><dt>Поточний статус</dt><dd>{state.label}</dd></div><div><dt>{reviewer.automatic ? "Автоматична перевірка" : "Перевіряючий"}</dt><dd>{reviewer.name || "Дані поки недоступні"}</dd></div><div><dt>Дата перевірки</dt><dd>{reviewedAt ? <time dateTime={item.reviewerAt!}>{reviewedAt.toLocaleString("uk-UA")}</time> : "Дані поки недоступні"}</dd></div></dl>{comments.revision && <div className="mr-revision-message"><h3>Причина повернення</h3><p>{comments.revision}</p></div>}<p className="mr-help">Детальна історія подій: Дані поки недоступні.</p></section>
     </>}
   </div>;
-}
-
-function decodeFileName(url: string) {
-  const name = new URL(url).pathname.split("/").pop() || "Файл роботи";
-  try { return decodeURIComponent(name); } catch { return name; }
 }

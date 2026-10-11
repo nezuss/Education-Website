@@ -1,9 +1,10 @@
+import SubmissionDownload from "../shared/SubmissionDownload";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import UiIcon from "../../components/ui/Icon/UiIcon";
 import { assignmentDate } from "../../services/assignmentService";
 import { getStudentSubmissions, submissionFileUrl, submissionGrade, type Submission } from "../../services/submissionService";
-import { getStudentFeedbackContexts, type FeedbackContext } from "../../services/studentFeedbackContextService";
+import { getStudentFeedbackContexts, getSubmissionContext, type FeedbackContext, type SubmissionContext } from "../../services/studentFeedbackContextService";
 import { currentFeedbackState, getFeedbackComment, getFeedbackCounts, groupStudentFeedback, matchesFeedbackFilter, type FeedbackFilter, type FeedbackGroup } from "../../services/studentFeedbackPresentation";
 import useRemoteData from "../shared/useRemoteData";
 import RequestError from "../shared/RequestError";
@@ -61,22 +62,23 @@ export default function SubmissionsPage() {
       <section aria-labelledby="feedback-list-heading"><div className="sfl-list-heading"><h2 id="feedback-list-heading">{filter === "all" ? "Усі роботи" : filters.find(item => item.key === filter)!.label}</h2><span>Робіт: {visible?.length ?? 0}</span></div>
         {ordered?.length === 0 ? <div className="sfl-message" role="status"><UiIcon name="feedback" size={32} /><div><h3>{hasUnknownStatus ? "Немає робіт із відомим статусом у цьому фільтрі" : "За цим статусом робіт немає"}</h3><p>Оберіть інший фільтр, щоб переглянути решту результатів.</p><button type="button" className="af-outline" onClick={() => setFilter("all")}>Показати всі роботи</button></div></div> : <div className="sfl-list">{ordered?.map(group => <FeedbackCard key={group.current?.id || group.history[0].id} group={group} context={group.materialId ? context?.contexts.get(group.materialId) : undefined} contextLoading={!context} />)}</div>}
       </section>
-      <p className="sfl-note"><UiIcon name="feedback" />Попередні спроби збережені в історії кожної роботи. Оцінка використовує шкалу від 1 до 12.</p>
+      <p className="sfl-note"><UiIcon name="feedback" />Попередні спроби збережені в історії кожної роботи. Ручна оцінка: 1–12. Автоматична оцінка тесту: 0–12.</p>
     </>}
   </div>;
 }
 
-function FeedbackCard({ group, context, contextLoading }: { group: FeedbackGroup; context?: FeedbackContext; contextLoading: boolean }) {
+function FeedbackCard({ group, context, contextLoading }: { group: FeedbackGroup; context?: SubmissionContext; contextLoading: boolean }) {
   return <article className="sfl-card">
     {group.current ? <FeedbackAttempt item={group.current} context={context} contextLoading={contextLoading} /> : <div className="sfl-uncertain"><UiIcon name="warning" size={32} /><div><h3>Актуальна спроба поки невідома</h3><p>Дат недостатньо, щоб визначити останнє надсилання. Усі доступні спроби збережені нижче.</p></div></div>}
     {!!group.history.length && <details className="sfl-history" open={!group.current}><summary>{group.current ? "Попередні спроби" : "Усі доступні спроби"} ({group.history.length})<UiIcon name="chevron" /></summary><div>{group.history.map(item => <section key={item.id} className="sfl-history-attempt" aria-label="Попередня спроба роботи"><FeedbackAttempt item={item} context={context} contextLoading={contextLoading} historical /></section>)}</div></details>}
   </article>;
 }
 
-function FeedbackAttempt({ item, context, contextLoading, historical = false }: { item: Submission; context?: FeedbackContext; contextLoading: boolean; historical?: boolean }) {
+function FeedbackAttempt({ item, context: resolvedContext, contextLoading, historical = false }: { item: Submission; context?: SubmissionContext; contextLoading: boolean; historical?: boolean }) {
+  const context = resolvedContext || getSubmissionContext(item);
   const state = currentFeedbackState(item);
   const comments = getFeedbackComment(item);
-  const grade = submissionGrade(item.rate);
+  const grade = submissionGrade(item.rate, item.type);
   const created = assignmentDate(item.createdAt);
   const updated = assignmentDate(item.updatedAt);
   const file = submissionFileUrl(item.fileUrl);
@@ -89,11 +91,11 @@ function FeedbackAttempt({ item, context, contextLoading, historical = false }: 
     <div className="sfl-row">
       <span className="sfl-work-icon"><UiIcon name="assignment" size={24} /></span>
       <div className="sfl-work-copy"><Heading>{materialLabel}</Heading><p>Надіслано: {created ? <time dateTime={item.createdAt}>{created.toLocaleString("uk-UA", { dateStyle: "medium", timeStyle: "short" })}</time> : "Дані поки недоступні"}</p>{updated && created && updated > created && <p className="sfl-updated">Оновлено: <time dateTime={item.updatedAt}>{updated.toLocaleString("uk-UA", { dateStyle: "medium", timeStyle: "short" })}</time></p>}</div>
-      <div className="sfl-course-copy">{context ? <><Link to={coursePath!}>{context.courseTitle}</Link><p>{context.moduleTitle} · {context.lessonTitle}</p></> : <p>{contextLoading ? "Завантаження даних курсу…" : "Курс та урок поки недоступні"}</p>}</div>
+      <div className="sfl-course-copy">{context ? <><Link to={coursePath!}>{context.courseTitle}</Link><p>{context.moduleTitle || "Дані поки недоступні"} · {context.lessonTitle}</p></> : <p>{contextLoading ? "Завантаження даних курсу…" : "Курс та урок поки недоступні"}</p>}</div>
       <div className="sfl-result"><span className={`sfl-state sfl-state-${state.key}`}>{state.label}</span><p>{state.key === "returned" && grade !== undefined ? "Попередня оцінка" : "Оцінка"}: <strong>{grade !== undefined ? `${grade} / 12` : item.rate === -1 ? "Ще не виставлено" : "Дані поки недоступні"}</strong></p></div>
       <Link className="af-outline sfl-result-link" to={`/student/submissions/${encodeURIComponent(item.id)}`}>Результат перевірки<UiIcon name="arrow" /></Link>
     </div>
     {(comments.feedback || comments.revision) ? <div className="sfl-comment">{comments.feedback && <div><h4>Коментар до роботи</h4><blockquote>{comments.feedback}</blockquote></div>}{comments.revision && <div className="sfl-revision"><h4>Причина повернення</h4><blockquote>{comments.revision}</blockquote></div>}</div> : <p className="sfl-comment-empty">{state.key === "new" || state.key === "in-review" ? "Коментар з’явиться після перевірки роботи." : "Коментар до роботи поки недоступний."}</p>}
-    <div className="sfl-secondary-actions">{file && <a href={file} target="_blank" rel="noreferrer"><UiIcon name="file" />Надісланий файл<UiIcon name="external" /></a>}{item.type === "Assignment" && materialId ? <Link to={`/student/assignments/${encodeURIComponent(materialId)}`}>До завдання<UiIcon name="arrow" /></Link> : <Link to={context ? `${coursePath}/lesson/${encodeURIComponent(context.lessonId)}` : "/student/courses"}>{context ? "До матеріалів уроку" : "До моїх курсів"}<UiIcon name="arrow" /></Link>}</div>
+    <div className="sfl-secondary-actions">{file && <SubmissionDownload id={item.id}><UiIcon name="file" />Надісланий файл<UiIcon name="download" /></SubmissionDownload>}{item.type === "Assignment" && materialId ? <Link to={`/student/assignments/${encodeURIComponent(materialId)}`}>До завдання<UiIcon name="arrow" /></Link> : <Link to={context ? `${coursePath}/lesson/${encodeURIComponent(context.lessonId)}` : "/student/courses"}>{context ? "До матеріалів уроку" : "До моїх курсів"}<UiIcon name="arrow" /></Link>}</div>
   </>;
 }

@@ -1,6 +1,6 @@
 import UiIcon from "../../components/ui/Icon/UiIcon";
 import { useEffect, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getAdminUsers, getAdminUser, createAdminUser, updateAdminUser, deleteAdminUser, type AdminUser } from "../../services/adminUsersService";
 import { parseJwtPayload } from "../../services/profileService";
 import RequestError from "../shared/RequestError";
@@ -8,6 +8,7 @@ import "../../styles/AdminPortal.css";
 const roleLabel = (user: AdminUser) => user.roleName === "Admin" ? "Адміністратор" : user.roleName === "Teacher" ? "Ментор" : user.roleName === "None" || user.roleName === "User" ? "Студент" : "Роль не надано";
 const date = (value?: string) => value && Number.isFinite(Date.parse(value)) ? new Date(value).toLocaleDateString("uk-UA") : "—";
 export default function UsersPage() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<AdminUser[]>([]), [loading, setLoading] = useState(true), [error, setError] = useState(""), [notice, setNotice] = useState("");
   const [revision, setRevision] = useState(0), [search, setSearch] = useState(""), [roleFilter, setRoleFilter] = useState("all"), [statusFilter, setStatusFilter] = useState("all");
   const [selected, setSelected] = useState<AdminUser>(), [creating, setCreating] = useState(false), [busy, setBusy] = useState(false), [actionError, setActionError] = useState("");
@@ -27,7 +28,16 @@ export default function UsersPage() {
     event.preventDefault(); setBusy(true); setActionError("");
     try {
       if (creating) await createAdminUser({ username: username.trim(), email: email.trim(), password });
-      else if (selected) await updateAdminUser({ id: selected.id, username: username.trim(), email: email.trim(), ...(password ? { password } : {}) });
+      else if (selected) {
+        const updatedUsername = username.trim(), updatedEmail = email.trim();
+        await updateAdminUser({
+          id: selected.id,
+          ...(updatedUsername && updatedUsername !== selected.username.trim() ? { username: updatedUsername } : {}),
+          ...(updatedEmail && updatedEmail !== selected.email.trim() ? { email: updatedEmail } : {}),
+          ...(password.trim() ? { password } : {}),
+        });
+        if (selected.id === currentId && password.trim()) { navigate("/login", { replace: true }); return; }
+      }
       else return;
       setCreating(false); setSelected(undefined); setPassword(""); setEmail(""); setUsername(""); setNotice("Користувача збережено на сервері."); setRevision(value => value + 1);
     }
@@ -49,9 +59,10 @@ export default function UsersPage() {
     {(creating || selected) && <div className="admin-users-modal" role="dialog" aria-modal="true" aria-label={creating ? "Додати користувача" : "Користувач"}><div className="admin-user-card-view admin-users-dialog">
       <h2>{creating ? "Додати користувача" : selected?.username}</h2>{actionError && <RequestError message={actionError} />}
       <form onSubmit={save}>
-        <label>Ім’я користувача<input required value={username} onChange={event => setUsername(event.target.value)} disabled={busy} /></label>
-        <label>Email<input required type="email" value={email} onChange={event => setEmail(event.target.value)} disabled={busy} /></label>
+        <label>Ім’я користувача<input required={creating} value={username} onChange={event => setUsername(event.target.value)} disabled={busy} /></label>
+        <label>Email<input required={creating} type="email" value={email} onChange={event => setEmail(event.target.value)} disabled={busy} /></label>
         <label>{creating ? "Пароль" : "Новий пароль (необов’язково)"}<input required={creating} type="password" autoComplete="new-password" value={password} onChange={event => setPassword(event.target.value)} disabled={busy} /></label>
+        {!creating && <p>Порожні поля залишають поточні значення без змін.</p>}
         <button className="admin-btn-primary" disabled={busy}>{busy ? "Збереження…" : creating ? "Створити" : "Зберегти"}</button>
       </form>
       {!creating && <><p>Роль: {selected && roleLabel(selected)}</p><p>Курси: {selected?.enrolledCourcesId?.length ?? "—"}</p><p>Зміна ролі та блокування поки недоступні.</p><button className="admin-btn-secondary" disabled={busy || !currentId || selected?.id === currentId} onClick={remove}>Видалити акаунт</button></>}

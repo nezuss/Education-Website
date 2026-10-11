@@ -1,9 +1,11 @@
+import SubmissionDownload from "../shared/SubmissionDownload";
 import UiIcon from "../../components/ui/Icon/UiIcon";
 import { type FormEvent, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { submitAssignment, type SubmissionDetail } from "../../services/learningService";
 import { assignmentDate, assignmentDaysLeft, canSubmitAssignment } from "../../services/assignmentService";
 import { submissionFileUrl } from "../../services/submissionService";
+import { assignmentFileAccept, submissionFileError } from "../../services/submissionUpload";
 import DataUnavailable from "../shared/DataUnavailable";
 import RequestError from "../shared/RequestError";
 import useAssignmentContext from "../shared/useAssignmentContext";
@@ -31,11 +33,13 @@ function ProjectUpload({ assignmentId }: { assignmentId?: string }) {
   const daysLeft = assignmentDaysLeft(context?.deadline);
   const title = context?.assignmentTitle || "Практичне завдання";
   const detailsPath = assignmentId ? `/student/assignments/${encodeURIComponent(assignmentId)}` : "/student/assignments";
-  const fileUrl = submissionFileUrl(receipt?.fileUrl || status?.submission?.fileUrl);
+  const submittedWork = receipt || status?.submission;
+  const fileUrl = submissionFileUrl(submittedWork?.fileUrl);
   function chooseFile(files: FileList | null) {
     if (!selectable || !files?.length) return;
     if (files.length !== 1) { setError("Для цього завдання оберіть один підсумковий файл."); return; }
-    if (!files[0].size) { setError("Обраний файл порожній. Додайте файл із виконаною роботою."); return; }
+    const fileError = submissionFileError(files[0]);
+    if (fileError) { setError(fileError); return; }
     setFile(files[0]); setError("");
   }
   function removeFile() {
@@ -67,8 +71,8 @@ function ProjectUpload({ assignmentId }: { assignmentId?: string }) {
     <form onSubmit={handleSubmit} className="pu-grid" aria-label="Надсилання роботи">
       <div className="pu-main"><header className="pu-hero af-card"><span className="af-tag">Завантаження проєкту</span><h1>Надішліть виконане завдання</h1><p>Завантажте підсумковий файл до завдання «{title}».</p>{context && <div className="af-chips"><span>{context.moduleTitle}</span><span>Один файл</span></div>}</header>
         <section aria-labelledby="project-files"><h2 id="project-files" className="af-section-title">Файл проєкту</h2><p className="pu-intro">Надішліть один файл із виконаною роботою.</p>
-          {confirmed ? <div className="pu-success af-card" role="status"><UiIcon name="check-circle" size={32} /><h2>Роботу надіслано</h2><p>Результат перевірки буде доступний у картці завдання.</p>{fileUrl && <a href={fileUrl} target="_blank" rel="noreferrer" className="af-outline">Переглянути надісланий файл<UiIcon name="external" /></a>}<Link to={detailsPath} className="af-button">Повернутися до завдання<UiIcon name="arrow" /></Link></div> : posted ? <div className="af-card" role="status"><h2>Перевіряємо надсилання</h2><p>Запит прийнято сервером. Підтвердження роботи поки недоступне.</p><button type="button" className="af-button" disabled={assignment.loading} onClick={assignment.reload}>Оновити статус<UiIcon name="arrow" /></button></div> : <div className={`pu-dropzone${dragging ? " is-dragging" : ""}${!selectable ? " is-disabled" : ""}`} onDragOver={event => { event.preventDefault(); }} onDragEnter={event => { event.preventDefault(); if (selectable) setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={event => { event.preventDefault(); setDragging(false); chooseFile(event.dataTransfer.files); }}>
-            <UiIcon name="download" size={32} /><h3>Перетягніть файл сюди</h3><p>або оберіть матеріал на своєму пристрої</p><input ref={fileInput} id="project-file" aria-label="Файл проєкту" type="file" className="pu-file-input" disabled={!selectable} onChange={event => chooseFile(event.target.files)} /><button type="button" className="af-button" disabled={!selectable} onClick={() => fileInput.current?.click()}>Обрати файл</button><p className="af-note">Обмеження типу та розміру файлу поки недоступні.</p>
+          {confirmed ? <div className="pu-success af-card" role="status"><UiIcon name="check-circle" size={32} /><h2>Роботу надіслано</h2><p>Результат перевірки буде доступний у картці завдання.</p>{fileUrl && <SubmissionDownload id={submittedWork!.id} className="af-outline">Завантажити надісланий файл<UiIcon name="download" /></SubmissionDownload>}<Link to={detailsPath} className="af-button">Повернутися до завдання<UiIcon name="arrow" /></Link></div> : posted ? <div className="af-card" role="status"><h2>Перевіряємо надсилання</h2><p>Запит прийнято сервером. Підтвердження роботи поки недоступне.</p><button type="button" className="af-button" disabled={assignment.loading} onClick={assignment.reload}>Оновити статус<UiIcon name="arrow" /></button></div> : <div className={`pu-dropzone${dragging ? " is-dragging" : ""}${!selectable ? " is-disabled" : ""}`} onDragOver={event => { event.preventDefault(); }} onDragEnter={event => { event.preventDefault(); if (selectable) setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={event => { event.preventDefault(); setDragging(false); chooseFile(event.dataTransfer.files); }}>
+            <UiIcon name="download" size={32} /><h3>Перетягніть файл сюди</h3><p>або оберіть матеріал на своєму пристрої</p><input ref={fileInput} id="project-file" aria-label="Файл проєкту" type="file" accept={assignmentFileAccept} className="pu-file-input" disabled={!selectable} onChange={event => chooseFile(event.target.files)} /><button type="button" className="af-button" disabled={!selectable} onClick={() => fileInput.current?.click()}>Обрати файл</button><p className="af-note">До 150 МБ. Архіви, PDF, зображення, текстові та офісні документи.</p>
           </div>}
           {file && !confirmed && <div className="pu-file-row af-card"><UiIcon name="file" size={32} /><div><strong>{file.name}</strong><span>{file.size >= 1048576 ? `${(file.size / 1048576).toLocaleString("uk-UA", { maximumFractionDigits: 1 })} МБ` : `${Math.ceil(file.size / 1024)} КБ`} · {busy ? "Надсилаємо…" : posted ? "Запит надіслано" : "Обрано на пристрої"}</span></div><button type="button" aria-label="Прибрати обраний файл" disabled={busy || posted} onClick={removeFile}><UiIcon name="close" /></button></div>}
           {error && <div role="alert" className="pu-error"><p>{error}</p></div>}

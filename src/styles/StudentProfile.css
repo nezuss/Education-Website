@@ -11,7 +11,7 @@
 .sfp-tag { display: inline-flex; width: fit-content; padding: 3px 8px; border: 1px solid #55706126; border-radius: 3px; background: #e8ded5; color: #7f5d41; font-size: 12px; line-height: 16px; }
 .sfp-intro h1 { font-size: 32px; font-weight: 600; line-height: 40px; margin-bottom: 8px; }
 .sfp-intro p { color: #557061; font-size: 16px; line-height: 24px; }
-.sfp-edit-button { display: inline-flex; align-items: center; justify-content: center; gap: 12px; flex-shrink: 0; min-height: 52px; padding: 16px; border: 0; border-radius: 6px; background: #13492c; color: #b4ccbf; font: 600 14px/20px var(--font-body); box-shadow: 0 4px 8px #0a2d1b26; }
+.sfp-edit-button { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 12px; flex-shrink: 0; min-height: 52px; padding: 16px; border: 0; border-radius: 6px; background: #13492c; color: #b4ccbf; font: 600 14px/20px var(--font-body); box-shadow: 0 4px 8px #0a2d1b26; }
 .sfp-edit-button:disabled { cursor: not-allowed; }
 .student-figma-profile .sfp-edit-note { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .student-figma-profile > .request-error { margin: -26px 0 24px; }

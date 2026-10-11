@@ -18,9 +18,18 @@ export default function AppShell() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    getProfile()
-      .then(setProfile)
-      .catch(() => {});
+    let active = true;
+    let latestRequest = 0;
+    async function loadProfile() {
+      const requestId = ++latestRequest;
+      try {
+        const updatedProfile = await getProfile();
+        if (active && requestId === latestRequest) setProfile(updatedProfile);
+      } catch { /* Keep the last confirmed profile when refreshing fails. */ }
+    }
+    void loadProfile();
+    window.addEventListener("profile:updated", loadProfile);
+    return () => { active = false; window.removeEventListener("profile:updated", loadProfile); };
   }, []);
 
   useEffect(() => {
@@ -248,7 +257,7 @@ export default function AppShell() {
               </svg>
             </button>
             <span className="lms-topbar-breadcrumb">
-              {isAdmin ? `Admin LMS / ${{ "/admin/users": "Користувачі", "/admin/courses": "Курси", "/admin/orders": "Замовлення / Оплати", "/admin/analytics": "Аналітика", "/admin/profile": "Профіль" }[location.pathname] || "Головна"}` : isMentor ? `Mentor LMS / ${isMentorProfile ? "Профіль" : (location.pathname === "/mentor/submissions" || location.pathname.startsWith("/mentor/review/")) ? "На перевірці" : "Кабінет ментора"}` : isStudentInsights ? `Student LMS / ${isStudentHome ? "Головна" : isStudentFeedback ? "Відгуки ментора" : location.pathname === "/student/progress" ? "Прогрес" : "Профіль"}` : isSubmissionResult ? "Student LMS / Результат перевірки" : isAssignment ? "Student LMS / Завдання" : location.pathname === "/student/courses" || location.pathname.startsWith("/student/learning/") ? "Student LMS / Мої курси" : "Student LMS / Головна"}
+              {isAdmin ? `Admin LMS / ${{ "/admin/users": "Користувачі", "/admin/courses": "Курси", "/admin/orders": "Замовлення / Оплати", "/admin/analytics": "Аналітика", "/admin/profile": "Профіль" }[location.pathname] || "Головна"}` : isMentor ? `Mentor LMS / ${isMentorProfile ? "Профіль" : (location.pathname === "/mentor/submissions" || location.pathname.startsWith("/mentor/review/")) ? "На перевірці" : "Головна"}` : isStudentInsights ? `Student LMS / ${isStudentHome ? "Головна" : isStudentFeedback ? "Відгуки ментора" : location.pathname === "/student/progress" ? "Прогрес" : "Профіль"}` : isSubmissionResult ? "Student LMS / Результат перевірки" : isAssignment ? "Student LMS / Завдання" : location.pathname === "/student/courses" || location.pathname.startsWith("/student/learning/") ? "Student LMS / Мої курси" : "Student LMS / Головна"}
             </span>
           </div>
 

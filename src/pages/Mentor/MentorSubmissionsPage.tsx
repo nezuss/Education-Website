@@ -72,13 +72,13 @@ export default function MentorSubmissionsPage() {
         const context = contexts?.get(item.relatedMaterialId.trim());
         const title = context?.materialTitle || materialLabel(item);
         const date = assignmentDate(item.submittedAt ?? undefined);
-        const grade = submissionGrade(item.rate);
+        const grade = submissionGrade(item.rate, item.type);
         const action = state.key === "reviewed" ? "Переглянути" : state.key === "new" ? "Перевірити" : state.key === "in-review" ? "Продовжити" : "Відкрити";
         return <tr key={item.id}>
           <td className="mq-row-number">{(currentPage - 1) * pageSize + index + 1}</td>
           <td><div className="mq-student"><span className="mq-avatar" aria-hidden="true"><UiIcon name="person" size={28} /></span><div><strong>{name}</strong><small>{item.student.email || "Студент"}</small></div></div></td>
           <td data-label="Робота"><strong>{title}</strong><small>{context?.lessonTitle || (contextLoading ? "Завантаження даних…" : "Дані поки недоступні")}</small></td>
-          <td data-label="Курс / модуль / надіслано">{context ? <><strong>{context.courseTitle}</strong><small>{context.moduleTitle}</small></> : <span className="mq-muted">{contextLoading ? "Завантаження даних…" : "Дані поки недоступні"}</span>}<small>{date ? <time dateTime={item.submittedAt!}>{date.toLocaleString("uk-UA", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}</time> : "Надіслано: Дані поки недоступні"}</small></td>
+          <td data-label="Курс / модуль / надіслано">{context ? <><strong>{context.courseTitle}</strong><small>{context.moduleTitle || "Дані поки недоступні"}</small></> : <span className="mq-muted">{contextLoading ? "Завантаження даних…" : "Дані поки недоступні"}</span>}<small>{date ? <time dateTime={item.submittedAt!}>{date.toLocaleString("uk-UA", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}</time> : "Надіслано: Дані поки недоступні"}</small></td>
           <td data-label="Статус"><span className={`mq-status ${state.key}`}>{state.key === "new" ? "Нова робота" : state.key === "returned" ? "Повернено" : state.label}</span>{grade !== undefined ? <small>{state.key === "returned" ? "Попередня оцінка: " : "Оцінка: "}{grade} / 12</small> : item.rate !== -1 && <small>Оцінка: Дані поки недоступні</small>}</td>
           <td><Link to={`/mentor/review/${encodeURIComponent(item.id)}`} className={`mq-action ${state.key}`} aria-label={`${action}: ${name}, ${title}`}>{action}<UiIcon name="arrow" size={18} /></Link></td>
         </tr>;
