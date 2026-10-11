@@ -237,6 +237,58 @@ namespace Backend.Services.User
             return await FulfillOrder(order);
         }
 
+        public async Task<ServiceResult<string>> HandleWebhook(string json, string signature)
+        {
+            string? webhookSecret = configuration["Stripe:WebhookSecret"];
+
+            if (string.IsNullOrEmpty(webhookSecret))
+            {
+                return ServiceResult<string>
+                       .Fail("Stripe webhook secret is not configured", 500);
+            }
+
+            if (string.IsNullOrEmpty(signature))
+            {
+                return ServiceResult<string>
+                       .Fail("Stripe-Signature header is required", 400);
+            }
+
+            Stripe.Event stripeEvent;
+
+            try
+            {
+                stripeEvent = Stripe.EventUtility.ConstructEvent(json, signature, webhookSecret,
+                                                                 throwOnApiVersionMismatch: false);
+            }
+            catch (Stripe.StripeException)
+            {
+                return ServiceResult<string>
+                       .Fail("Invalid Stripe signature", 400);
+            }
+
+            if (stripeEvent.Type != Stripe.EventTypes.CheckoutSessionCompleted)
+                return ServiceResult<string>.Ok("Ignored", $"Event {stripeEvent.Type} ignored");
+
+            if (stripeEvent.Data.Object is not Session session)
+            {
+                return ServiceResult<string>
+                       .Fail("Invalid checkout session payload", 400);
+            }
+
+            if (session.PaymentStatus != "paid")
+                return ServiceResult<string>.Ok("Ignored", "Checkout session is not paid yet");
+
+            var order = await db.Orders.FirstOrDefaultAsync(o => o.StripeSessionId == session.Id ||
+                                                                 o.Id == session.ClientReferenceId);
+
+            if (order == null)
+                return ServiceResult<string>.Ok("Ignored", "Order not found for this session");
+
+            order.StripeSessionId ??= session.Id;
+
+            return await FulfillOrder(order);
+        }
+
         // * Marks order as paid and enrolls the user
         private async Task<ServiceResult<string>> FulfillOrder(OrderModel order)
         {

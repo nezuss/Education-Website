@@ -44,6 +44,34 @@ namespace Backend.Controllers.User
             });
         }
 
+        [HttpPost("/payments/webhook")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Webhook()
+        {
+            string json;
+            using (var reader = new StreamReader(HttpContext.Request.Body))
+                json = await reader.ReadToEndAsync();
+
+            string signature = Request.Headers["Stripe-Signature"].ToString();
+            var result = await accountingService.HandleWebhook(json, signature);
+
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, new
+                {
+                    message = result.Message,
+                    errorCode = result.StatusCode,
+                    time = DateTime.UtcNow
+                });
+            }
+
+            return Ok(new
+            {
+                message = result.Message,
+                data = result.Data
+            });
+        }
+
         [HttpPost("/payments/quote")]
         [Authorize]
         public async Task<IActionResult> Quote(QuoteDTO dTO)
