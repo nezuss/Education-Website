@@ -22,11 +22,13 @@ async function loadCourses() {
 
 function progressOf(stats?: CourseStats) {
   const value = stats?.progressPercentage;
-  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100 ? value : undefined;
+  return stats && stats.totalSubmittableMaterials > 0 && typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100 ? value : undefined;
 }
 
-function Progress({ value }: { value?: number }) {
-  return <div className="mc-progress"><div><span>Ваш прогрес</span><strong>{value === undefined ? "Недоступний" : `${Math.round(value)}%`}</strong></div>{value !== undefined && <progress aria-label="Прогрес курсу" max={100} value={value} />}</div>;
+function Progress({ value, compact = false }: { value?: number; compact?: boolean }) {
+  const rounded = value === undefined ? undefined : Number(value.toFixed(2));
+  const label = rounded === undefined ? "Дані поки недоступні" : value! < 100 && rounded === 100 ? "<100%" : `${new Intl.NumberFormat("uk-UA", { maximumFractionDigits: 2 }).format(rounded)}%`;
+  return <div className={`mc-progress${compact ? " mc-progress-compact" : ""}${value === undefined ? " mc-progress-unavailable" : ""}`}>{!compact && <span className="mc-progress-caption">Ваш прогрес</span>}<strong>{label}</strong>{value !== undefined && <progress aria-label="Прогрес курсу" max={100} value={value} />}</div>;
 }
 
 function CourseImage({ course }: { course: Course }) {
@@ -52,6 +54,7 @@ export default function MyCoursesPage() {
     return 0;
   });
   const featuredProgress = featured ? progressOf(stats[featured.id]) : undefined;
+  const featuredAction = featuredProgress === undefined ? "Переглянути програму" : featuredProgress === 100 ? "Переглянути курс" : "Продовжити навчання";
   return <div className="my-courses">
     <nav className="mc-breadcrumbs" aria-label="Навігаційний шлях"><Link to="/student">Головна</Link><UiIcon name="chevron" /><span>Мої курси</span></nav>
     <section className="mc-heading">
@@ -61,12 +64,12 @@ export default function MyCoursesPage() {
     {remote.loading && <p className="mc-empty" role="status">Завантаження курсів…</p>}
     {remote.error && <RequestError message={remote.error} retry={remote.reload} />}
     {!!remote.data?.failed.length && <RequestError message={`Прогрес недоступний для курсів: ${remote.data.failed.join(", ")}. Вони залишаються у списку «Усі».`} retry={remote.reload} />}
-    {featured && <section className="mc-featured" aria-label="Продовжити навчання"><article className="mc-featured-course"><div className="mc-featured-copy"><span className="mc-tag">Продовжити навчання</span><h2>{featured.title}</h2><p>{featured.description}</p><Progress value={featuredProgress} /><Link className="mc-button" to={`/student/learning/${featured.id}`}>{featuredProgress === 100 ? "Переглянути курс" : "Продовжити навчання"}<UiIcon name="arrow" /></Link></div><div className="mc-featured-image"><CourseImage key={featured.id} course={featured} />{featured.direction && <span className="mc-tag">{featured.direction}</span>}</div></article><aside className="mc-next"><span className="mc-tag">Наступне</span><h2>Що далі?</h2><h3>{featured.title}</h3><p>Відкрийте програму курсу та оберіть урок для навчання.</p><div className="mc-deadline"><span>Дедлайн</span><span>Не вказано</span></div><Link className="mc-button" to={`/student/learning/${featured.id}`}>Переглянути програму<UiIcon name="arrow" /></Link></aside></section>}
+    {featured && <section className="mc-featured" aria-label={featuredAction}><article className="mc-featured-course"><div className="mc-featured-copy"><span className="mc-tag">{featuredAction}</span><h2>{featured.title}</h2><p>{featured.description}</p><Progress value={featuredProgress} /><Link className="mc-button" to={`/student/learning/${featured.id}`}>{featuredAction}<UiIcon name="arrow" /></Link></div><div className="mc-featured-image"><CourseImage key={featured.id} course={featured} />{featured.direction && featured.direction !== "Без категорії" && <span className="mc-tag">{featured.direction}</span>}</div></article><aside className="mc-next"><span className="mc-tag">Наступне</span><h2>Що далі?</h2><h3>{featured.title}</h3><p>Відкрийте програму курсу та оберіть урок для навчання.</p><div className="mc-deadline"><span>Дедлайн</span><span>Дані поки недоступні</span></div><Link className="mc-button" to={`/student/learning/${featured.id}`}>Переглянути програму<UiIcon name="arrow" /></Link></aside></section>}
     {remote.data && <section className="mc-list"><h2>{filter === "all" ? "Усі мої курси" : filter === "active" ? "Активні курси" : "Завершені курси"}</h2>{filtered.length ? <div className="mc-cards">{filtered.map(course => {
       const value = progressOf(stats[course.id]);
       const completed = value === 100;
       const courseStats = stats[course.id];
-      return <article className="mc-course" key={course.id}><div className="mc-cover"><CourseImage course={course} /><span className="mc-course-status">{value === undefined ? "Прогрес недоступний" : completed ? "Завершено" : "Активний"}</span></div><div className="mc-course-copy"><h3>{course.title}</h3><p>{course.description}</p><Progress value={value} /><footer><Link to={`/student/learning/${course.id}`}>{completed ? "Переглянути курс" : "Продовжити"}<UiIcon name="arrow" /></Link>{Number.isFinite(courseStats?.completedModules) && Number.isFinite(courseStats?.totalModules) && <span>{courseStats.completedModules} / {courseStats.totalModules} модулів</span>}</footer></div></article>;
-    })}</div> : <div className="mc-empty" role="status"><h3>{courses.length ? "Курсів за цими умовами не знайдено" : "У вас поки немає курсів"}</h3><p>{courses.length ? "Змініть пошук або виберіть інший статус." : "Перегляньте каталог та оберіть напрямок навчання."}</p>{courses.length ? <button className="mc-button" onClick={() => { setSearch(""); setFilter("all"); }}>Скинути фільтри</button> : <Link className="mc-button" to="/courses">Переглянути каталог<UiIcon name="arrow" /></Link>}</div>}</section>}
+      return <article className="mc-course" key={course.id}><div className="mc-cover"><CourseImage course={course} /><span className="mc-course-status">{value === undefined ? "Дані поки недоступні" : completed ? "Завершено" : "Активний"}</span></div><div className="mc-course-copy"><h3>{course.title}</h3><p>{course.description}</p><Progress value={value} compact /><footer><Link to={`/student/learning/${course.id}`}>{value === undefined ? "Переглянути програму" : completed ? "Переглянути курс" : "Продовжити"}<UiIcon name="arrow" /></Link>{Number.isFinite(courseStats?.completedModules) && courseStats.totalModules > 0 && <span>{courseStats.completedModules} / {courseStats.totalModules} модулів</span>}</footer></div></article>;
+    })}</div> : <div className="mc-empty" role="status"><h3>{courses.length ? "Курсів за цими умовами не знайдено" : "Дані поки недоступні"}</h3><p>{courses.length ? "Змініть пошук або виберіть інший статус. Курси з недоступним прогресом залишаються у вкладці «Усі»." : "У вас поки немає курсів. Перегляньте каталог та оберіть напрямок навчання."}</p>{courses.length ? <button className="mc-button" onClick={() => { setSearch(""); setFilter("all"); }}>Скинути фільтри</button> : <Link className="mc-button" to="/courses">Переглянути каталог<UiIcon name="arrow" /></Link>}</div>}</section>}
   </div>;
 }

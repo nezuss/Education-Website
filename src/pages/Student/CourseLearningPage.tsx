@@ -2,7 +2,7 @@ import { useCallback, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import UiIcon from "../../components/ui/Icon/UiIcon";
 import { getCourse } from "../../services/courseService";
-import { getCourseStats, getModuleStats, type ModuleStats } from "../../services/courseStatsService";
+import { getCourseStats, getModuleStats, type CourseStats, type ModuleStats } from "../../services/courseStatsService";
 import { getLessons, getMaterials, getModules, type Lesson, type Material, type Module } from "../../services/learningService";
 import { submissionFileUrl } from "../../services/submissionService";
 import RequestError from "../shared/RequestError";
@@ -15,8 +15,40 @@ function errorMessage(result: PromiseRejectedResult) {
   return result.reason instanceof Error ? result.reason.message : "Не вдалося отримати дані.";
 }
 
-function percentage(value?: number) {
+function percentage(stats?: CourseStats | ModuleStats) {
+  if (!stats || stats.totalSubmittableMaterials === 0) return undefined;
+  const value = stats.progressPercentage;
   return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100 ? value : undefined;
+}
+
+function percentageLabel(value: number) {
+  const rounded = Math.round(value * 100) / 100;
+  return value < 100 && rounded === 100 ? "<100%" : `${new Intl.NumberFormat("uk-UA", { maximumFractionDigits: 2 }).format(value)}%`;
+}
+
+function orderedProgramItems<T extends { id: string; title: string }>(items: T[], ids?: string[]) {
+  const seen = new Set<string>();
+  if (!Array.isArray(items) || items.some(item => {
+    if (!item || typeof item.id !== "string" || !item.id.trim() || typeof item.title !== "string" || !item.title.trim() || seen.has(item.id)) return true;
+    seen.add(item.id);
+    return false;
+  })) {
+    throw new Error("Сервер не повернув коректну програму курсу. Дані поки недоступні.");
+  }
+  const order = new Map((Array.isArray(ids) ? ids : []).map((id, index) => [id, index]));
+  return [...items].sort((a, b) => (order.get(a.id) ?? Infinity) - (order.get(b.id) ?? Infinity));
+}
+
+function validMaterials(items: Material[]) {
+  const seen = new Set<string>();
+  if (items.some(item => {
+    if (!item || typeof item.id !== "string" || !item.id.trim() || typeof item.type !== "string" || !item.type.trim() || seen.has(item.id)) return true;
+    seen.add(item.id);
+    return false;
+  })) {
+    throw new Error("Сервер не повернув коректні матеріали уроку. Дані поки недоступні.");
+  }
+  return items;
 }
 
 function countLabel(value: number, one: string, few: string, many: string) {
@@ -26,11 +58,13 @@ function countLabel(value: number, one: string, few: string, many: string) {
 
 async function loadCourse(courseId: string) {
   const [courseResult, modulesResult, statsResult] = await Promise.allSettled([
-    getCourse(courseId), getModules(courseId), getCourseStats(courseId),
+    getCourse(courseId), getModules(courseId).then(items => orderedProgramItems(items)), getCourseStats(courseId),
   ]);
   if (courseResult.status === "rejected") throw courseResult.reason;
-  const modules: LearningModule[] = modulesResult.status === "fulfilled" ? await Promise.all(modulesResult.value.map(async module => {
-    const [lessons, stats] = await Promise.allSettled([getLessons(module.id), getModuleStats(module.id)]);
+  const modules: LearningModule[] = modulesResult.status === "fulfilled" ? await Promise.all(orderedProgramItems(modulesResult.value, courseResult.value.modules).map(async module => {
+    const [lessons, stats] = await Promise.allSettled([
+      getLessons(module.id).then(items => orderedProgramItems(items, module.lessonsId)), getModuleStats(module.id),
+    ]);
     return {
       ...module,
       lessons: lessons.status === "fulfilled" ? lessons.value : undefined,
@@ -59,35 +93,35 @@ function CourseOverview({ courseId }: { courseId: string }) {
   const data = remote.data;
   const course = data?.course;
   const modules = data?.modules ?? [];
-  const progress = percentage(data?.stats?.progressPercentage);
-  const recommendedModule = modules.find(module => module.lessons?.length && percentage(module.stats?.progressPercentage) !== 100)
-    ?? modules.find(module => module.lessons?.length);
+  const progress = percentage(data?.stats);
+  const recommendedModule = modules.find(module => module.lessons?.length);
   const lesson = recommendedModule?.lessons?.[0];
   const lessonPath = lesson ? `/student/learning/${encodeURIComponent(courseId)}/lesson/${encodeURIComponent(lesson.id)}` : undefined;
   const moduleIndex = recommendedModule ? modules.indexOf(recommendedModule) : -1;
-  const totalLessons = data?.stats?.totalLessons ?? (modules.every(module => module.lessons !== undefined)
+  const totalLessons = data?.stats?.totalLessons ?? (data && !data.modulesError && modules.every(module => module.lessons !== undefined)
     ? modules.reduce((total, module) => total + (module.lessons?.length ?? 0), 0) : undefined);
+  const programUnavailable = Boolean(data?.modulesError || modules.some(module => module.lessonsError));
 
   return <div className="course-learning-overview">
-    <nav className="cl-breadcrumbs" aria-label="Навігаційний шлях"><Link to="/student">Головна</Link><UiIcon name="chevron" /><Link to="/student/courses">Мої курси</Link><UiIcon name="chevron" /><span>{course?.title ?? "Навчання на курсі"}</span></nav>
+    <nav className="cl-breadcrumbs" aria-label="Навігаційний шлях"><Link to="/student">Головна</Link><UiIcon name="chevron" size={16} /><Link to="/student/courses">Мої курси</Link><UiIcon name="chevron" size={16} /><span>{course?.title ?? "Навчання на курсі"}</span></nav>
     {remote.loading && <div className="cl-empty" role="status"><UiIcon name="loading" size={32} /><p>Завантаження програми курсу…</p></div>}
     {remote.error && <RequestError message={remote.error} retry={remote.reload} />}
     {course && <>
       <header className="cl-hero">
         <div className="cl-hero-info"><span className="cl-tag">Навчальний курс</span><h1>{course.title}</h1>{course.description && <p>{course.description}</p>}<div className="cl-chips">{!data?.modulesError && <span>{countLabel(modules.length, "модуль", "модулі", "модулів")}</span>}{totalLessons !== undefined && <span>{countLabel(totalLessons, "урок", "уроки", "уроків")}</span>}</div></div>
-        <div className="cl-stage"><span className="cl-caption">{progress === 100 ? "Для повторення" : "Оберіть урок"}</span>{recommendedModule ? <><h2>Модуль {moduleIndex + 1} із {modules.length}</h2><p>{recommendedModule.title}</p></> : <p>Уроки поки недоступні.</p>}</div>
-        <div className="cl-hero-progress"><div className="cl-progress-label"><span>Ваш прогрес</span><strong>{progress === undefined ? "Недоступний" : `${Math.round(progress)}%`}</strong></div>{progress !== undefined && <progress aria-label="Прогрес курсу" max={100} value={progress} />}{lessonPath ? <Link className="cl-button" to={lessonPath}>{progress === 100 ? "Переглянути урок" : "Відкрити урок"}<UiIcon name="arrow" /></Link> : <button type="button" className="cl-button" disabled>Відкрити урок</button>}</div>
+        <div className="cl-stage"><span className="cl-caption">{progress === 100 ? "Для повторення" : "Оберіть урок"}</span>{recommendedModule ? <><h2>Модуль {moduleIndex + 1} із {modules.length}</h2><p>{recommendedModule.title}</p></> : <p>Дані поки недоступні</p>}</div>
+        <div className="cl-hero-progress"><div className="cl-progress-label"><span>Ваш прогрес</span><strong>{progress === undefined ? "Дані поки недоступні" : percentageLabel(progress)}</strong></div>{progress !== undefined && <progress aria-label="Прогрес курсу" max={100} value={progress} />}{lessonPath ? <Link className="cl-button" to={lessonPath}>{progress === 100 ? "Переглянути урок" : "Відкрити урок"}<UiIcon name="arrow" size={16} /></Link> : <button type="button" className="cl-button" disabled>Відкрити урок</button>}</div>
       </header>
       {data?.statsError && <RequestError message={`Прогрес курсу недоступний: ${data.statsError}`} retry={remote.reload} />}
       <section className="cl-program" aria-labelledby="cl-program-heading">
         <div className="cl-section-heading"><h2 id="cl-program-heading">Програма курсу</h2><span aria-hidden="true" /></div><p className="cl-program-intro">Відкривайте модулі та обирайте урок для навчання.</p>
         <div className="cl-body-grid"><div className="cl-modules">
-          {data?.modulesError ? <RequestError message={data.modulesError} retry={remote.reload} /> : !modules.length ? <div className="cl-empty" role="status"><h3>Програму ще не додано</h3><p>Тут з’являться модулі та уроки цього курсу.</p></div> : modules.map((module, index) => <ModuleCard key={module.id} module={module} index={index} courseId={courseId} initiallyOpen={module.id === recommendedModule?.id || !recommendedModule && index === 0} retry={remote.reload} />)}
+          {data?.modulesError ? <RequestError message={data.modulesError} retry={remote.reload} /> : !modules.length ? <div className="cl-empty" role="status"><h3>Дані поки недоступні</h3><p>До програми цього курсу ще не додано модулі.</p></div> : modules.map((module, index) => <ModuleCard key={module.id} module={module} index={index} courseId={courseId} initiallyOpen={module.id === recommendedModule?.id || !recommendedModule && index === 0} retry={remote.reload} />)}
         </div><aside className="cl-aside" aria-label="Навчання та матеріали">
-          <section className="cl-next cl-card"><span className="cl-tag">Далі</span><h2>Наступний крок</h2>{lesson && lessonPath ? <><h3>{lesson.title}</h3><p>{lesson.description || "Перейдіть до матеріалів цього уроку."}</p><div className="cl-next-info"><span>Модуль</span><strong>{recommendedModule?.title}</strong></div><Link className="cl-button" to={lessonPath}>Відкрити урок<UiIcon name="arrow" /></Link></> : <p>Оберіть урок, коли його буде додано до програми курсу.</p>}</section>
-          <section className="cl-mentor cl-card"><span className="cl-tag">Ментор</span><h3>{course.mentor}</h3><p>{course.assignedTeacherId ? "Ментор перевіряє практичні роботи та залишає зворотний зв’язок." : "Ментор цього курсу ще не призначений."}</p>{course.assignedTeacherId && <div className="cl-mentor-person"><span className="cl-mentor-avatar" aria-hidden="true"><UiIcon name="teacher" size={28} /></span><span>Ментор курсу</span></div>}</section>
+          <section className="cl-next cl-card"><span className="cl-tag">Урок</span><h2>Урок із програми</h2>{lesson && lessonPath ? <><h3>{lesson.title}</h3><p>{lesson.description || "Перейдіть до матеріалів цього уроку."}</p><div className="cl-next-info"><span>Модуль</span><strong>{recommendedModule?.title}</strong></div><Link className="cl-button" to={lessonPath}>Відкрити урок<UiIcon name="arrow" size={16} /></Link></> : <p>Дані поки недоступні</p>}</section>
+          <section className="cl-mentor cl-card"><span className="cl-tag">Ментор</span><h3>{course.mentor === "Не призначено" || course.mentor === "Ім’я ментора недоступне" ? "Дані поки недоступні" : course.mentor}</h3><p>{course.assignedTeacherId ? "Ментор перевіряє практичні роботи та залишає зворотний зв’язок." : "Ментор цього курсу ще не призначений."}</p>{course.assignedTeacherId && <div className="cl-mentor-person"><span className="cl-mentor-avatar" aria-hidden="true"><UiIcon name="teacher" size={28} /></span><span>Ментор курсу</span></div>}</section>
           <div className="cl-tree" role="img" aria-label="Дерево з корінням у вигляді електронних схем" />
-          <LessonResources key={lesson?.id ?? "no-lesson"} lesson={lesson} lessonPath={lessonPath} />
+          <LessonResources key={lesson?.id ?? "no-lesson"} lesson={lesson} lessonPath={lessonPath} programUnavailable={programUnavailable} />
         </aside></div>
       </section>
     </>}
@@ -95,29 +129,30 @@ function CourseOverview({ courseId }: { courseId: string }) {
 }
 
 function ModuleCard({ module, index, courseId, initiallyOpen, retry }: { module: LearningModule; index: number; courseId: string; initiallyOpen: boolean; retry: () => void }) {
-  const progress = percentage(module.stats?.progressPercentage);
+  const progress = percentage(module.stats);
   const lessons = module.lessons;
   const completed = module.stats?.completedLessons;
   const total = module.stats?.totalLessons ?? lessons?.length;
   return <details className="cl-module" open={initiallyOpen}>
-    <summary><span className="cl-module-number">{index + 1}</span><span className="cl-module-copy"><strong>{module.title}</strong>{module.description && <span>{module.description}</span>}</span><span className="cl-module-stats"><strong>{progress === undefined ? "—" : `${Math.round(progress)}%`}</strong><span>{typeof completed === "number" && typeof total === "number" ? `${completed} / ${countLabel(total, "урок", "уроки", "уроків")}` : total !== undefined ? countLabel(total, "урок", "уроки", "уроків") : "Уроки недоступні"}</span></span><UiIcon name="chevron" size={18} /></summary>
+    <summary><span className="cl-module-number">{index + 1}</span><span className="cl-module-copy"><strong>{module.title}</strong>{module.description && <span>{module.description}</span>}</span><span className="cl-module-stats"><span className="cl-module-progress"><strong className={progress === undefined ? "cl-progress-unavailable" : undefined}>{progress === undefined ? "Дані поки недоступні" : percentageLabel(progress)}</strong><UiIcon name="chevron" size={24} /></span><span>{typeof completed === "number" && typeof total === "number" ? `${completed} / ${countLabel(total, "урок", "уроки", "уроків")}` : total !== undefined ? countLabel(total, "урок", "уроки", "уроків") : "Дані поки недоступні"}</span></span></summary>
     <div className="cl-module-lessons">
       {module.statsError && <RequestError message={`Прогрес модуля недоступний: ${module.statsError}`} retry={retry} />}
-      {module.lessonsError ? <RequestError message={`Уроки недоступні: ${module.lessonsError}`} retry={retry} /> : lessons?.length ? <ol>{lessons.map((lesson, lessonIndex) => <li key={lesson.id}><Link className="cl-lesson" to={`/student/learning/${encodeURIComponent(courseId)}/lesson/${encodeURIComponent(lesson.id)}`}><span className="cl-lesson-icon" aria-hidden="true">{lessonIndex + 1}</span><span className="cl-lesson-copy"><strong>{lesson.title}</strong><span>{lesson.description || "Матеріали уроку"}</span></span><span className="cl-lesson-action">Відкрити<UiIcon name="arrow" size={16} /></span></Link></li>)}</ol> : <p className="cl-module-empty">Уроки до цього модуля ще не додано.</p>}
+      {module.lessonsError ? <RequestError message={`Уроки недоступні: ${module.lessonsError}`} retry={retry} /> : lessons?.length ? <ol>{lessons.map((lesson, lessonIndex) => <li key={lesson.id}><Link className="cl-lesson" to={`/student/learning/${encodeURIComponent(courseId)}/lesson/${encodeURIComponent(lesson.id)}`}><span className="cl-lesson-icon" aria-hidden="true">{lessonIndex + 1}</span><span className="cl-lesson-copy"><strong>{lesson.title}</strong><span>{lesson.description || "Матеріали уроку"}</span></span><span className="cl-lesson-action">Відкрити<UiIcon name="arrow" size={16} /></span></Link></li>)}</ol> : <p className="cl-module-empty">Дані поки недоступні. Уроки до цього модуля ще не додано.</p>}
     </div>
   </details>;
 }
 
 const materialLabels: Record<string, string> = { File: "Файл уроку", Photo: "Зображення", Text: "Текстовий матеріал", Video: "Відео уроку", Link: "Посилання", Test: "Тестування", Assignment: "Практичне завдання" };
 
-function LessonResources({ lesson, lessonPath }: { lesson?: Lesson; lessonPath?: string }) {
-  const load = useCallback(() => lesson ? getMaterials(lesson.id) : Promise.resolve([]), [lesson]);
+function LessonResources({ lesson, lessonPath, programUnavailable }: { lesson?: Lesson; lessonPath?: string; programUnavailable: boolean }) {
+  const load = useCallback(() => lesson ? getMaterials(lesson.id).then(validMaterials) : Promise.resolve([]), [lesson]);
   const remote = useRemoteData(load);
-  return <section className="cl-resources cl-card"><span className="cl-tag">Матеріали уроку</span><h3>Корисні ресурси</h3><p>{lesson ? `Матеріали уроку «${lesson.title}».` : "Матеріали з’являться після додавання уроків."}</p>
+  return <section className="cl-resources cl-card"><span className="cl-tag">Матеріали уроку</span><h3>Корисні ресурси</h3><p>{lesson ? `Матеріали уроку «${lesson.title}».` : "Дані поки недоступні"}</p>
     {remote.loading && <p role="status">Завантаження матеріалів…</p>}
     {remote.error && <RequestError message={remote.error} retry={remote.reload} />}
-    {remote.data && (remote.data.length ? <ul>{remote.data.map(material => <ResourceLink key={material.id} material={material} lessonPath={lessonPath} />)}</ul> : <p className="cl-resource-empty">Матеріали поки не додано.</p>)}
-    {lessonPath && <Link className="cl-button" to={lessonPath}>Переглянути матеріали<UiIcon name="arrow" /></Link>}
+    {remote.data && lesson && (remote.data.length ? <ul>{remote.data.map(material => <ResourceLink key={material.id} material={material} lessonPath={lessonPath} />)}</ul> : <p className="cl-resource-empty">Дані поки недоступні. Матеріали поки не додано.</p>)}
+    {!lesson && <p className="cl-resource-empty">{programUnavailable ? "Не вдалося завантажити програму курсу." : "Матеріали з’являться після додавання уроків."}</p>}
+    {lessonPath && <Link className="cl-button" to={lessonPath}>Переглянути матеріали<UiIcon name="arrow" size={24} /></Link>}
   </section>;
 }
 
