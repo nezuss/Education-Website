@@ -1,3 +1,4 @@
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../../styles/AboutPage.css';
@@ -36,7 +37,7 @@ export const AboutPage: React.FC = () => {
 
             <div className="about-hero-actions">
               <a href="#approach" className="about-hero-btn">
-                <span>Як проходить навчання &rarr;</span>
+                <span>Як проходить навчання <UiIcon name="arrow" /></span>
               </a>
 
               <div className="about-hero-stats">
@@ -237,7 +238,7 @@ export const AboutPage: React.FC = () => {
           </div>
           <div className="about-cta-btn-wrap">
             <Link to="/courses" className="about-cta-btn">
-              <span>Переглянути курси &rarr;</span>
+              <span>Переглянути курси <UiIcon name="arrow" /></span>
             </Link>
           </div>
           <div className="about-cta-visual">

@@ -1,3 +1,4 @@
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { getCourses } from "../../services/courseService";
@@ -110,14 +111,12 @@ export default function CoursesPage() {
                 <div className="catalog-controls-group">
                     
                     <div className="catalog-search-box">
-                        <svg className="catalog-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#557061" strokeWidth="2">
-                            <circle cx="11" cy="11" r="8"/>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                        </svg>
+                        <UiIcon name="search" size={20} className="catalog-search-icon" style={{ color: "#557061" }} />
                         <input 
                             type="text" 
                             className="catalog-search-input"
                             placeholder="Пошук курсу..."
+                            aria-label="Пошук курсу"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -131,13 +130,11 @@ export default function CoursesPage() {
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value as "default" | "modules" | "title")}
                         >
-                            <option value="default">за замовчуванням</option>
+                            <option value="default">Сортувати</option>
                             <option value="modules">за модулями</option>
                             <option value="title">за назвою</option>
                         </select>
-                        <svg className="catalog-sort-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A2D1B" strokeWidth="2">
-                            <polyline points="6 9 12 15 18 9"/>
-                        </svg>
+                        <UiIcon name="chevron" size={16} className="catalog-sort-arrow" style={{ color: "#0A2D1B" }} />
                     </div>
                 </div>
             </div>
@@ -186,7 +183,8 @@ export default function CoursesPage() {
                                     <span className="badge-level">[ {course.level} ]</span>
                                     <span className="badge-duration">[ {course.duration} ]</span>
                                     <img 
-                                        src={course.image} 
+                                        src={course.image || "/course-placeholder.svg"}
+                                        onError={event => { if (!event.currentTarget.src.endsWith("/course-placeholder.svg")) event.currentTarget.src = "/course-placeholder.svg"; }}
                                         alt={course.title} 
                                         className="catalog-card-img"
                                         loading="lazy"
@@ -203,10 +201,7 @@ export default function CoursesPage() {
                                         <span className="catalog-card-modules">• {course.modulesCount} модулів</span>
                                         <Link to={`/courses/${course.id}`} className="catalog-card-detail-link">
                                             <span>Читати детальніше</span>
-                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <line x1="5" y1="12" x2="19" y2="12"/>
-                                                <polyline points="12 5 19 12 12 19"/>
-                                            </svg>
+                                            <UiIcon name="arrow" size={15} />
                                         </Link>
                                     </div>
                                 </div>
@@ -222,10 +217,7 @@ export default function CoursesPage() {
                                 onClick={() => setIsExpanded(!isExpanded)}
                             >
                                 <span>{isExpanded ? "Скрити додаткові курси" : "Показати ще курси"}</span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <line x1="5" y1="12" x2="19" y2="12"/>
-                                    <polyline points="12 5 19 12 12 19"/>
-                                </svg>
+                                <UiIcon name="arrow" size={16} />
                             </button>
                         </div>
                     )}
@@ -247,10 +239,7 @@ export default function CoursesPage() {
                 >
                     <span>Отримати консультацію</span>
                     <span className="consultation-btn-arrow-circle">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                            <polyline points="12 5 19 12 12 19"/>
-                        </svg>
+                        <UiIcon name="arrow" size={14} />
                     </span>
                 </button>
 
@@ -271,7 +260,7 @@ export default function CoursesPage() {
                             style={{ color: "#0A2D1B", background: "rgba(10, 45, 27, 0.08)" }}
                             onClick={() => setConsultationModalOpen(false)}
                         >
-                            &times;
+                            <UiIcon name="close" />
                         </button>
                         <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "22px", marginBottom: "8px" }}>
                             Консультація куратора
@@ -281,7 +270,7 @@ export default function CoursesPage() {
                         </p>
                         {consultationSent ? (
                             <div style={{ padding: "16px", background: "rgba(19, 73, 44, 0.1)", borderRadius: "8px", color: "#0A2D1B", fontWeight: 600 }}>
-                                ✓ Дякуємо! Куратор зв'яжеться з вами протягом 15 хвилин.
+                                <UiIcon name="check" /> Дякуємо! Куратор зв'яжеться з вами протягом 15 хвилин.
                             </div>
                         ) : (
                             <form onSubmit={handleConsultationSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>

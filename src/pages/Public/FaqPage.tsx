@@ -1,3 +1,4 @@
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../../styles/FaqPage.css';
@@ -140,10 +141,7 @@ export const FaqPage: React.FC = () => {
               />
               <button type="submit" className="faq-search-btn" aria-label="Пошук">
                 <span>Знайти</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
+                <UiIcon name="arrow" size={18} />
               </button>
             </form>
           </div>
@@ -213,17 +211,7 @@ export const FaqPage: React.FC = () => {
                         onClick={() => toggleAccordion(q.id)}
                       >
                         <span>{q.question}</span>
-                        <svg
-                          className="faq-accordion-icon"
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
+                        <UiIcon name="chevron" size={20} className="faq-accordion-icon" />
                       </button>
                       {isOpen && (
                         <div className="faq-accordion-body">
@@ -267,10 +255,7 @@ export const FaqPage: React.FC = () => {
 
             <Link to="/contacts" className="faq-write-support-btn">
               <span>Написати в підтримку</span>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
+              <UiIcon name="arrow" size={20} />
             </Link>
           </div>
         </section>
@@ -318,10 +303,7 @@ export const FaqPage: React.FC = () => {
 
           <Link to="/contacts" className="faq-bottom-contact-btn">
             <span>Зв'язатися з нами</span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
+            <UiIcon name="arrow" size={20} />
           </Link>
 
           <img

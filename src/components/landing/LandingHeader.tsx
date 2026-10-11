@@ -1,5 +1,6 @@
+import UiIcon from "../ui/Icon/UiIcon";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
 export default function LandingHeader() {
     const navigate = useNavigate();
@@ -25,9 +26,7 @@ export default function LandingHeader() {
                     >
                         <Link to="/courses" className="landing-nav-link">
                             Курси
-                            <svg className={`chevron-icon ${coursesMenuOpen ? "open" : ""}`} width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
+                            <UiIcon name="chevron" size={12} className={`chevron-icon ${coursesMenuOpen ? "open" : ""}`} />
                         </Link>
                         {coursesMenuOpen && (
                             <div className="landing-dropdown-menu">
@@ -39,11 +38,11 @@ export default function LandingHeader() {
                         )}
                     </div>
 
-                    <Link to="/journal" className="landing-nav-link">Еко-журнал</Link>
-                    <Link to="/community" className="landing-nav-link">Спільнота</Link>
-                    <Link to="/portfolio" className="landing-nav-link">Портфоліо</Link>
-                    <Link to="/about" className="landing-nav-link">Про нас</Link>
-                    <Link to="/contacts" className="landing-nav-link">Контакти</Link>
+                    <NavLink to="/journal" className="landing-nav-link">Еко-журнал</NavLink>
+                    <NavLink to="/community" className="landing-nav-link">Спільнота</NavLink>
+                    <NavLink to="/portfolio" className="landing-nav-link">Портфоліо</NavLink>
+                    <NavLink to="/about" className="landing-nav-link">Про нас</NavLink>
+                    <NavLink to="/contacts" className="landing-nav-link">Контакти</NavLink>
                 </nav>
 
                 <div className="landing-header-actions">
@@ -53,11 +52,7 @@ export default function LandingHeader() {
                         disabled
                         title="Англійська версія поки недоступна"
                     >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="2" y1="12" x2="22" y2="12"/>
-                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                        </svg>
+                        <UiIcon name="globe" size={18} />
                         <span>{lang === "UA" ? "UA / EN" : "EN / UA"}</span>
                     </button>
 
@@ -67,11 +62,7 @@ export default function LandingHeader() {
                         title="Кошик"
                         onClick={() => navigate("/courses")}
                     >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="9" cy="21" r="1"/>
-                            <circle cx="20" cy="21" r="1"/>
-                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                        </svg>
+                        <UiIcon name="cart" size={20} />
                     </button>
 
                     {hasToken ? (
@@ -85,12 +76,11 @@ export default function LandingHeader() {
                         className="landing-mobile-toggle-btn"
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         aria-label={mobileMenuOpen ? "Закрити меню" : "Відкрити меню"}
+                        aria-expanded={mobileMenuOpen}
+                        aria-controls="public-mobile-navigation"
                     >
                         {mobileMenuOpen ? (
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <line x1="18" y1="6" x2="6" y2="18"/>
-                                <line x1="6" y1="6" x2="18" y2="18"/>
-                            </svg>
+                            <UiIcon name="close" size={24} />
                         ) : (
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <line x1="3" y1="12" x2="21" y2="12"/>
@@ -104,15 +94,15 @@ export default function LandingHeader() {
 
             {mobileMenuOpen && (
                 <div className="landing-mobile-menu-overlay" onClick={closeMobile}>
-                    <div className="landing-mobile-menu-drawer" onClick={(e) => e.stopPropagation()}>
-                        <div className="landing-mobile-menu-links">
+                    <div className="landing-mobile-menu-drawer" onClick={(e) => e.stopPropagation()} onKeyDown={event => { if (event.key === "Escape") closeMobile(); }}>
+                        <nav id="public-mobile-navigation" aria-label="Мобільна навігація" className="landing-mobile-menu-links">
                             <Link to="/courses" className="landing-mobile-nav-link" onClick={closeMobile}>Курси</Link>
                             <Link to="/journal" className="landing-mobile-nav-link" onClick={closeMobile}>Еко-журнал</Link>
                             <Link to="/community" className="landing-mobile-nav-link" onClick={closeMobile}>Спільнота</Link>
                             <Link to="/portfolio" className="landing-mobile-nav-link" onClick={closeMobile}>Портфоліо</Link>
                             <Link to="/about" className="landing-mobile-nav-link" onClick={closeMobile}>Про нас</Link>
                             <Link to="/contacts" className="landing-mobile-nav-link" onClick={closeMobile}>Контакти</Link>
-                        </div>
+                        </nav>
 
                         <div className="landing-mobile-menu-actions">
                             <button 
@@ -121,11 +111,7 @@ export default function LandingHeader() {
                                 disabled
                                 title="Переклад англійською поки недоступний"
                             >
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <line x1="2" y1="12" x2="22" y2="12"/>
-                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                                </svg>
+                                <UiIcon name="globe" size={18} />
                                 <span>{lang === "UA" ? "Мова: UA" : "Language: EN"}</span>
                             </button>
 

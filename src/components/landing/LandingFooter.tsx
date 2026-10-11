@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import UiIcon from "../ui/Icon/UiIcon";
 
 export default function LandingFooter() {
     function scrollToTop() {
@@ -15,9 +16,7 @@ export default function LandingFooter() {
                     title="Нагору"
                     aria-label="Повернутися нагору"
                 >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="18 15 12 9 6 15"/>
-                    </svg>
+                    <UiIcon name="home" size={24} />
                 </button>
             </div>
 

@@ -1,3 +1,4 @@
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../../styles/ContactsPage.css';
@@ -16,26 +17,16 @@ const TOPICS: TopicOption[] = [
 ];
 
 export const ContactsPage: React.FC = () => {
-  const [selectedTopic, setSelectedTopic] = useState<string>('study');
+  const [selectedTopic, setSelectedTopic] = useState<string>('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [privacyAgreed, setPrivacyAgreed] = useState(true);
-  const submitted = false;
-  const [error, setError] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !email.trim()) return;
-    setError("Надсилання повідомлень поки недоступне. Спробуйте пізніше.");
-  };
-
   return (
     <div className="contacts-page">
-      {error && <div role="alert" className="data-unavailable">{error}</div>}
       <nav className="contacts-breadcrumbs" aria-label="breadcrumb">
         <Link to="/">Головна</Link>
-        <span>&gt;</span>
+        <UiIcon name="chevron" className="contacts-breadcrumb-chevron" size={16} />
         <span className="active">Контакти</span>
       </nav>
 
@@ -78,9 +69,9 @@ export const ContactsPage: React.FC = () => {
         <div className="contacts-form-grid">
           <div className="contacts-form-info">
             <div className="contacts-tag-badge">[ SEND A MESSAGE / НАПИСАТИ НАМ ]</div>
-            <h2>Розкажіть, з чим потрібна допомога.</h2>
+            <h2>Розкажи, з чим<br />потрібна допомога.</h2>
             <p>
-              Оберіть тему звернення і залиште повідомлення. Так ми швидше передамо запит тій людині, яка зможе фахово допомогти.
+              Обери тему звернення і залиши повідомлення. Так ми швидше передамо запит людині, яка зможе допомогти.
             </p>
 
             <div className="contacts-topic-grid">
@@ -89,6 +80,7 @@ export const ContactsPage: React.FC = () => {
                   type="button"
                   key={topic.id}
                   className={`contacts-topic-card ${selectedTopic === topic.id ? 'selected' : ''}`}
+                  aria-pressed={selectedTopic === topic.id}
                   onClick={() => setSelectedTopic(topic.id)}
                 >
                   <span className="contacts-topic-title">{topic.title}</span>
@@ -99,16 +91,13 @@ export const ContactsPage: React.FC = () => {
           </div>
 
           <div className="contacts-form-container">
-            {submitted ? (
-              <div className="contacts-success-banner" style={{ padding: '24px', background: '#97AE9F', color: '#0A2D1B', borderRadius: '8px', fontWeight: 500 }}>
-                ✓ Дякуємо за звернення! Ми отримали ваше повідомлення і відповімо протягом найближчого робочого дня.
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit}>
+            <form onSubmit={event => event.preventDefault()}>
                 <div className="contacts-form-row">
                   <div className="contacts-form-group">
-                    <label className="contacts-form-label">Ім’я*</label>
+                    <label htmlFor="contact-name" className="contacts-form-label">Ім’я*</label>
                     <input
+                      id="contact-name"
+                      autoComplete="name"
                       type="text"
                       className="contacts-input"
                       placeholder="Ваше ім’я"
@@ -118,8 +107,10 @@ export const ContactsPage: React.FC = () => {
                     />
                   </div>
                   <div className="contacts-form-group">
-                    <label className="contacts-form-label">Email*</label>
+                    <label htmlFor="contact-email" className="contacts-form-label">Email*</label>
                     <input
+                      id="contact-email"
+                      autoComplete="email"
                       type="email"
                       className="contacts-input"
                       placeholder="name@email.com"
@@ -130,9 +121,10 @@ export const ContactsPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="contacts-form-group" style={{ marginTop: '20px' }}>
-                  <label className="contacts-form-label">Повідомлення*</label>
+                <div className="contacts-form-group contacts-message-group">
+                  <label htmlFor="contact-message" className="contacts-form-label">Тема звернення*</label>
                   <textarea
+                    id="contact-message"
                     className="contacts-input contacts-textarea"
                     placeholder="Опишіть ваше питання або ситуацію..."
                     value={message}
@@ -153,16 +145,13 @@ export const ContactsPage: React.FC = () => {
                     Погоджуюсь з умовами та політикою конфіденційності
                   </label>
 
-                  <button disabled title="Надсилання повідомлень поки недоступне" type="submit" className="contacts-submit-btn">
-                    <span>Надсилання поки недоступне</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                      <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
+                  <button disabled aria-describedby="contact-unavailable" title="Надсилання повідомлень поки недоступне" type="submit" className="contacts-submit-btn">
+                    <span>Надіслати повідомлення</span>
+                    <UiIcon name="arrow" size={24} />
                   </button>
                 </div>
-              </form>
-            )}
+                <span id="contact-unavailable" className="contacts-sr-only">Надсилання повідомлень поки недоступне.</span>
+            </form>
           </div>
         </div>
       </section>
@@ -208,6 +197,9 @@ export const ContactsPage: React.FC = () => {
                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                 <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
               </svg>
+              <span className="contacts-social-symbol" aria-hidden="true">Bē</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="1" /><path d="M7 10v7m4 0v-7m0 3c0-4 6-4 6 0v4" /><circle cx="7" cy="7" r=".7" /></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4" /><path d="m10 9 5 3-5 3Z" /></svg>
               <a href="https://instagram.com/nexylva" target="_blank" rel="noreferrer">Instagram</a>
               <span>•</span>
               <a href="https://behance.net/nexylva" target="_blank" rel="noreferrer">Behance</a>

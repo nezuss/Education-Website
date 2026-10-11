@@ -320,6 +320,31 @@
   margin-bottom: 96px;
 }
 
+.community-page > .community-content-pad:first-child {
+  padding-bottom: 0;
+}
+
+.community-page .comm-hero-grid {
+  margin-bottom: 40px;
+}
+
+.community-page #explore {
+  scroll-margin-top: 100px;
+}
+
+.comm-empty-gallery {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  margin: 28px 0 24px;
+  padding: 24px;
+  border-block: 1px solid var(--color-border-subtle);
+  color: var(--color-brand-soft);
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 .comm-works-header {
   display: flex;
   justify-content: space-between;

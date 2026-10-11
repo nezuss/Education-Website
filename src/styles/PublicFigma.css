@@ -1,0 +1,423 @@
+/* Public pages measured against the supplied 1920px exports.
+   Record content still comes from the API; these rules only define presentation. */
+.public-figma-layout .landing-header { position: relative; border-bottom-width: 1px; }
+.public-figma-layout .landing-header-inner { gap: 28px; }
+.public-figma-layout .landing-nav { margin-left: auto; gap: 24px; }
+.public-figma-layout .landing-nav-link { font-size: 14px; }
+.public-figma-layout .landing-nav-link.active { text-decoration: underline; text-underline-offset: 12px; text-decoration-color: #557061; }
+.public-figma-layout .landing-header-actions { gap: 16px; }
+.public-figma-layout .landing-auth-btn { min-height: 52px; padding: 16px 28px; border-radius: 7px; font-weight: 500; }
+.public-figma-layout .lang-switcher-btn { padding-inline: 0; }
+.public-figma-layout .landing-footer-main { padding-top: 28px; padding-bottom: 16px; }
+.public-figma-layout .scroll-top-wrapper { height: 0; top: -48px; }
+.public-figma-layout .scroll-top-btn { width: 24px; height: 24px; background: transparent; border: 0; border-radius: 0; box-shadow: none; }
+.public-figma-layout .footer-columns-grid { grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(0, 1.8fr); gap: 24px; margin-bottom: 24px; }
+.public-figma-layout .footer-heading { font: 500 14px/1.5 var(--font-body); margin-bottom: 12px; }
+.public-figma-layout .brand-col .footer-brand-title { font: 500 14px/1.5 var(--font-body); letter-spacing: 0; }
+.public-figma-layout .footer-brand-tagline { font-size: 13px; font-weight: 400; margin: 12px 0; color: var(--color-brand-dark); }
+.public-figma-layout .footer-links-list { font-size: 13px; gap: 8px; }
+.public-figma-layout .footer-brand-values { font-size: 13px; gap: 8px; }
+.public-figma-layout .payment-icons-row { gap: 8px; margin-top: 8px; }
+.public-figma-layout .payment-icons-row svg { width: 18px; height: 18px; }
+.public-figma-layout .footer-socials-row { gap: 8px; margin-top: 8px; }
+.public-figma-layout .social-icon-btn { width: 20px; height: 20px; background: transparent; border-radius: 0; }
+.public-figma-layout .app-download-col { text-align: right; }
+.public-figma-layout .app-title { font-family: var(--font-heading); font-size: 16px; font-weight: 500; margin-bottom: 8px; }
+.public-figma-layout .app-subtitle { font-size: 13px; }
+.public-figma-layout .app-store-btns { justify-content: flex-end; gap: 24px; }
+.public-figma-layout .app-badge-btn { flex: 1; min-height: 64px; font-size: 14px; font-weight: 500; border-color: #557061; }
+.public-figma-layout .app-badge-btn svg { width: 20px; height: 20px; }
+.public-figma-layout .footer-bottom-bar { justify-content: center; gap: 24px; padding-top: 12px; font-size: 11px; color: #B29074; }
+.public-figma-layout .footer-mini-brand { font-weight: 400; color: inherit; }
+.public-figma-layout .footer-bottom-left { gap: 24px; }
+
+/* The supplied hero already contains its curved image edge. */
+.home-page-content .landing-hero { padding: 0; }
+.home-page-content .landing-hero-inner { position: relative; display: block; min-height: 760px; padding-top: 60px; }
+.home-page-content .hero-content { position: relative; z-index: 1; width: 704px; max-width: 100%; }
+.home-page-content .hero-tag { font-size: 12px; font-weight: 400; letter-spacing: 0; padding: 4px 8px; border: 1px solid #B2907450; border-radius: 3px; margin-bottom: 36px; }
+.home-page-content .hero-title { font-size: 40px; font-weight: 700; line-height: 1.6; margin-bottom: 48px; }
+.home-page-content .hero-description { max-width: 380px; font-size: 16px; line-height: 1.5; margin-bottom: 64px; }
+.home-page-content .hero-features-grid { grid-template-columns: repeat(4, 1fr); gap: 0; max-width: 704px; margin-bottom: 80px; }
+.home-page-content .hero-feature-item { align-items: flex-start; text-align: left; background: transparent; border: 0; border-radius: 0; border-right: 1px solid #55706115; padding: 0 24px 0 0; gap: 12px; }
+.home-page-content .hero-feature-item:last-child { border-right: 0; }
+.home-page-content .hero-feature-item:hover { transform: none; background: transparent; }
+.home-page-content .feature-icon-circle { width: 44px; height: 44px; background: transparent; border: 1px solid #557061; color: #557061; }
+.home-page-content .feature-icon-circle svg { width: 28px; height: 28px; }
+.home-page-content .feature-text { font-size: 14px; font-weight: 500; line-height: 1.5; }
+.home-page-content .hero-actions { gap: 24px; }
+.home-page-content .hero-btn-primary { min-width: 266px; min-height: 56px; padding: 16px 24px; border-radius: 7px; justify-content: space-between; font-size: 14px; font-weight: 500; }
+.home-page-content .btn-arrow-icon { background: transparent; border-radius: 0; }
+.home-page-content .hero-btn-trailer { padding: 0; }
+.home-page-content .hero-btn-trailer:disabled { opacity: .75; }
+.home-page-content .btn-play-icon { width: 44px; height: 44px; background: transparent; border: 1px solid #0A2D1B; box-shadow: none; }
+.home-page-content .hero-visual-wrapper { position: absolute; top: 0; right: 100px; width: 1139px; max-width: calc(100% - 100px); pointer-events: none; }
+.home-page-content .hero-visual-frame { border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
+.home-page-content .landing-section { position: relative; padding-top: 24px; padding-bottom: 32px; }
+.home-page-content .landing-hero + .landing-section { padding-top: 12px; }
+.home-page-content .section-header-row { margin-bottom: 8px; }
+.home-page-content .section-title { font-size: 40px; line-height: 1.2; }
+.home-page-content .section-view-all { font-size: 14px; font-weight: 500; }
+.home-page-content .directions-grid, .home-page-content .courses-cards-grid { gap: 24px; }
+.home-page-content .direction-card { padding: 10px; border-radius: 12px; }
+.home-page-content .direction-photo-wrapper { height: auto; aspect-ratio: 402 / 270; margin-bottom: 12px; }
+.home-page-content .direction-info { padding: 0 0 8px; }
+.home-page-content .direction-title { font-size: 20px; font-weight: 500; margin-bottom: 8px; }
+.home-page-content .direction-desc { font-size: 14px; }
+.home-page-content .direction-arrow-btn { width: 24px; height: 24px; border-radius: 0; background: transparent; }
+.home-page-content .why-nexylva-card { border-radius: 12px; padding: 32px 24px; }
+.home-page-content .why-title { font: 500 16px/1.5 var(--font-body); }
+.home-page-content .why-icon-box { width: 44px; height: 44px; border: 1px solid #B4CCBF; background: transparent; }
+.home-page-content .why-item-heading { font-size: 14px; font-weight: 400; }
+.home-page-content .why-item-desc { font-size: 14px; }
+.home-page-content .landing-course-card { padding: 10px; display: flex; }
+.home-page-content .course-card-link { width: 100%; }
+.home-page-content .course-card-photo-box { height: auto; aspect-ratio: 392 / 320; margin-bottom: 12px; }
+.home-page-content .course-card-title { font-size: 18px; font-weight: 500; }
+.home-page-content .course-card-desc { margin-bottom: 24px; }
+.home-page-content .course-card-footer { border: 0; padding-top: 0; }
+.home-page-content .course-card-tag, .home-page-content .course-card-duration { top: 12px; font-weight: 400; }
+.home-page-content .community-three-cols-grid { grid-template-columns: minmax(0, 412fr) minmax(0, 872fr) minmax(0, 412fr); }
+.home-page-content .community-stats-card, .home-page-content .movement-banner-card, .home-page-content .eco-journal-card { min-height: 452px; border-radius: 16px; }
+.home-page-content .community-stats-card { padding: 36px 24px; }
+.home-page-content .comm-card-heading { font-size: 24px; font-weight: 500; margin-bottom: 56px; }
+.home-page-content .comm-metrics-grid { padding-bottom: 32px; border-bottom: 1px solid #B4CCBF30; }
+.home-page-content .comm-join-link { text-decoration: none; font-weight: 400; }
+.home-page-content .movement-banner-panel { padding: 32px 24px; }
+.home-page-content .movement-panel-title { font-size: 24px; font-weight: 500; }
+.home-page-content .movement-cta-btn { border-radius: 7px; background: #C4D3CB; min-width: 230px; justify-content: space-between; }
+.home-page-content .eco-journal-card { padding: 24px; }
+.home-page-content .landing-values-bar { margin: 32px auto; }
+.home-page-content .value-heading { font: 500 14px/1.5 var(--font-body); }
+.home-page-content .landing-cta-banner-wrapper { margin-top: 64px; margin-bottom: 96px; }
+.home-page-content .landing-cta-banner { grid-template-columns: minmax(0, 392fr) minmax(0, 812fr) minmax(0, 390fr); gap: 24px; padding: 24px; border-radius: 16px; }
+.home-page-content .cta-headline { font-size: 20px; font-weight: 500; }
+.home-page-content .cta-choose-course-btn { border-radius: 7px; min-width: 244px; justify-content: space-between; }
+.home-page-content .cta-newsletter-box { align-self: stretch; justify-content: center; padding-left: 24px; }
+.home-page-content .newsletter-title { font: 500 14px/1.5 var(--font-body); margin-bottom: 24px; }
+.home-page-content .newsletter-desc { line-height: 1.5; }
+.home-page-content .newsletter-form { border-radius: 7px; min-height: 48px; padding: 4px 8px 4px 12px; }
+.home-page-content .newsletter-input { min-width: 0; width: 100%; }
+.home-page-content .newsletter-submit-btn { width: 28px; height: 28px; border-radius: 4px; flex-shrink: 0; }
+.home-page-content .newsletter-unavailable { font-size: 12px; color: var(--color-brand-light); margin-bottom: 8px; }
+
+/* Catalog: the six-card grid uses actual course records, not reference examples. */
+.public-figma-layout .catalog-page-container { padding-top: 60px; padding-bottom: 100px; }
+.public-figma-layout .catalog-breadcrumbs { margin-bottom: 40px; }
+.public-figma-layout .catalog-top-row { align-items: flex-start; gap: 24px; margin-bottom: 36px; }
+.public-figma-layout .catalog-main-title { font-size: 36px; }
+.public-figma-layout .catalog-controls-group { width: calc(50% - 12px); flex-wrap: nowrap; gap: 24px; }
+.public-figma-layout .catalog-search-box { width: auto; flex: 1; min-width: 0; }
+.public-figma-layout .catalog-sort-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.public-figma-layout .catalog-sort-select { width: 128px; font-weight: 400; }
+.public-figma-layout .catalog-filter-pills-row { margin-bottom: 40px; flex-wrap: wrap; }
+.public-figma-layout .filter-pill-btn { font-size: 14px; padding: 4px 12px; }
+.public-figma-layout .catalog-courses-grid { gap: 48px 24px; margin-bottom: 76px; }
+.public-figma-layout .catalog-card-image-box { height: auto; aspect-ratio: 1.28; }
+.public-figma-layout .catalog-card-desc { min-height: 40px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.public-figma-layout .catalog-card-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.public-figma-layout .catalog-card-footer { border-top: 0; padding-top: 0; font-size: 13px; }
+.public-figma-layout .catalog-card-detail-link { font-size: 13px; }
+.public-figma-layout .badge-level, .public-figma-layout .badge-duration { top: 12px; padding: 4px 8px; border-color: transparent; }
+.public-figma-layout .consultation-banner { min-height: 219px; padding: 48px 64px; gap: 24px; }
+.public-figma-layout .consultation-left { flex: 1; width: auto; max-width: none; min-width: 0; padding-right: 8px; }
+.public-figma-layout .consultation-btn { margin-right: 240px; }
+.public-figma-layout .consultation-character-box { right: 60px; }
+
+/* About: retain honest unavailable statistics and team data. */
+.public-figma-layout .about-pad-container { padding: 60px 100px; }
+.public-figma-layout .about-breadcrumbs { margin-bottom: 60px; }
+.public-figma-layout .about-hero-grid { gap: 24px; margin-bottom: 0; }
+.public-figma-layout .about-hero-title { font-size: 40px; line-height: 1.2; margin-bottom: 20px; }
+.public-figma-layout .about-hero-desc { max-width: none; margin-bottom: 36px; }
+.public-figma-layout .about-tag-badge, .public-figma-layout .contacts-tag-badge { width: fit-content; font-size: 12px; font-weight: 400; letter-spacing: 0; border: 1px solid #B2907450; border-radius: 3px; padding: 4px 8px; margin-bottom: 24px; }
+.public-figma-layout .about-hero-actions { gap: 48px; }
+.public-figma-layout .about-hero-btn { border-radius: 7px; font-size: 14px; font-weight: 400; padding: 16px 24px; }
+.public-figma-layout .about-hero-btn > span, .public-figma-layout .about-cta-btn > span { display: inline-flex; align-items: center; justify-content: space-between; gap: 32px; }
+.public-figma-layout .about-stat-num { font-size: 32px; line-height: 1.3; margin-bottom: 12px; }
+.public-figma-layout .about-stat-label { font-size: 14px; font-weight: 400; }
+.public-figma-layout .about-mission-section { padding: 40px 100px; margin-bottom: 0; }
+.public-figma-layout .about-mission-inner { grid-template-columns: minmax(0, 1fr) 551px; gap: 24px; }
+.public-figma-layout .about-mission-title { font-size: 40px; font-weight: 600; color: #C8B3A2; margin-bottom: 40px; }
+.public-figma-layout .about-mission-desc { font-size: 16px; line-height: 1.5; }
+.public-figma-layout .about-story-section { grid-template-columns: minmax(0, 703fr) minmax(0, 993fr); gap: 24px; margin-bottom: 24px; }
+.public-figma-layout .about-story-content h2 { font-size: 40px; font-weight: 600; margin-bottom: 20px; }
+.public-figma-layout .about-story-content p { font-size: 16px; line-height: 1.5; margin-bottom: 20px; }
+.public-figma-layout .about-story-quote { border-left-width: 2px; padding-left: 24px; margin-top: 24px; }
+.public-figma-layout .about-story-quote blockquote { font-size: 32px; line-height: 1.2; font-weight: 600; }
+.public-figma-layout .about-quote-mark { font-size: 120px; opacity: 1; }
+.public-figma-layout .about-approach-section { position: relative; padding: 40px 0; border-top: 1px solid #557061; margin-bottom: 20px; }
+.public-figma-layout .about-approach-section > .about-tag-badge { position: absolute; top: 40px; left: 0; }
+.public-figma-layout .about-approach-layout { grid-template-columns: minmax(0, 480fr) minmax(0, 488fr) minmax(0, 704fr); gap: 24px; align-items: start; }
+.public-figma-layout .about-approach-left { padding-top: 60px; }
+.public-figma-layout .about-approach-left h2 { font-size: 40px; font-weight: 600; }
+.public-figma-layout .about-approach-left p { margin-bottom: 64px; }
+.public-figma-layout .about-approach-metrics { gap: 32px; }
+.public-figma-layout .about-approach-girl-img { max-width: 100%; max-height: 584px; object-fit: contain; }
+.public-figma-layout .about-steps-list { gap: 24px; }
+.public-figma-layout .about-step-card { min-height: 128px; border-radius: 16px; padding: 24px; gap: 24px; }
+.public-figma-layout .about-step-card .num { width: 64px; min-width: 64px; height: 64px; border-radius: 7px; font-size: 32px; font-weight: 500; color: #B29074; }
+.public-figma-layout .about-step-card h4 { font: 500 14px/1.5 var(--font-body); }
+.public-figma-layout .about-step-card p { font-size: 14px; }
+.public-figma-layout .about-team-section { margin-bottom: 60px; }
+.public-figma-layout .about-team-title { font-size: 40px; font-weight: 600; flex-shrink: 1; }
+.public-figma-layout .about-team-sub { max-width: 848px; font-size: 14px; }
+.public-figma-layout .about-team-grid > .data-unavailable { grid-column: 1 / -1; min-height: 420px; margin: 0; align-items: center; text-align: center; }
+.public-figma-layout .about-numbers-bar { text-align: left; background: #E0D3C7; border: 0; margin: 0 -100px 60px; padding: 24px 100px; }
+.public-figma-layout .about-bar-col { padding: 16px 24px; }
+.public-figma-layout .about-bar-col:first-child { padding-left: 0; }
+.public-figma-layout .about-bar-val { font-size: 36px; font-weight: 600; }
+.public-figma-layout .about-bar-label { font-size: 14px; font-weight: 400; }
+.public-figma-layout .about-cta-banner { background: linear-gradient(#557061E6, #557061E6), url('/courses/banner-bg.webp') center/cover; }
+.public-figma-layout .about-cta-title { font-size: 40px; line-height: 1.2; font-weight: 600; white-space: normal; color: #C8B3A2; }
+.public-figma-layout .about-cta-sub { max-width: none; }
+.public-figma-layout .about-cta-btn { border-radius: 7px; padding: 16px 24px; font-size: 14px; font-weight: 400; }
+
+/* Contacts: preserve semantic fields and a visible unavailable-send explanation. */
+.public-figma-layout .contacts-page { padding: 60px 100px 100px; }
+.public-figma-layout .contacts-breadcrumbs { margin-bottom: 42px; }
+.public-figma-layout .contacts-hero-grid { gap: 24px; margin-bottom: 60px; align-items: start; }
+.public-figma-layout .contacts-hero-title { font-family: var(--font-heading); font-size: 40px; line-height: 1.2; }
+.public-figma-layout .contacts-hero-desc { max-width: 704px; font-size: 14px; line-height: 1.4; margin-bottom: 40px; }
+.public-figma-layout .contacts-hero-stats { gap: 24px; }
+.public-figma-layout .contacts-stat-card { background: #CDC0B5; padding: 12px 24px; gap: 8px; min-height: 78px; box-sizing: border-box; border-radius: 16px; box-shadow: var(--shadow-medium); }
+.public-figma-layout .contacts-stat-label { font-size: 14px; line-height: 20px; color: #664428; font-weight: 400; letter-spacing: 0; }
+.public-figma-layout .contacts-stat-val { font-size: 16px; line-height: 24px; color: #557061; font-weight: 500; overflow-wrap: anywhere; }
+.public-figma-layout .contacts-hero-art-card { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.public-figma-layout .contacts-form-section { border-top: 0; padding-top: 0; padding-bottom: 24px; border-bottom: 1px solid #B29074; margin-bottom: 60px; }
+.public-figma-layout .contacts-form-grid { gap: 24px; }
+.public-figma-layout .contacts-form-info h2 { font-family: var(--font-heading); font-size: 40px; font-weight: 700; margin-bottom: 24px; }
+.public-figma-layout .contacts-form-info p { max-width: none; font-size: 14px; margin-bottom: 40px; }
+.public-figma-layout .contacts-topic-grid { gap: 24px; }
+.public-figma-layout .contacts-topic-card { background: #B4CCBF; border: 1px solid #55706120; min-height: 102px; border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px #0A2D1B1A; gap: 8px; }
+.public-figma-layout .contacts-topic-card.selected { border-color: #557061; background: #C4D3CB; }
+.public-figma-layout .contacts-topic-title { font-size: 16px; line-height: 24px; font-weight: 500; color: #7F5D41; }
+.public-figma-layout .contacts-topic-desc { font-size: 14px; line-height: 20px; color: #557061; }
+.public-figma-layout .contacts-form-row { gap: 24px; }
+.public-figma-layout .contacts-form-label { font-size: 14px; font-weight: 400; }
+.public-figma-layout .contacts-input { box-sizing: border-box; height: 44px; min-width: 0; width: 100%; background: rgba(180, 204, 191, .4); border-color: #B4CCBF; border-radius: 8px; box-shadow: inset 0 2px 4px #0A2D1B1F; padding: 12px; font-size: 14px; }
+.public-figma-layout .contacts-textarea { min-height: 266px; }
+.public-figma-layout .contacts-form-footer { margin-top: 40px; flex-direction: column; align-items: flex-start; gap: 12px; }
+.public-figma-layout .contacts-submit-btn { order: -1; padding: 16px; border-radius: 8px; font-size: 14px; font-weight: 600; min-width: 262px; justify-content: space-between; box-shadow: none; }
+.public-figma-layout .contacts-submit-btn:disabled { opacity: 1; background: #557061; color: #E8C2A4; cursor: not-allowed; transform: none; box-shadow: var(--shadow-medium); }
+.public-figma-layout .contacts-privacy-label { font-size: 14px; gap: 8px; }
+.public-figma-layout .contacts-privacy-checkbox { width: 14px; height: 14px; }
+.public-figma-layout .contacts-unavailable-note { font-size: 12px; line-height: 1.5; color: var(--color-brand-soft); margin-top: 12px; }
+.public-figma-layout .contacts-unavailable-note a { text-decoration: underline; }
+.public-figma-layout .contacts-channels-section { margin-bottom: 0; }
+.public-figma-layout .contacts-channels-header { gap: 24px; margin-bottom: 40px; }
+.public-figma-layout .contacts-channels-header h2 { font-family: var(--font-heading); font-size: 40px; line-height: 1.2; font-weight: 700; color: #0A2D1B; }
+.public-figma-layout .contacts-channels-subtext { width: calc((100% - 24px) / 2); max-width: 848px; font-size: 16px; }
+.public-figma-layout .contacts-channel-card { background: #CDC0B5; padding: 40px; border-radius: 16px; gap: 6px; box-shadow: 0 2px 4px #0A2D1B14; }
+.public-figma-layout .contacts-channel-title { color: #7F5D41; text-decoration: underline; font: 500 20px/1.3 var(--font-heading); }
+.public-figma-layout .contacts-channel-contact { font-size: 16px; line-height: 24px; font-weight: 500; gap: 8px; }
+.public-figma-layout .contacts-channel-desc { font-size: 14px; margin-top: 0; }
+.public-figma-layout .contacts-social-links { font-size: 14px; line-height: 20px; gap: 8px; }
+
+/* Course details: one authoritative API price, no fabricated pricing tiers. */
+.public-figma-layout .course-breadcrumbs { margin-bottom: 40px; }
+.public-figma-layout .course-catalog-intro { gap: 24px; margin-bottom: 36px; }
+.public-figma-layout .course-catalog-intro h2 { font-size: 36px; margin-bottom: 8px; }
+.public-figma-layout .course-category-row { margin-bottom: 0; }
+.public-figma-layout .course-category-row a, .public-figma-layout .course-category-row > span { font-size: 14px; padding: 4px 12px; }
+.public-figma-layout .course-hero-grid { grid-template-columns: minmax(0, 704fr) minmax(0, 992fr); gap: 24px; margin-top: -28px; margin-bottom: 70px; }
+.public-figma-layout .course-hero-left { justify-content: flex-start; padding-top: 100px; }
+.public-figma-layout .course-section-tag { font-size: 12px; letter-spacing: 0; }
+.public-figma-layout .course-hero-left > .course-section-tag { align-self: flex-start; padding: 4px 8px; border: 1px solid #B2907450; border-radius: 3px; margin-bottom: 24px; }
+.public-figma-layout .course-hero-title { font-size: 48px; line-height: 1.2; margin-bottom: 36px; }
+.public-figma-layout .course-hero-desc { font-size: 20px; line-height: 1.4; color: var(--color-brand-dark); margin-bottom: 36px; }
+.public-figma-layout .course-hero-actions { margin-bottom: 40px; }
+.public-figma-layout .course-action { font-weight: 400; border-radius: 7px; }
+.public-figma-layout .course-hero-visual-frame { min-height: 580px; border-radius: 72px 24px; }
+.public-figma-layout .course-instructor-card { border-radius: 12px; padding: 12px; margin-top: auto; }
+.public-figma-layout .course-metrics-bar { border-radius: 16px; padding: 24px 16px; margin-bottom: 60px; }
+.public-figma-layout .course-metric { border-color: #557061; }
+.public-figma-layout .course-metric strong { font: 600 24px/1.3 var(--font-body); }
+.public-figma-layout .course-section-title { font-size: 36px; margin-bottom: 32px; }
+.public-figma-layout .course-learn-layout { grid-template-columns: minmax(0, 1144fr) minmax(0, 552fr); }
+.public-figma-layout .course-learn-card { min-height: 180px; padding: 32px 24px; }
+.public-figma-layout .course-practice-card { padding: 40px; border-radius: 24px; }
+.public-figma-layout .course-module summary { min-height: 88px; }
+.public-figma-layout .course-showcase-art { min-height: 400px; border-radius: 24px; }
+.public-figma-layout .course-showcase-cta { padding: 48px 40px; background: #F0E9E3 url('/landing/dir-upcycling.webp') center/cover; background-blend-mode: screen; }
+.public-figma-layout .course-enrollment-layout { grid-template-columns: minmax(0, 1144fr) minmax(0, 552fr); }
+.public-figma-layout .course-enrollment-card { border-radius: 16px; background: #B4CCBF; }
+.public-figma-layout .course-faq-widget { border-radius: 16px; }
+.public-figma-layout .course-stream-banner { border-radius: 24px; padding: 48px 80px; }
+
+@media (max-width: 1600px) and (min-width: 1101px) {
+    .home-page-content .landing-hero-inner { min-height: 650px; padding-top: 40px; }
+    .home-page-content .hero-visual-wrapper { right: 48px; width: 63%; }
+    .home-page-content .hero-content { width: 48%; }
+    .home-page-content .hero-title { font-size: 36px; line-height: 1.4; margin-bottom: 32px; }
+    .home-page-content .hero-description { margin-bottom: 40px; }
+    .home-page-content .hero-features-grid { margin-bottom: 40px; }
+    .home-page-content .hero-feature-item { padding-right: 12px; }
+    .home-page-content .hero-tag { margin-bottom: 32px; }
+    .home-page-content .hero-btn-primary { min-width: 220px; }
+}
+@media (max-width: 1440px) {
+    .public-figma-layout .landing-nav { gap: 12px; }
+    .public-figma-layout .landing-header-inner { gap: 16px; }
+    .public-figma-layout .landing-header-actions { gap: 8px; }
+    .home-page-content .community-three-cols-grid { grid-template-columns: 1fr 2fr; }
+    .home-page-content .eco-journal-card { grid-column: 1 / -1; min-height: 180px; }
+    .home-page-content .landing-cta-banner { grid-template-columns: 2fr 1fr; }
+    .home-page-content .cta-nature-photo-box { display: none; }
+    .public-figma-layout .footer-columns-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+    .public-figma-layout .about-pad-container { padding: 48px; }
+    .public-figma-layout .about-mission-section { padding: 40px 48px; }
+    .public-figma-layout .about-mission-inner { grid-template-columns: minmax(0, 1fr) minmax(0, .6fr); }
+    .public-figma-layout .about-hero-actions { flex-wrap: wrap; gap: 24px; }
+    .public-figma-layout .about-hero-title, .public-figma-layout .about-mission-title, .public-figma-layout .about-story-content h2,
+    .public-figma-layout .about-approach-left h2, .public-figma-layout .about-team-title, .public-figma-layout .about-cta-title { font-size: 32px; }
+    .public-figma-layout .about-story-quote blockquote { font-size: 24px; }
+    .public-figma-layout .about-quote-mark { font-size: 80px; }
+    .public-figma-layout .about-step-card { min-height: 120px; padding: 20px; gap: 16px; }
+    .public-figma-layout .about-step-card .num { width: 48px; min-width: 48px; height: 48px; font-size: 24px; }
+    .public-figma-layout .about-numbers-bar { margin-inline: -48px; padding-inline: 48px; }
+    .public-figma-layout .about-cta-banner { gap: 24px; padding-left: 40px; }
+    .public-figma-layout .about-cta-visual { width: 230px; }
+    .public-figma-layout .about-cta-character { width: 100%; object-fit: contain; }
+    .public-figma-layout .contacts-page { padding: 48px; }
+    .public-figma-layout .contacts-stat-card { padding: 16px; }
+    .public-figma-layout .contacts-hero-stats { gap: 12px; }
+    .public-figma-layout .contacts-channel-card { padding: 24px; }
+    .public-figma-layout .catalog-controls-group { width: 100%; }
+    .public-figma-layout .consultation-banner { padding: 40px; }
+    .public-figma-layout .consultation-btn { margin-right: 200px; }
+    .public-figma-layout .consultation-character-box { right: 24px; }
+    .public-figma-layout .consultation-title { font-size: 28px; }
+    .public-figma-layout .course-hero-title { font-size: 40px; }
+    .public-figma-layout .course-hero-visual-frame { min-height: 460px; }
+    .public-figma-layout .course-hero-left { padding-top: 60px; }
+    .public-figma-layout .course-practice-card, .public-figma-layout .course-showcase-cta { padding: 28px; }
+    .public-figma-layout .course-stream-banner { padding: 40px; }
+}
+@media (max-width: 1100px) {
+    .public-figma-layout .landing-header-inner { justify-content: space-between; }
+    .public-figma-layout .landing-mobile-menu-overlay { position: fixed; inset: 96px 0 0; background: #0A2D1B66; z-index: 1100; overflow-y: auto; }
+    .public-figma-layout .landing-mobile-menu-drawer { background: #fff; padding: 24px var(--page-gutter); box-shadow: var(--shadow-soft); }
+    .public-figma-layout .landing-mobile-menu-links { display: grid; gap: 8px; }
+    .public-figma-layout .landing-mobile-nav-link { padding: 12px 0; border-bottom: 1px solid var(--color-border-subtle); }
+    .public-figma-layout .landing-mobile-menu-actions { display: flex; align-items: center; gap: 24px; padding-top: 24px; }
+    .public-figma-layout .landing-mobile-menu-actions button { background: transparent; border: 0; color: var(--color-brand-dark); }
+    .home-page-content .landing-hero-inner { display: flex; flex-direction: column; gap: 32px; padding-top: 32px; min-height: 0; }
+    .home-page-content .hero-content { width: 100%; }
+    .home-page-content .hero-tag { margin-bottom: 24px; }
+    .home-page-content .hero-title { font-size: 36px; line-height: 1.3; margin-bottom: 24px; }
+    .home-page-content .hero-description { margin-bottom: 32px; }
+    .home-page-content .hero-features-grid { margin-bottom: 32px; }
+    .home-page-content .hero-visual-wrapper { position: relative; inset: auto; width: 100%; max-width: 100%; }
+    .home-page-content .section-title { font-size: 32px; }
+    .public-figma-layout .catalog-courses-grid { row-gap: 24px; }
+    .public-figma-layout .consultation-banner { flex-direction: column; align-items: flex-start; border-radius: 36px 16px; }
+    .public-figma-layout .consultation-btn { margin-right: 0; }
+    .public-figma-layout .consultation-character-box { display: none; }
+    .public-figma-layout .about-hero-grid, .public-figma-layout .about-mission-inner, .public-figma-layout .about-story-section { grid-template-columns: 1fr; }
+    .public-figma-layout .about-mission-title { margin-bottom: 24px; }
+    .public-figma-layout .about-mission-art-wrap { justify-content: flex-start; }
+    .public-figma-layout .about-approach-layout { grid-template-columns: 1fr 1fr; gap: 24px; }
+    .public-figma-layout .about-approach-left { padding-top: 0; }
+    .public-figma-layout .about-approach-section > .about-tag-badge { position: static; }
+    .public-figma-layout .about-approach-visual { display: none; }
+    .public-figma-layout .about-step-card { min-height: 0; }
+    .public-figma-layout .about-team-title-row { flex-direction: column; align-items: flex-start; gap: 24px; }
+    .public-figma-layout .about-cta-banner { flex-direction: column; text-align: center; padding: 32px 24px 0; }
+    .public-figma-layout .about-cta-text { padding: 0; }
+    .public-figma-layout .about-cta-visual { height: 220px; }
+    .public-figma-layout .contacts-hero-grid, .public-figma-layout .contacts-form-grid { grid-template-columns: 1fr; gap: 32px; }
+    .public-figma-layout .contacts-channels-grid { grid-template-columns: 1fr; }
+    .public-figma-layout .contacts-channels-header { flex-direction: column; align-items: flex-start; }
+    .public-figma-layout .contacts-channels-subtext { width: 100%; }
+    .public-figma-layout .contacts-hero-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .public-figma-layout .course-hero-grid { grid-template-columns: 1fr; margin-top: 32px; gap: 32px; }
+    .public-figma-layout .course-hero-left { padding-top: 0; }
+    .public-figma-layout .course-hero-visual-frame { min-height: 0; aspect-ratio: 1.7; }
+    .public-figma-layout .course-learn-layout, .public-figma-layout .course-enrollment-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+    .public-figma-layout .landing-header { height: 80px; }
+    .public-figma-layout .landing-mobile-menu-overlay { top: 80px; }
+    .public-figma-layout .landing-auth-btn { min-height: 40px; padding: 10px 12px; }
+    .public-figma-layout .footer-columns-grid { grid-template-columns: 1fr 1fr; gap: 24px 16px; }
+    .public-figma-layout .brand-col, .public-figma-layout .app-download-col { grid-column: 1 / -1; }
+    .public-figma-layout .app-download-col { text-align: left; }
+    .public-figma-layout .app-store-btns { justify-content: flex-start; gap: 12px; }
+    .public-figma-layout .app-badge-btn { min-height: 52px; }
+    .public-figma-layout .footer-bottom-bar { align-items: flex-start; gap: 16px; }
+    .public-figma-layout .footer-bottom-left { flex-wrap: wrap; gap: 12px; }
+    .home-page-content .hero-title { font-size: 32px; }
+    .home-page-content .hero-description { max-width: 100%; }
+    .home-page-content .hero-features-grid { grid-template-columns: 1fr 1fr; gap: 24px 16px; }
+    .home-page-content .hero-feature-item { border: 0; }
+    .home-page-content .hero-actions { flex-wrap: wrap; }
+    .home-page-content .hero-btn-primary { min-width: 210px; }
+    .home-page-content .landing-section { padding-block: 24px; }
+    .home-page-content .section-header-row { align-items: flex-start; gap: 16px; }
+    .home-page-content .section-title { font-size: 26px; }
+    .home-page-content .section-view-all { font-size: 12px; white-space: nowrap; }
+    .home-page-content .community-three-cols-grid { grid-template-columns: 1fr; }
+    .home-page-content .community-stats-card { min-height: 320px; }
+    .home-page-content .movement-banner-card { min-height: 0; }
+    .home-page-content .movement-banner-panel { padding: 28px 24px; }
+    .home-page-content .movement-cta-btn { min-width: 0; width: 100%; }
+    .home-page-content .landing-cta-banner-wrapper { margin-block: 32px 64px; }
+    .home-page-content .landing-cta-banner { grid-template-columns: 1fr; padding: 24px; }
+    .home-page-content .cta-actions-row { flex-wrap: wrap; }
+    .home-page-content .cta-choose-course-btn { min-width: 0; width: 100%; }
+    .home-page-content .cta-newsletter-box { padding-left: 0; padding-top: 24px; }
+    .public-figma-layout .about-pad-container, .public-figma-layout .about-mission-section,
+    .public-figma-layout .contacts-page { padding: 32px 16px; }
+    .public-figma-layout .about-breadcrumbs, .public-figma-layout .contacts-breadcrumbs { margin-bottom: 32px; }
+    .public-figma-layout .about-hero-title, .public-figma-layout .about-mission-title, .public-figma-layout .about-story-content h2,
+    .public-figma-layout .about-approach-left h2, .public-figma-layout .about-team-title, .public-figma-layout .about-cta-title,
+    .public-figma-layout .contacts-hero-title, .public-figma-layout .contacts-form-info h2, .public-figma-layout .contacts-channels-header h2 { font-size: 28px; }
+    .public-figma-layout .about-hero-actions { gap: 24px; }
+    .public-figma-layout .about-hero-stats { gap: 24px; flex-wrap: wrap; }
+    .public-figma-layout .about-stat-num { font-size: 24px; }
+    .public-figma-layout .about-stat-label { font-size: 12px; }
+    .public-figma-layout .about-approach-layout { grid-template-columns: 1fr; }
+    .public-figma-layout .about-approach-left p { margin-bottom: 32px; }
+    .public-figma-layout .about-team-grid { grid-template-columns: 1fr; }
+    .public-figma-layout .about-team-grid > .data-unavailable { min-height: 240px; }
+    .public-figma-layout .about-numbers-bar { grid-template-columns: 1fr 1fr; margin-inline: -16px; padding: 24px 16px; gap: 24px 16px; }
+    .public-figma-layout .about-bar-col { padding: 0; border-right: 0; }
+    .public-figma-layout .about-bar-val { font-size: 28px; }
+    .public-figma-layout .about-bar-label { font-size: 12px; }
+    .public-figma-layout .about-cta-btn > span { gap: 16px; }
+    .public-figma-layout .contacts-hero-stats, .public-figma-layout .contacts-form-row { grid-template-columns: 1fr; }
+    .public-figma-layout .contacts-hero-grid { margin-bottom: 40px; }
+    .public-figma-layout .contacts-topic-grid { grid-template-columns: 1fr; gap: 16px; }
+    .public-figma-layout .contacts-topic-card { min-height: 0; padding: 20px; }
+    .public-figma-layout .contacts-form-footer { margin-top: 24px; }
+    .public-figma-layout .contacts-submit-btn { min-width: 0; width: 100%; }
+    .public-figma-layout .contacts-textarea { min-height: 200px; }
+    .public-figma-layout .catalog-page-container { padding: 32px 16px 64px; }
+    .public-figma-layout .catalog-main-title { font-size: 28px; }
+    .public-figma-layout .catalog-controls-group { flex-wrap: wrap; }
+    .public-figma-layout .catalog-search-box { flex-basis: 100%; }
+    .public-figma-layout .catalog-top-row { margin-bottom: 24px; }
+    .public-figma-layout .catalog-filter-pills-row { margin-bottom: 24px; }
+    .public-figma-layout .catalog-courses-grid { grid-template-columns: 1fr; margin-bottom: 48px; }
+    .public-figma-layout .consultation-banner { padding: 28px 24px; }
+    .public-figma-layout .consultation-title { font-size: 24px; }
+    .public-figma-layout .consultation-desc { font-size: 14px; }
+    .public-figma-layout .consultation-btn { white-space: normal; text-align: left; }
+    .public-figma-layout .course-catalog-intro { grid-template-columns: 1fr; }
+    .public-figma-layout .course-catalog-intro h2 { font-size: 28px; }
+    .public-figma-layout .course-hero-title { font-size: 32px; margin-bottom: 24px; }
+    .public-figma-layout .course-hero-desc { font-size: 16px; margin-bottom: 24px; }
+    .public-figma-layout .course-hero-grid { margin-bottom: 32px; }
+    .public-figma-layout .course-section-title { font-size: 26px; }
+    .public-figma-layout .course-section-header .course-section-title { margin-bottom: 0; }
+    .public-figma-layout .course-metric strong { font-size: 20px; }
+    .public-figma-layout .course-metric { padding-inline: 12px; }
+    .public-figma-layout .course-learn-card, .public-figma-layout .course-showcase-cta { padding: 24px; }
+    .public-figma-layout .course-practice-card { padding: 28px 24px; }
+    .public-figma-layout .course-stream-banner { padding: 28px 24px; }
+}
+@media (min-width: 641px) and (max-width: 1100px) {
+    .home-page-content .directions-grid, .home-page-content .courses-cards-grid,
+    .public-figma-layout .catalog-courses-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
