@@ -1,5 +1,5 @@
 import { request } from "./api/apiClient";
-export type UserProfile = { id?: string; username?: string; name?: string; email?: string; role?: string; permissions?: string[] };
+export type UserProfile = { id?: string; username?: string; name?: string; email?: string; role?: string; permissions?: string[]; avatarUrl?: string | null; bio?: string | null; createdAt?: string; updatedAt?: string };
 export function parseJwtPayload(token: string): Partial<UserProfile> | null {
     try {
         const parts = token.split(".");
@@ -23,8 +23,8 @@ export async function getProfile(): Promise<UserProfile> {
 export async function getProfileById(id: string): Promise<UserProfile> {
     return request<UserProfile>("/profile/" + encodeURIComponent(id));
 }
-export async function updateProfile(data: { username?: string }): Promise<string> {
-    return request<string>("/profile/update", { method: "PATCH", body: JSON.stringify({ username: data.username }) });
+export async function updateProfile(data: { username?: string; bio?: string; avatarUrl?: string }): Promise<string> {
+    return request<string>("/profile/update", { method: "PATCH", body: JSON.stringify({ username: data.username, bio: data.bio, avatarUrl: data.avatarUrl }) });
 }
 export async function getProfileStats(): Promise<{ cources: unknown[]; submissions: unknown[] }> {
     const data = await request<{ cources: unknown[]; submissions: unknown[] }>("/profile/stats");

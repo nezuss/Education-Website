@@ -6,6 +6,7 @@ import { getModuleStats } from "../../services/courseStatsService";
 import { getLessons, getMaterials, getModules, type Lesson, type Material } from "../../services/learningService";
 import { submissionFileUrl } from "../../services/submissionService";
 import LessonQuiz from "../shared/LessonQuiz";
+import LessonCompletion from "../shared/LessonCompletion";
 import RequestError from "../shared/RequestError";
 import useRemoteData from "../shared/useRemoteData";
 import "../../styles/LessonPage.css";
@@ -78,13 +79,13 @@ function LessonContent({ lesson, lessons, module, moduleIndex, courseId, courseT
     </div>
     <aside className="lp-aside" aria-label="Модуль і завдання">
       {module && <section className="lp-card lp-module"><header><span className="lp-tag">Модуль {String((moduleIndex ?? 0) + 1).padStart(2, "0")}</span><h2>{module.title}</h2>{module.description && <p>{module.description}</p>}<span className="lp-module-count">{lessons.length} {new Intl.PluralRules("uk-UA").select(lessons.length) === "one" ? "урок" : new Intl.PluralRules("uk-UA").select(lessons.length) === "few" ? "уроки" : "уроків"}</span></header><ol>{lessons.map((item, index) => <li key={item.id}><Link to={lessonPath(item.id)} aria-current={item.id === lesson.id ? "page" : undefined}><span className="lp-lesson-title"><span className="lp-lesson-number">{index + 1}</span><strong>{item.title}</strong></span><span className="lp-lesson-description">{item.id === lesson.id ? "Поточний урок" : item.description || "Матеріали уроку"}</span><span className="lp-lesson-action">{item.id === lesson.id ? "Відкрито" : "Перейти до уроку"}</span></Link></li>)}</ol></section>}
-      <ModuleProgress key={`${module?.id ?? lesson.id}/${progressAttempt}`} moduleId={module?.id} moduleIndex={moduleIndex} lessons={lessons} activeLessonId={lesson.id} lessonPath={lessonPath} />
+      <ModuleProgress key={`${module?.id ?? lesson.id}/${progressAttempt}`} courseId={courseId} moduleId={module?.id} moduleIndex={moduleIndex} lessons={lessons} activeLessonId={lesson.id} lessonPath={lessonPath} />
       {assignments?.length ? assignments.map(material => <section key={material.id} className="lp-card lp-assignment"><span className="lp-tag">Після уроку</span><h2>{material.title || "Практичне завдання"}</h2>{material.description && <p>{material.description}</p>}{material.deadline && Number.isFinite(Date.parse(material.deadline)) && <div className="lp-deadline"><span>Дедлайн</span><time dateTime={material.deadline}>{new Date(material.deadline).toLocaleDateString("uk-UA")}</time></div>}<img src="/courses/curator-character.webp" alt="" /><Link className="lp-button" to={`/student/assignments/${encodeURIComponent(material.id)}`} state={{ courseId, courseTitle, assignmentTitle: material.title, description: material.description, deadline: material.deadline }}>Перейти до завдання<UiIcon name="arrow" /></Link></section>) : materials && <section className="lp-card lp-assignment"><span className="lp-tag">Після уроку</span><h2>Практичне завдання</h2><p>Практичне завдання до цього уроку ще не додано.</p></section>}
     </aside>
   </div>;
 }
 
-function ModuleProgress({ moduleId, moduleIndex, lessons, activeLessonId, lessonPath }: { moduleId?: string; moduleIndex?: number; lessons: Lesson[]; activeLessonId: string; lessonPath: (id: string) => string }) {
+function ModuleProgress({ moduleId, moduleIndex, lessons, activeLessonId, lessonPath, courseId }: { courseId?: string; moduleId?: string; moduleIndex?: number; lessons: Lesson[]; activeLessonId: string; lessonPath: (id: string) => string }) {
   const load = useCallback(async () => ({ stats: moduleId ? await getModuleStats(moduleId) : undefined }), [moduleId]);
   const remote = useRemoteData(load);
   const stats = remote.data?.stats;
@@ -93,7 +94,7 @@ function ModuleProgress({ moduleId, moduleIndex, lessons, activeLessonId, lesson
   const index = lessons.findIndex(lesson => lesson.id === activeLessonId);
   const previous = index > 0 ? lessons[index - 1] : undefined;
   const next = index >= 0 ? lessons[index + 1] : undefined;
-  return <section className="lp-card lp-progress"><span className="lp-tag">Прогрес модуля</span><h2>{moduleId ? `Модуль ${(moduleIndex ?? 0) + 1}` : "Прогрес"}</h2>{remote.loading && <p role="status">Завантаження прогресу…</p>}{remote.error && <RequestError message={remote.error} retry={remote.reload} />}{knownProgress ? <><div className="lp-progress-label"><span>{stats?.completedLessons} із {stats?.totalLessons} уроків завершено</span><strong>{Math.round(progress)}%</strong></div><progress max={100} value={progress} aria-label="Прогрес модуля" /></> : !remote.loading && !remote.error && <p>Прогрес поки недоступний.</p>}<button type="button" className="lp-button" disabled>Завершити урок</button><p className="lp-disabled-note">Позначення уроку завершеним поки недоступне.</p><nav aria-label="Перехід між уроками" className="lp-lesson-navigation">{previous ? <Link to={lessonPath(previous.id)}><UiIcon name="left" />Попередній</Link> : <button type="button" disabled><UiIcon name="left" />Попередній</button>}{next ? <Link to={lessonPath(next.id)}>Наступний<UiIcon name="arrow" /></Link> : <button type="button" disabled>Наступний<UiIcon name="arrow" /></button>}</nav></section>;
+  return <section className="lp-card lp-progress"><span className="lp-tag">Прогрес модуля</span><h2>{moduleId ? `Модуль ${(moduleIndex ?? 0) + 1}` : "Прогрес"}</h2>{remote.loading && <p role="status">Завантаження прогресу…</p>}{remote.error && <RequestError message={remote.error} retry={remote.reload} />}{knownProgress ? <><div className="lp-progress-label"><span>{stats?.completedLessons} із {stats?.totalLessons} уроків завершено</span><strong>{Math.round(progress)}%</strong></div><progress max={100} value={progress} aria-label="Прогрес модуля" /></> : !remote.loading && !remote.error && <p>Прогрес поки недоступний.</p>}<LessonCompletion key={activeLessonId} lessonId={activeLessonId} courseId={courseId} onCompleted={remote.reload} /><nav aria-label="Перехід між уроками" className="lp-lesson-navigation">{previous ? <Link to={lessonPath(previous.id)}><UiIcon name="left" />Попередній</Link> : <button type="button" disabled><UiIcon name="left" />Попередній</button>}{next ? <Link to={lessonPath(next.id)}>Наступний<UiIcon name="arrow" /></Link> : <button type="button" disabled>Наступний<UiIcon name="arrow" /></button>}</nav></section>;
 }
 
 function LessonVideo({ material }: { material: Material }) {

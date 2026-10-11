@@ -32,6 +32,18 @@ export const getLessons = (moduleId: string) => requestCollection<Lesson>(`/api/
 export const getMaterials = (lessonId: string) => requestCollection<Material>(`/api/cource/material/get-all-on-lesson/${encodeURIComponent(lessonId)}`, "There are no materials yet");
 export const getSubmissionStatus = (materialId: string) => request<SubmissionStatus>(`/api/cource/submit-material/status/${materialId}`);
 
+export type LessonCompletionResult = { id: string; lessonId: string; courseId: string; completedAt: string; alreadyCompleted: boolean };
+export async function completeLesson(lessonId: string, courseId: string): Promise<LessonCompletionResult> {
+    if (!lessonId.trim() || !courseId.trim()) throw new Error("Дані уроку поки недоступні.");
+    const result = await request<LessonCompletionResult>(`/student/lessons/${encodeURIComponent(lessonId)}/complete`, { method: "POST" });
+    const date = typeof result?.completedAt === "string" ? new Date(result.completedAt) : undefined;
+    if (!result || typeof result.id !== "string" || !result.id.trim() || result.lessonId !== lessonId || result.courseId !== courseId
+        || typeof result.alreadyCompleted !== "boolean" || !date || !Number.isFinite(date.getTime()) || date.getFullYear() < 1970) {
+        throw new Error("Сервер не підтвердив завершення цього уроку. Спробуйте перевірити ще раз.");
+    }
+    return result;
+}
+
 export async function createModule(data: { title: string; description: string }) {
     return request<Module>("/api/cource/module/create", { method: "POST", body: JSON.stringify({ ...data, lessonsId: [] }) });
 }

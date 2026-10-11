@@ -70,7 +70,7 @@
 .lp-progress progress::-moz-progress-bar { background: #0a2d1b; border-radius: 20px; }
 .lp-button { min-height: 52px; display: inline-flex; justify-content: center; align-items: center; gap: 16px; border: 0; border-radius: 6px; background: #13492c; color: #fff; padding: 14px 16px; font: 600 14px/1.4 var(--font-body); text-decoration: none; box-shadow: 0 4px 8px #0a2d1b1f; }
 .lp-button:disabled { opacity: .55; cursor: not-allowed; }
-.lp-progress > .lp-button, .lp-assignment > .lp-button { width: 100%; margin-top: 24px; }
+.lp-progress > .lp-button, .lp-completion > .lp-button, .lp-assignment > .lp-button { width: 100%; margin-top: 24px; }
 .lp-disabled-note { font-size: 12px; margin-top: 12px; }
 .lp-lesson-navigation { display: flex; gap: 16px; margin-top: 24px; }
 .lp-lesson-navigation a, .lp-lesson-navigation button { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 56px; flex: 1; min-width: 0; padding: 12px; background: #f0e9e3; border: 1px solid #b29074; border-radius: 6px; color: #385546; font: 600 14px/1.4 var(--font-body); text-decoration: none; }
