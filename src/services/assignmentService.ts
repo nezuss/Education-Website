@@ -29,6 +29,18 @@ function collection<T>(value: T[]): T[] {
   return value;
 }
 
+function assignmentMaterials(value: Material[], warn: (message: string) => void): Material[] {
+  const materials = collection(value);
+  const counts = new Map<string, number>();
+  for (const material of materials) {
+    if (typeof material?.id === "string") counts.set(material.id, (counts.get(material.id) ?? 0) + 1);
+  }
+  const valid = materials.filter(material => material && typeof material.id === "string" && material.id.trim() && counts.get(material.id) === 1 &&
+    ["File", "Photo", "Text", "Assignment", "Video", "Link", "Test"].includes(material.type));
+  if (valid.length !== materials.length) warn("Сервер не повернув коректні матеріали уроку. Частина даних поки недоступна.");
+  return valid;
+}
+
 async function mapLimited<T, R>(items: T[], load: (item: T) => Promise<R>): Promise<R[]> {
   const output: R[] = new Array(items.length);
   let next = 0;
@@ -49,7 +61,7 @@ async function assignmentCatalog() {
           const lessons = collection(await getLessons(module.id));
           const lessonItems = await mapLimited(lessons, async lesson => {
             try {
-              const materials = collection(await getMaterials(lesson.id));
+              const materials = assignmentMaterials(await getMaterials(lesson.id), message => warnings.push(`${course.title} / ${lesson.title}: ${message}`));
               return materials.filter(material => material.type === "Assignment").map(material => ({
                 id: material.id, title: material.title, assignmentTitle: material.title || "Практичне завдання",
                 courseId: course.id, courseTitle: course.title, moduleId: module.id, moduleTitle: module.title,
@@ -115,7 +127,7 @@ export function canSubmitAssignment(status?: SubmissionStatus) {
 }
 
 export function assignmentDate(value?: string) {
-  const date = value ? new Date(value) : undefined;
+  const date = typeof value === "string" && value.trim() ? new Date(value) : undefined;
   return date && Number.isFinite(date.getTime()) && date.getFullYear() >= 1970 ? date : undefined;
 }
 

@@ -1,291 +1,112 @@
-import UiIcon from "../../components/ui/Icon/UiIcon";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import UiIcon from "../../components/ui/Icon/UiIcon";
 import { getEnrolledCourses } from "../../services/courseService";
-import { getProfile, type UserProfile } from "../../services/profileService";
-import { getCourseStats, type CourseStats } from "../../services/courseStatsService";
-import type { Course } from "../../types/course";
-import "../../styles/StudentDashboard.css";
+import { getProfile } from "../../services/profileService";
+import { getCourseStats } from "../../services/courseStatsService";
+import { assignmentDate, getStudentAssignments } from "../../services/assignmentService";
+import { getStudentSubmissions, submissionFileUrl, submissionGrade } from "../../services/submissionService";
+import { getDashboardSubmissionSummary, selectDashboardAssignment } from "../../services/studentDashboardService";
 import RequestError from "../shared/RequestError";
 import useRemoteData from "../shared/useRemoteData";
-import { getStudentSubmissions } from "../../services/submissionService";
+import "../../styles/StudentHome.css";
+
+async function loadDashboard() {
+  const [enrolled, profile] = await Promise.allSettled([getEnrolledCourses(), getProfile()]);
+  const courses = enrolled.status === "fulfilled" ? enrolled.value : undefined;
+  const results = await Promise.allSettled((courses ?? []).map(course => getCourseStats(course.id)));
+  const allStats = results.flatMap(result => result.status === "fulfilled" ? [result.value] : []);
+  const errors = [enrolled, profile].flatMap(result => result.status === "rejected" ? [result.reason instanceof Error ? result.reason.message : "Дані поки недоступні."] : []);
+  if (results.some(result => result.status === "rejected")) errors.push("Не вдалося завантажити частину статистики. Показано доступні дані.");
+  return { courses, profile: profile.status === "fulfilled" ? profile.value : undefined, allStats, errors };
+}
+
+function CourseCover({ src }: { src: string }) {
+  const [failed, setFailed] = useState(false);
+  return failed ? <div className="sfd-cover-empty"><UiIcon name="courses" size={40} /><span>Обкладинка курсу недоступна</span></div>
+    : <img src={src} alt="" onError={() => setFailed(true)} />;
+}
+
+function Tag({ children }: { children: string }) {
+  return <span className="sfd-tag">[ {children} ]</span>;
+}
+
+function shortDate(value?: string) {
+  const date = assignmentDate(value);
+  return date ? new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long" }).format(date) : "Не вказано";
+}
 
 export default function StudentDashboardPage() {
+  const dashboard = useRemoteData(loadDashboard);
   const submissions = useRemoteData(getStudentSubmissions);
-  const latestFeedback = submissions.data?.filter(item => item.feedback || item.revisionMessage).sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))[0];
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [profile, setProfile] = useState<UserProfile>();
-  const [activeCourseStats, setActiveCourseStats] = useState<CourseStats>();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [allStats, setAllStats] = useState<CourseStats[]>([]);
+  const assignments = useRemoteData(getStudentAssignments);
+  const summary = submissions.data ? getDashboardSubmissionSummary(submissions.data) : undefined;
+  const task = assignments.data ? selectDashboardAssignment(assignments.data) : undefined;
+  const { courses, profile, allStats = [] } = dashboard.data ?? {};
+  const statisticsComplete = courses !== undefined && allStats.length === courses.length;
+  const activeCourse = courses?.find(course => allStats.some(stats => stats.courceId === course.id && stats.progressPercentage < 100)) ?? courses?.[0];
+  const activeCourseStats = allStats.find(stats => stats.courceId === activeCourse?.id);
+  const progressVal = activeCourseStats ? Math.round(activeCourseStats.progressPercentage) : undefined;
+  const coverUrl = submissionFileUrl(activeCourse?.bannerUrl);
+  const latestFeedback = summary?.latestFeedback;
+  const feedbackText = latestFeedback?.status === "NeedsRevision" ? latestFeedback.revisionMessage?.trim() || latestFeedback.feedback?.trim() : latestFeedback?.feedback?.trim() || latestFeedback?.revisionMessage?.trim();
+  const grade = submissionGrade(latestFeedback?.rate);
+  const submissionsUnavailable = !!submissions.error || (!!submissions.data && summary?.projects === undefined);
+  const eventsUnavailable = submissionsUnavailable || (!!submissions.data?.length && !summary?.events.length);
+  const pending = task?.assignment;
+  const deadlinesUnavailable = !task || task.deadlinesUnavailable;
+  const error = dashboard.error || dashboard.data?.errors.join(" ");
+  const today = new Date();
+  const formattedDate = new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(today);
 
-  useEffect(() => {
-    Promise.all([
-      getEnrolledCourses(),
-      getProfile(),
-    ])
-      .then(async ([enrolled, prof]) => {
-        setCourses(enrolled);
-        if (prof) setProfile(prof);
-        const results = await Promise.allSettled(enrolled.map(course => getCourseStats(course.id)));
-        const loaded: CourseStats[] = [];
-        results.forEach((result, index) => {
-          if (result.status === "fulfilled") { loaded.push(result.value); if (index === 0) setActiveCourseStats(result.value); }
-          else setError("Не вдалося завантажити частину статистики.");
-        });
-        setAllStats(loaded);
-      })
-      .catch((reason: Error) => setError(reason.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const activeCourse = courses[0];
-  const progressVal = Math.round(activeCourseStats?.progressPercentage ?? 0);
-  const formattedDate = new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" }).format(new Date());
-
-  if (loading) {
-    return (
-      <div className="std-dash" style={{ padding: "60px 20px", textAlign: "center" }}>
-        <div style={{ fontSize: "36px", marginBottom: "16px" }}><UiIcon name="loading" size={36} /></div>
-        <h2 style={{ color: "var(--color-brand-dark)", fontSize: "20px" }}>Завантаження кабінету...</h2>
-      </div>
-    );
-  }
-
-  return (
-    <div className="std-dash">
-      {error && <RequestError message={error} />}
-      
-      <div className="std-greeting-row">
-        <div>
-          <h1 className="std-greeting-title">
-            <span><UiIcon name="wave" size={48} /></span>
-            <span>Добрий день, {profile?.username || profile?.name || "Студенте"}</span>
-          </h1>
-          <p className="std-greeting-sub">
-            Продовжуйте навчання та не пропустіть найближчі дедлайни.
-          </p>
+  return <div className="sfd">
+    {error && <RequestError message={error} retry={dashboard.reload} />}
+    {dashboard.loading && <p className="sfd-loading" role="status">Завантаження кабінету…</p>}
+    <header className="sfd-greeting">
+      <div><h1><UiIcon name="wave" size={64} /><span>Добрий день{profile?.username || profile?.name ? ", " + (profile.username || profile.name) : ""}</span></h1><p>Продовжуйте навчання та не пропустіть найближчі дедлайни.</p></div>
+      <time className="sfd-date" dateTime={today.toISOString()}>{formattedDate}</time>
+    </header>
+    <div className="sfd-top">
+      <section className="sfd-course" aria-label="Продовжити навчання">
+        <div className="sfd-course-copy">
+          <header><Tag>{activeCourse ? "ПРОДОВЖИТИ НАВЧАННЯ" : "ВІТАЄМО В NEXYLVA"}</Tag><h2 className="std-active-course-title">{activeCourse?.title || (dashboard.loading ? "Завантаження курсів…" : courses === undefined ? "Дані курсів поки недоступні" : "У вас поки немає активних курсів")}</h2></header>
+          <p className="sfd-course-description">{activeCourse?.description || (activeCourse ? "Оберіть урок у програмі курсу, щоб продовжити навчання." : "Перегляньте свої курси або оберіть напрямок у каталозі.")}</p>
+          {activeCourse && <div className="sfd-chips"><span>{activeCourseStats ? activeCourseStats.completedModules + " / " + activeCourseStats.totalModules + " модулів" : "Прогрес модулів недоступний"}</span><span>{activeCourseStats ? activeCourseStats.completedLessons + " / " + activeCourseStats.totalLessons + " уроків завершено" : "Завершені уроки поки недоступні"}</span></div>}
+          {activeCourse && <div className="sfd-progress"><div><span>Ваш прогрес</span><span>{progressVal === undefined ? "Недоступний" : progressVal + "%"}</span></div><div className="sfd-progress-track" role={progressVal === undefined ? undefined : "progressbar"} aria-label="Прогрес курсу" aria-valuenow={progressVal} aria-valuemin={0} aria-valuemax={100}>{progressVal !== undefined && <div className="std-progress-bar-fill" style={{ width: progressVal + "%" }} />}</div></div>}
+          {activeCourse ? <Link className="sfd-button" to={"/student/learning/" + activeCourse.id}>{activeCourseStats?.progressPercentage === 100 ? "Переглянути курс" : "Продовжити навчання"}<UiIcon name="arrow" size={16} /></Link>
+            : courses === undefined ? <button className="sfd-button" type="button" disabled={dashboard.loading} onClick={dashboard.reload}>Оновити дані<UiIcon name="loading" size={16} /></button>
+              : <Link className="sfd-button" to="/courses">Обрати курс у каталозі<UiIcon name="arrow" size={16} /></Link>}
         </div>
-        <div className="std-date-badge">{formattedDate}</div>
-      </div>
-
-      <div className="std-top-grid">
-        {activeCourse ? (
-          <div className="std-active-course-card">
-            <div className="std-active-course-left">
-              <span className="std-badge-tag">[ ПРОДОВЖИТИ НАВЧАННЯ ]</span>
-              <h2 className="std-active-course-title">
-                {activeCourse.title}
-              </h2>
-              <div className="std-active-course-module">
-                {activeCourseStats?.title || activeCourse.description || "Курс у процесі вивчення"}
-              </div>
-
-              <div className="std-course-chips">
-                <span className="std-chip">
-                  {activeCourseStats
-                    ? `${activeCourseStats.completedModules} / ${activeCourseStats.totalModules} модулів`
-                    : `${activeCourse.modules?.length || 0} модулів`}
-                </span>
-                <span className="std-chip">
-                  {activeCourseStats
-                    ? `${activeCourseStats.completedLessons} / ${activeCourseStats.totalLessons} уроків завершено`
-                    : "0 уроків завершено"}
-                </span>
-              </div>
-
-              <div className="std-progress-wrap">
-                <div className="std-progress-label">
-                  <span>Ваш прогрес</span>
-                  <span>{progressVal}%</span>
-                </div>
-                <div className="std-progress-bar-bg">
-                  <div
-                    className="std-progress-bar-fill"
-                    style={{ width: `${progressVal}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              <Link
-                to={`/student/learning/${activeCourse.id}`}
-                className="std-continue-btn"
-              >
-                <span>Продовжити навчання</span>
-                <span><UiIcon name="arrow" /></span>
-              </Link>
-            </div>
-
-            <div className="std-active-course-art">
-              <img
-                src={activeCourse.bannerUrl || "/student/lca_card_art.webp"}
-                alt={activeCourse.title}
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="std-active-course-card" style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "flex-start", padding: "40px 32px" }}>
-            <span className="std-badge-tag">[ ВІТАЄМО В NEXYLVA ]</span>
-            <h2 className="std-active-course-title" style={{ fontSize: "24px", marginBottom: "8px" }}>
-              У вас поки немає активних курсів
-            </h2>
-            <p style={{ color: "var(--color-brand-soft)", fontSize: "14px", margin: "0 0 24px 0", maxWidth: "480px" }}>
-              Оберіть курс у нашому каталозі, щоб розпочати навчання сталого дизайну та отримати практичні навички.
-            </p>
-            <Link to="/courses" className="std-continue-btn">
-              <span>Обрати курс у каталозі</span>
-              <span><UiIcon name="arrow" /></span>
-            </Link>
-          </div>
-        )}
-
-        <div className="std-overview-card">
-          <span className="std-badge-tag" style={{ color: "#385546" }}>[ ОГЛЯД ]</span>
-          <h3 className="std-overview-title">Навчання</h3>
-
-          <div className="std-stats-2x2">
-            <div className="std-stat-box">
-              <span className="std-stat-num">{allStats.length === courses.length ? allStats.filter(item => item.progressPercentage < 100).length : "—"}</span>
-              <span className="std-stat-name">активні курси</span>
-            </div>
-            <div className="std-stat-box">
-              <span className="std-stat-num">{allStats.length === courses.length ? allStats.filter(item => item.progressPercentage >= 100).length : "—"}</span>
-              <span className="std-stat-name">завершений курс</span>
-            </div>
-            <div className="std-stat-box">
-              <span className="std-stat-num">{allStats.length === courses.length ? allStats.reduce((sum, item) => sum + item.completedSubmittableMaterials, 0) : "—"}</span>
-              <span className="std-stat-name">робіт здано</span>
-            </div>
-            <div className="std-stat-box">
-              <span className="std-stat-num" title="Дані сертифікатів поки недоступні">—</span>
-              <span className="std-stat-name">сертифікати</span>
-            </div>
-          </div>
-
-          <div className="std-overview-deadline">
-            Наступний дедлайн: <strong>{activeCourse ? "Перевірте завдання" : "—"}</strong>
-            <br />
-            {activeCourse ? activeCourse.title : "Немає активних дедлайнів"}
-          </div>
-        </div>
-      </div>
-
-      <div className="std-mid-grid">
-        <div className="std-assignment-card">
-          <div>
-            <span className="std-badge-tag">[ ЗАВДАННЯ ]</span>
-            <h3>{activeCourse ? `Практичне завдання` : "Немає активних завдань"}</h3>
-            <p>
-              {activeCourse
-                ? `Виконайте практичне завдання курсу «${activeCourse.title}» та завантажте результат на перевірку.`
-                : "Оберіть курс у каталозі для початку."}
-            </p>
-          </div>
-          <div className="std-assignment-footer">
-            <span style={{ fontSize: "13px", color: "#8C6D53" }}>
-              Перевірте дедлайни у матеріалах курсу
-            </span>
-            <Link to={activeCourse ? `/student/learning/${activeCourse.id}` : "/student/courses"} className="std-assignment-link">
-              Переглянути деталі <UiIcon name="arrow" />
-            </Link>
-          </div>
-        </div>
-
-        <div className="std-feedback-card">
-          <div>
-            <span className="std-badge-tag">[ МЕНТОР ]</span>
-            <h3 style={{ fontFamily: "var(--font-heading)", fontSize: "20px", fontWeight: 700, margin: "8px 0 0 0" }}>
-              Зворотний зв'язок
-            </h3>
-            {submissions.error && <RequestError message={submissions.error} retry={submissions.reload} />}
-            <p className="std-feedback-quote" style={{ whiteSpace: "pre-wrap" }}>
-              {submissions.loading ? "Завантаження відгуків…" : latestFeedback ? (latestFeedback.status === "NeedsRevision" ? latestFeedback.revisionMessage || latestFeedback.feedback : latestFeedback.feedback || latestFeedback.revisionMessage) : submissions.error ? "Відгуки поки недоступні." : "Коментарів ментора ще немає."}
-            </p>
-            <Link to="/student/submissions">Мої роботи та результати перевірки</Link>
-          </div>
-
-          <div className="std-mentor-meta">
-            <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "rgba(19,73,44,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px" }}>
-              <UiIcon name="teacher" />
-            </div>
-            <div>
-              <div className="std-mentor-name">Ментор</div>
-              <div className="std-mentor-role">NEXYLVA Platform</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="std-bot-grid">
-        <div className="std-activity-card">
-          <span className="std-badge-tag">[ АКТИВНІСТЬ ]</span>
-          <h3>Останні події</h3>
-
-          {activeCourseStats && activeCourseStats.completedLessons > 0 ? (
-            <div className="std-activity-item">
-              <div className="std-activity-icon"><UiIcon name="check" size={18} /></div>
-              <div className="std-activity-info">
-                <div className="std-act-title">Уроків завершено: {activeCourseStats.completedLessons}</div>
-                <div className="std-act-sub">{activeCourse?.title || "Курс"}</div>
-              </div>
-              <span className="std-act-time">активно</span>
-            </div>
-          ) : (
-            <div className="std-activity-item">
-              <div className="std-activity-icon"><UiIcon name="courses" /></div>
-              <div className="std-activity-info">
-                <div className="std-act-title">Почніть навчання</div>
-                <div className="std-act-sub">Виконайте перший урок курсу</div>
-              </div>
-              <span className="std-act-time">зараз</span>
-            </div>
-          )}
-
-          {courses.length > 0 && (
-            <div className="std-activity-item">
-              <div className="std-activity-icon"><UiIcon name="teacher" /></div>
-              <div className="std-activity-info">
-                <div className="std-act-title">Активних курсів: {courses.length}</div>
-                <div className="std-act-sub">Продовжуйте навчання</div>
-              </div>
-              <span className="std-act-time">—</span>
-            </div>
-          )}
-
-          {activeCourseStats && activeCourseStats.completedSubmittableMaterials > 0 && (
-            <div className="std-activity-item">
-              <div className="std-activity-icon"><UiIcon name="assignment" /></div>
-              <div className="std-activity-info">
-                <div className="std-act-title">Здано робіт: {activeCourseStats.completedSubmittableMaterials}</div>
-                <div className="std-act-sub">Виконані завдання</div>
-              </div>
-              <span className="std-act-time">активно</span>
-            </div>
-          )}
-        </div>
-
-        <div className="std-community-invite-card">
-          <div>
-            <span className="std-badge-tag">[ СПІЛЬНОТА ]</span>
-            <h3>Покажіть свій прогрес</h3>
-            <p>
-              Діліться проєктами, отримуйте реакції та дивіться роботи інших студентів.
-            </p>
-          </div>
-          <Link to="/community" className="std-community-btn">
-            <span>Перейти у спільноту</span>
-            <span><UiIcon name="arrow" /></span>
-          </Link>
-        </div>
-
-        <div className="std-art-illustration-col">
-          <img
-            src="/student/tree_circuits.webp"
-            alt="Eco tech tree circuits"
-          />
-        </div>
-      </div>
+        <div className="sfd-cover">{coverUrl ? <CourseCover key={coverUrl} src={coverUrl} /> : <div className="sfd-cover-empty"><UiIcon name="courses" size={40} /><span>{dashboard.loading ? "Завантаження обкладинки…" : "Обкладинка курсу відсутня"}</span></div>}</div>
+      </section>
+      <section className="sfd-overview" aria-labelledby="sfd-overview-title"><header><Tag>ОГЛЯД</Tag><h2 id="sfd-overview-title">Навчання</h2></header>
+        <div className="sfd-metrics">{[
+          [statisticsComplete ? allStats.filter(item => item.progressPercentage < 100).length : undefined, "активні курси"],
+          [statisticsComplete ? allStats.filter(item => item.progressPercentage >= 100).length : undefined, "завершені курси"],
+          [summary?.projects, "проєкти здано"],
+          [undefined, "сертифікати"],
+        ].map(([value, label]) => <div className="sfd-metric" key={label}><strong className="std-stat-num" title={value === undefined ? "Дані поки недоступні" : undefined}>{value ?? "—"}</strong><span>{label}</span></div>)}</div>
+        <div className="sfd-next-deadline"><p>Наступний дедлайн: <strong>{assignments.loading ? "Завантаження…" : deadlinesUnavailable ? "Недоступні" : pending?.deadline ? shortDate(pending.deadline) : "Не заплановано"}</strong></p>{pending ? <Link to={"/student/assignments/" + pending.id}>{pending.title || "Практичне завдання"}</Link> : <p>{deadlinesUnavailable ? "Оновіть дані завдань" : "Доступні завдання перевірено"}</p>}</div>
+      </section>
     </div>
-  );
+    <div className="sfd-middle">
+      <section className="sfd-assignment" aria-labelledby="sfd-assignment-title"><header><Tag>ЗАВДАННЯ</Tag><h2 id="sfd-assignment-title">{pending?.title || (assignments.loading ? "Завантаження завдань…" : !assignments.data || courses === undefined || assignments.data.warnings.length ? "Дані завдань поки недоступні" : "Немає активних завдань")}</h2></header>
+        <h3>{pending?.courseTitle || (activeCourse ? "Завдання курсу" : "Практичні завдання")}</h3>
+        <p className="sfd-assignment-description">{pending?.description || (pending ? pending.moduleTitle + " / " + pending.lessonTitle : !assignments.data || assignments.data.warnings.length ? "Дані поки недоступні. Спробуйте оновити список завдань." : "У ваших курсах зараз немає практичних завдань, які потрібно надіслати.")}</p>
+        <footer>{pending ? <Link to={"/student/assignments/" + pending.id}>Дедлайн: {shortDate(pending.deadline)}</Link> : <Link to="/student/assignments">Усі завдання<UiIcon name="arrow" size={16} /></Link>}{assignmentDate(pending?.createdAt) && <time className="sfd-date" dateTime={pending!.createdAt}>{shortDate(pending!.createdAt)}</time>}{(assignments.error || !!assignments.data?.warnings.length) && <button type="button" onClick={assignments.reload} disabled={assignments.loading}>Оновити дані</button>}</footer>
+      </section>
+      <section className="sfd-feedback" aria-labelledby="sfd-feedback-title"><header><Tag>МЕНТОР</Tag><h2 id="sfd-feedback-title">Останній фідбек</h2></header>
+        <p className="sfd-feedback-copy" role={submissions.loading ? "status" : undefined}>{submissions.loading ? "Завантаження відгуків…" : feedbackText || (submissionsUnavailable ? "Відгуки поки недоступні. Спробуйте оновити дані." : "Коментарів ментора ще немає.")}</p>
+        <div className="sfd-feedback-meta"><span className="sfd-feedback-symbol"><UiIcon name="feedback" size={28} /></span><div>{latestFeedback ? <><Link to={"/student/submissions/" + latestFeedback.id}>{latestFeedback.status === "NeedsRevision" ? "Повернуто на доопрацювання" : latestFeedback.type === "Test" ? "Коментар до тесту" : "Коментар до проєкту"}<UiIcon name="arrow" size={16} /></Link><span>{grade ? "Оцінка: " + grade + " / 12" : "Оцінку ще не виставлено"}</span></> : <Link to="/student/submissions">Мої роботи та результати перевірки<UiIcon name="arrow" size={16} /></Link>}</div>{submissionsUnavailable && <button type="button" onClick={submissions.reload}>Оновити</button>}</div>
+      </section>
+    </div>
+    <div className="sfd-bottom">
+      <section className="sfd-activity" aria-labelledby="sfd-activity-title"><header><Tag>АКТИВНІСТЬ</Tag><h2 id="sfd-activity-title">Останні події</h2></header>
+        {summary?.events.length ? <ul>{summary.events.map(event => <li key={event.id}><span className="sfd-event-icon"><UiIcon name={event.kind === "submitted" ? "assignment" : "feedback"} size={28} /></span><div><Link to={"/student/submissions/" + event.submissionId}>{event.title}</Link><p title={event.description}>{event.description}</p></div><time dateTime={event.date}>{shortDate(event.date)}</time></li>)}</ul> : <p className="sfd-empty">{submissions.loading ? "Завантаження подій…" : eventsUnavailable ? "Дані подій поки недоступні." : "Ви ще не надсилали роботи."}</p>}
+        <p className="sfd-history-note">Події робіт. Історія навчання поки недоступна.</p>
+      </section>
+      <section className="sfd-community"><header><Tag>СПІЛЬНОТА</Tag><h2>Покажіть свій прогрес</h2></header><p>Діліться проєктами, отримуйте реакції та дивіться роботи інших студентів.</p><Link className="sfd-button sfd-button-sand" to="/community"><UiIcon name="users" size={16} /><span>Перейти у спільноту</span><UiIcon name="arrow" size={16} /></Link></section>
+      <div className="sfd-illustration" aria-hidden="true"><img src="/ui/dashboard-tree.png" alt="" width={412} height={315} /></div>
+    </div>
+  </div>;
 }
